@@ -1,0 +1,7 @@
+{
+  "name": "@chessy/server",
+  "packageManager": "yarn@3.0.2",
+  "devDependencies": {
+    "esbuild": "^0.12.28"
+  }
+}

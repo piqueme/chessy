@@ -2,12 +2,12 @@ type PieceType = 'bishop' | 'knight' | 'rook' | 'king' | 'queen' | 'pawn';
 type PieceSide = 'black' | 'white';
 type ShortSide = 'b' | 'w';
 type ShortName = 'B' | 'R'  | 'N' | 'K' | 'Q' | 'P';
-type Piece = {
+export type Piece = {
   name: PieceType;
   side: PieceSide;
 };
 
-type Board = (Piece | null)[][];
+export type Board = (Piece | null)[][];
 
 function toShorthand(piece: Piece): string {
   const shortName = {

@@ -1,3 +1,4 @@
+notes/
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

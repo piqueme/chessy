@@ -4,7 +4,9 @@
   "packageManager": "yarn@3.0.2",
   "main": "build/index.js",
   "types": "build/index.d.ts",
-  "files": ["build"],
+  "files": [
+    "build"
+  ],
   "scripts": {
     "build": "tsc -b --declaration",
     "clean": "rm -rf ./build && rm tsconfig.tsbuildinfo",

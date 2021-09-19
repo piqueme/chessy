@@ -1,7 +1,16 @@
 {
   "name": "@chessy/server",
+  "private": true,
   "packageManager": "yarn@3.0.2",
   "devDependencies": {
     "esbuild": "^0.12.28"
+  },
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": ["build"],
+  "scripts": {
+    "build": "tsc -b --declaration",
+    "clean": "rm -rf ./build && rm tsconfig.tsbuildinfo",
+    "dev": "tsc -b -w --preserveWatchOutput"
   }
 }

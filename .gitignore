@@ -1,4 +1,9 @@
 notes/
+reports/
+
+**/build
+**/*.tsbuildinfo
+
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

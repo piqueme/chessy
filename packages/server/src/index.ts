@@ -25,7 +25,7 @@ function toShorthand(piece: Piece): string {
   return shortSide[piece.side] + shortName[piece.name];
 }
 
-function fromShorthand(shorthand: string): Piece {
+export function fromShorthand(shorthand: string): Piece {
   const shortName = {
     'B': 'bishop',
     'N': 'knight',
@@ -44,7 +44,7 @@ function fromShorthand(shorthand: string): Piece {
   return { name , side }
 };
 
-function createBoard(): Board {
+export function createBoard(): Board {
   const gen = fromShorthand;
   return [
     [gen('bR'), gen('bN'), gen('bB'), gen('bQ'), gen('bK'), gen('bB'), gen('bN'), gen('bR')],
@@ -62,7 +62,7 @@ function printRow(row: (Piece | null)[]): string {
   return '|' + row.map(p => p ? toShorthand(p) : '  ').join('|') + '|'
 }
 
-function printBoard(board: Board): string {
+export function printBoard(board: Board): string {
   if (!board[0]) { return ''; }
   const divider = '-' + '---'.repeat(board[0].length)
   return [
@@ -70,8 +70,6 @@ function printBoard(board: Board): string {
     '\n',
     board.map(printRow).join('\n' + divider + '\n'),
     '\n',
-    divider
+    divider,
   ].join('');
 }
-
-console.log(printBoard(createBoard()))

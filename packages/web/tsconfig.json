@@ -1,6 +1,10 @@
 {
   "extends": "../../tsconfig.json",
-  "exclude": ["node_modules", "build"],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build",
+    "lib": ["DOM", "ES6"]
+  },
   "references": [
     { "path": "../server" }
   ]

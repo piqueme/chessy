@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "yarn@3.0.2",
   "devDependencies": {
+    "@types/jest": "^27.0.2",
     "@types/node": "^16.9.2",
     "esbuild": "^0.12.28"
   },
@@ -12,8 +13,9 @@
     "build"
   ],
   "scripts": {
-    "build": "tsc -b --declaration",
+    "build": "yarn g:tsc",
     "clean": "rm -rf ./build && rm tsconfig.tsbuildinfo",
-    "dev": "tsc -b -w --preserveWatchOutput"
+    "dev": "yarn g:tsc -b -w --preserveWatchOutput",
+    "test": "yarn g:test --selectProjects @chessy/server"
   }
 }

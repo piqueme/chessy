@@ -24,6 +24,7 @@
     "g:tsc": "cd $INIT_CWD && tsc",
     "g:ex": "cd $INIT_CWD && ts-node",
     "g:repl": "ts-node",
-    "g:test": "jest"
+    "g:test": "jest",
+    "g:lint": "eslint ./packages --ext .ts,.tsx"
   }
 }

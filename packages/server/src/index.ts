@@ -42,7 +42,7 @@ export function fromShorthand(shorthand: string): Piece {
   const name = shortName[shorthand[1] as ShortName] as PieceType
   if (!side || !name) { throw new Error('bad notation!'); }
   return { name , side }
-};
+}
 
 export function createBoard(): Board {
   const gen = fromShorthand;

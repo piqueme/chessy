@@ -5,7 +5,5 @@
     "outDir": "build",
     "lib": ["DOM", "ES6"]
   },
-  "references": [
-    { "path": "../server" }
-  ]
+  "references": []
 }

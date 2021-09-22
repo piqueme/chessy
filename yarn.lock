@@ -1307,6 +1307,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chessy/server@workspace:packages/server"
   dependencies:
+    "@chessy/web": "workspace:packages/web"
     "@types/jest": ^27.0.2
     "@types/node": ^16.9.2
     esbuild: ^0.12.28
@@ -1316,8 +1317,6 @@ __metadata:
 "@chessy/web@workspace:packages/web":
   version: 0.0.0-use.local
   resolution: "@chessy/web@workspace:packages/web"
-  dependencies:
-    "@chessy/server": "workspace:packages/server"
   languageName: unknown
   linkType: soft
 

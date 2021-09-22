@@ -12,8 +12,5 @@
     "clean": "rm -rf ./build && rm tsconfig.tsbuildinfo",
     "dev": "yarn g:tsc -b -w --preserveWatchOutput",
     "test": "yarn g:test --selectProjects @chessy/web"
-  },
-  "dependencies": {
-    "@chessy/server": "workspace:packages/server"
   }
 }

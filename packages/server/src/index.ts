@@ -1,3 +1,5 @@
+import { x } from '@chessy/web'
+
 type PieceType = 'bishop' | 'knight' | 'rook' | 'king' | 'queen' | 'pawn';
 type PieceSide = 'black' | 'white';
 type ShortSide = 'b' | 'w';
@@ -40,7 +42,7 @@ export function fromShorthand(shorthand: string): Piece {
   };
   const side = shortSide[shorthand[0] as ShortSide] as PieceSide
   const name = shortName[shorthand[1] as ShortName] as PieceType
-  if (!side || !name) { throw new Error('bad notation!'); }
+  if (!side || !name || !x) { throw new Error('bad notation!' ); }
   return { name , side }
 }
 

@@ -66,6 +66,7 @@ export function printBoard(board: Board): string {
   if (!board[0]) { return ''; }
   const divider = '-' + '---'.repeat(board[0].length)
   return [
+    divider,
     '\n',
     board.map(printRow).join('\n' + divider + '\n'),
     '\n',

@@ -1,0 +1,14 @@
+name: Unit Tests
+on: [push]
+jobs:
+  Unit-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: yarn
+      - run: yarn test

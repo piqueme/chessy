@@ -25,6 +25,7 @@
     "g:ex": "cd $INIT_CWD && ts-node",
     "g:repl": "ts-node",
     "g:test": "jest",
-    "g:lint": "eslint ./packages --ext .ts,.tsx"
+    "g:lint": "eslint ./packages --ext .ts,.tsx",
+    "g:viewCoverage": "xdg-open reports/lcov-report/index.html"
   }
 }

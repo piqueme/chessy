@@ -16,7 +16,7 @@ function toShorthand(piece: Piece): string {
     'rook': 'R',
     'king': 'K',
     'queen': 'Q',
-    'pawn': 'X'
+    'pawn': 'P'
   };
   const shortSide = {
     'white': 'w',

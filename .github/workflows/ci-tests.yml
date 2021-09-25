@@ -1,7 +1,7 @@
-name: Unit Tests
+name: Unit Tests and Lint
 on: [push]
 jobs:
-  Unit-Tests:
+  Unit-Tests-And-Lint:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -11,4 +11,5 @@ jobs:
         with:
           node-version: '14'
       - run: yarn
+      - run: yarn g:lint
       - run: yarn g:test

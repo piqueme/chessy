@@ -1,5 +1,5 @@
 type PieceType = 'bishop' | 'rook' | 'knight' | 'king' | 'queen' | 'pawn'
-type PieceSide = 'white' | 'black'
+export type PieceSide = 'white' | 'black'
 export type Piece = {
   type: PieceType;
   side: PieceSide;
@@ -43,6 +43,10 @@ const sideSerializationMap: Map<PieceSide, string> = new Map([
 ])
 
 const reverseSideMap = reverseMap(sideSerializationMap)
+
+export function opposite(side: PieceSide): PieceSide {
+  return (side === 'black') ? 'white' : 'black'
+}
 
 export function serializePiece(piece: Piece): string {
   const pieceTypeShort = pieceTypeSerializationMap.get(piece.type)
@@ -120,12 +124,20 @@ export function serializeBoard(board: Board): string {
   ].join('\n')
 }
 
-function inBoard(square: Square, board: Board): boolean {
+export function inBoard(square: Square, board: Board): boolean {
   if (!board[0]) { return false }
   return (
     square[0] >= 0 && square[0] < board.length &&
     square[1] >= 0 && square[1] < board[0].length
   )
+}
+
+export function atSquare(square: Square, board: Board): Piece | null {
+  if (!inBoard(square, board)) { throw new Error('Square is not in board!') }
+  // at this point we can make Type assertions since we know the square exists
+  const row = board[square[0]] as (Piece | null)[]
+  const pieceAtSquare = row[square[1]] as Piece | null
+  return pieceAtSquare
 }
 
 function isBoardValid(board: Board): boolean {
@@ -142,4 +154,8 @@ export function serializeSquare(square: Square, board: Board): string {
   const colString = String.fromCharCode('a'.charCodeAt(0) + square[1])
   const rowString = numRows - square[0]
   return `${colString}${rowString}`
+}
+
+export function shift(square: Square, change: [number, number]): Square {
+  return [square[0] + change[0], square[1] + change[1]]
 }

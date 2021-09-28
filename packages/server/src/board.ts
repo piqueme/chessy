@@ -124,6 +124,28 @@ export function serializeBoard(board: Board): string {
   ].join('\n')
 }
 
+export function createStandardBoard(): Board {
+  return readBoard([
+    '-------------------------',
+    '|bR|bN|bB|bQ|bK|bB|bN|bR|',
+    '-------------------------',
+    '|bP|bP|bP|bP|bP|bP|bP|bP|',
+    '-------------------------',
+    '|  |  |  |  |  |  |  |  |',
+    '-------------------------',
+    '|  |  |  |  |  |  |  |  |',
+    '-------------------------',
+    '|  |  |  |  |  |  |  |  |',
+    '-------------------------',
+    '|  |  |  |  |  |  |  |  |',
+    '-------------------------',
+    '|wP|wP|wP|wP|wP|wP|wP|wP|',
+    '-------------------------',
+    '|wR|wN|wB|wQ|wK|wB|wN|wR|',
+    '-------------------------',
+  ].join('\n'))
+}
+
 export function inBoard(square: Square, board: Board): boolean {
   if (!board[0]) { return false }
   return (

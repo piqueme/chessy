@@ -2,7 +2,7 @@ import type { Board, Square, PieceSide } from './board'
 import { opposite, shift, inBoard, atSquare } from './board'
 
 type Direction = [number, number] 
-type Move = { from: Square, to: Square }
+export type Move = { from: Square, to: Square }
 
 
 function traverseUntilBlock(board: Board, from: Square, dirs: Direction[]): Square[] {
@@ -46,8 +46,8 @@ function getPawnMoves(board: Board, from: Square) {
   if (!piece || !(piece.type === null)) { throw new Error('Not a pawn being moved!'); }
   const moves: Move[] = []
 
-  const moveDirection: Direction = piece.side === 'black' ? [0, 1] : [0, -1]
-  const takeDirections: Direction[] = piece.side === 'black' ? [[-1, 1], [1, 1]] : [[-1, -1], [1, -1]]
+  const moveDirection: Direction = piece.side === 'black' ? [1, 0] : [-1, 0]
+  const takeDirections: Direction[] = piece.side === 'black' ? [[1, -1], [1, 1]] : [[-1, -1], [-1, 1]]
 
   const moveSquare = shift(from, moveDirection)
   if (inBoard(moveSquare, board) && !atSquare(moveSquare, board)) {
@@ -89,7 +89,7 @@ function getKingMoves(board: Board, from: Square): Move[] {
   return moves
 }
 
-function getPotentialMoves(board: Board, from: Square): Move[] {
+export function getPotentialMoves(board: Board, from: Square): Move[] {
   const piece = atSquare(from, board)
   if (!piece) { throw new Error(`No piece at square: ${from} to get moves for!`) }
   switch(piece.type) {

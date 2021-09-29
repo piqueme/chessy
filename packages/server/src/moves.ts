@@ -1,5 +1,5 @@
 import type { Board, Square, PieceSide } from './board'
-import { opposite, shift, inBoard, atSquare } from './board'
+import { serializeBoard, opposite, shift, inBoard, findPieces, atSquare } from './board'
 
 type Direction = [number, number] 
 export type Move = { from: Square, to: Square }
@@ -43,7 +43,7 @@ function getKnightMoves(board: Board, from: Square) {
 
 function getPawnMoves(board: Board, from: Square) {
   const piece = atSquare(from, board)
-  if (!piece || !(piece.type === null)) { throw new Error('Not a pawn being moved!'); }
+  if (!piece || !(piece.type === 'pawn')) { throw new Error('Not a pawn being moved!'); }
   const moves: Move[] = []
 
   const moveDirection: Direction = piece.side === 'black' ? [1, 0] : [-1, 0]
@@ -71,7 +71,7 @@ function getQueenMoves(board: Board, from: Square): Move[] {
 
 function getKingMoves(board: Board, from: Square): Move[] {
   const piece = atSquare(from, board)
-  if (!piece || !(piece.type !== 'king')) { throw new Error('Not a king being moved!'); }
+  if (!piece || !(piece.type === 'king')) { throw new Error('Not a king being moved!'); }
 
   const allDirs : Direction[] = [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [0, 1], [0, -1], [1, 0]]
   const moves: Move[] = []
@@ -79,9 +79,10 @@ function getKingMoves(board: Board, from: Square): Move[] {
   for (const dir of allDirs) {
     const moveSquare = shift(from, dir)
     const squareInBoard = inBoard(moveSquare, board)
+    if (!squareInBoard) { continue }
     const squareEmpty = !(atSquare(moveSquare, board))
     const squareEnemy = atSquare(moveSquare, board)?.side === opposite(piece.side)
-    if (squareInBoard && (squareEmpty || squareEnemy)) {
+    if (squareEmpty || squareEnemy) {
       moves.push({ from, to: moveSquare })
     }
   }
@@ -108,15 +109,44 @@ export function getPotentialMoves(board: Board, from: Square): Move[] {
   }
 }
 
-function getValidMoves(board: Board, from: Square) {
-  // get potential moves
-  // for each of those moves - try it, are you in check?
+export function getValidMoves(board: Board, from: Square): Move[] {
+  const piece = atSquare(from, board)
+  if (!piece) { return [] }
+  const potentialMoves = getPotentialMoves(board, from)
+  const validMoves: Move[] = []
+  potentialMoves.forEach(move => {
+    const maybeCapturedPiece = atSquare(move.to, board)
+    const moveRow = board[move.to[0]]
+    const fromRow = board[move.from[0]]
+    if (!moveRow || !fromRow) {
+      throw new Error('Bad board structure!')
+    }
+    moveRow[move.to[1]] = piece
+    fromRow[move.from[1]] = null
+    if (!isCheck(board, piece.side)) {
+      validMoves.push(move)
+    }
+    fromRow[move.from[1]] = piece
+    moveRow[move.to[1]] = maybeCapturedPiece
+  })
+  return validMoves
 }
 
-function isCheck(board: Board, side: PieceSide) {
-  // get opposite side
-  // get all potential moves
-  // does any intersect the king?
+function getAllPotentialMoves(board: Board, side: PieceSide): Move[] {
+  const squares = findPieces({ side }, board)
+  return squares.map(
+    square => getPotentialMoves(board, square)
+  ).flat()
+}
+
+export function isCheck(board: Board, side: PieceSide, { allEnemyMoves }: { allEnemyMoves?: Move[] } = {}): boolean {
+  const ownKingSquare = findPieces({ type: 'king', side: side }, board)
+  if (ownKingSquare.length !== 1) { 
+    throw new Error('Did not find exactly 1 king on own side!') 
+  }
+  const enemySide = opposite(side)
+  const enemyMoves = allEnemyMoves || getAllPotentialMoves(board, enemySide)
+  return enemyMoves.some(move => move.to[0] === ownKingSquare[0]?.[0] && move.to[1] === ownKingSquare[0]?.[1])
 }
 
 function move(board: Board, from: Square, to: Square) {

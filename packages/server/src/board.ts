@@ -124,6 +124,24 @@ export function serializeBoard(board: Board): string {
   ].join('\n')
 }
 
+export function findPieces({ type, side }: {
+  type?: PieceType,
+  side?: PieceSide
+}, board: Board): Square[] {
+  const allSquares = getAllSquares(board)
+  return allSquares.filter(square => {
+    const piece = atSquare(square, board)
+    if (!piece) { return false; }
+    if (type && !(piece?.type === type)) {
+      return false
+    }
+    if (side && !(piece?.side === side)) {
+      return false
+    }
+    return true
+  });
+}
+
 export function createStandardBoard(): Board {
   return readBoard([
     '-------------------------',
@@ -166,6 +184,17 @@ function isBoardValid(board: Board): boolean {
   const colsPerRow = board.map(row => row.length)
   const uniqueColsPerRow = new Set(colsPerRow).size
   return (uniqueColsPerRow == 1 && !!board[0] && board[0].length > 0)
+}
+
+export function getAllSquares(board: Board): Square[] {
+  if (!board[0]) { return []; }
+  const squares: Square[] = []
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      squares.push([i, j])
+    }
+  }
+  return squares
 }
 
 export function serializeSquare(square: Square, board: Board): string {

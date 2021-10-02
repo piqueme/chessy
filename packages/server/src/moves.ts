@@ -1,7 +1,7 @@
 import type { Board, Square, PieceSide } from './board'
-import { serializeBoard, opposite, shift, inBoard, findPieces, atSquare } from './board'
+import { opposite, shift, inBoard, findPieces, atSquare } from './board'
 
-type Direction = [number, number] 
+type Direction = [number, number]
 export type Move = { from: Square, to: Square }
 
 
@@ -139,19 +139,35 @@ function getAllPotentialMoves(board: Board, side: PieceSide): Move[] {
   ).flat()
 }
 
-export function isCheck(board: Board, side: PieceSide, { allEnemyMoves }: { allEnemyMoves?: Move[] } = {}): boolean {
+export function isCheck(board: Board, side: PieceSide): boolean {
   const ownKingSquare = findPieces({ type: 'king', side: side }, board)
-  if (ownKingSquare.length !== 1) { 
-    throw new Error('Did not find exactly 1 king on own side!') 
+  if (ownKingSquare.length !== 1) {
+    throw new Error('Did not find exactly 1 king on own side!')
   }
   const enemySide = opposite(side)
-  const enemyMoves = allEnemyMoves || getAllPotentialMoves(board, enemySide)
+  const enemyMoves = getAllPotentialMoves(board, enemySide)
   return enemyMoves.some(move => move.to[0] === ownKingSquare[0]?.[0] && move.to[1] === ownKingSquare[0]?.[1])
 }
 
-function move(board: Board, from: Square, to: Square) {
-  // get valid moves for piece
-  // take the opponent piece if it exists
-  // are you in check? -> not legal
+export function move(board: Board, side: PieceSide, from: Square, to: Square): Move {
+  const validMoves = getValidMoves(board, from)
+  const piece = atSquare(from, board)
+  if (!piece || piece.side !== side || !validMoves.some(v => v.to === to)) {
+    throw new Error(`Move ${from}:${to} is not valid.`)
+  }
+  const toRow = board[to[0]]
+  const fromRow = board[from[0]]
+  if (!toRow || !fromRow) {
+    throw new Error('Target square does not exist.')
+  }
+  const maybeCapturedPiece = atSquare(to, board)
+  toRow[to[1]] = piece
+  const inCheck = isCheck(board, side)
+  if (inCheck) {
+    fromRow[from[1]] = piece
+    toRow[to[1]] = maybeCapturedPiece
+    throw new Error('Move would put you in check!')
+  }
+  return { from, to }
 }
 

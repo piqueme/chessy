@@ -35,18 +35,6 @@ describe('getPotentialMoves', () => {
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
   });
 
-  test('finds all bishop moves in presence of empty, blocked, and takeable squares', () => {
-
-  });
-
-  test('finds all queen moves in presence of empty, blocked, and takeable squares', () => {
-
-  });
-
-  test('finds all rook moves in presence of empty, blocked, and takeable squares', () => {
-
-  });
-
   test('finds black pawn moves in presence of empty, blocked, and takeable squares', () => {
     const testBoard = readBoard([
       '----------------',

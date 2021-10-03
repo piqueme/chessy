@@ -1,5 +1,5 @@
-import type { Board, Square, PieceSide } from './board'
-import { opposite, shift, inBoard, findPieces, atSquare } from './board'
+import type { Board, Square, Side } from './board'
+import { getEnemySide, shift, inBoard, findPieces, atSquare } from './board'
 
 type Direction = [number, number]
 export type Move = { from: Square, to: Square }
@@ -16,7 +16,7 @@ function traverseUntilBlock(board: Board, from: Square, dirs: Direction[]): Squa
       traversal.push(current)
       current = shift(current, dir)
     }
-    if (inBoard(current, board) && atSquare(current, board)?.side === opposite(piece.side)) {
+    if (inBoard(current, board) && atSquare(current, board)?.side === getEnemySide(piece.side)) {
       traversal.push(current)
     }
   }
@@ -55,7 +55,7 @@ function getPawnMoves(board: Board, from: Square) {
   }
   for (const dir of takeDirections) {
     const takeSquare = shift(from, dir)
-    if (inBoard(takeSquare, board) && atSquare(takeSquare, board)?.side === opposite(piece.side)) {
+    if (inBoard(takeSquare, board) && atSquare(takeSquare, board)?.side === getEnemySide(piece.side)) {
       moves.push({ from, to: takeSquare })
     }
   }
@@ -81,7 +81,7 @@ function getKingMoves(board: Board, from: Square): Move[] {
     const squareInBoard = inBoard(moveSquare, board)
     if (!squareInBoard) { continue }
     const squareEmpty = !(atSquare(moveSquare, board))
-    const squareEnemy = atSquare(moveSquare, board)?.side === opposite(piece.side)
+    const squareEnemy = atSquare(moveSquare, board)?.side === getEnemySide(piece.side)
     if (squareEmpty || squareEnemy) {
       moves.push({ from, to: moveSquare })
     }
@@ -132,24 +132,24 @@ export function getValidMoves(board: Board, from: Square): Move[] {
   return validMoves
 }
 
-function getAllPotentialMoves(board: Board, side: PieceSide): Move[] {
+function getAllPotentialMoves(board: Board, side: Side): Move[] {
   const squares = findPieces({ side }, board)
   return squares.map(
     square => getPotentialMoves(board, square)
   ).flat()
 }
 
-export function isCheck(board: Board, side: PieceSide): boolean {
+export function isCheck(board: Board, side: Side): boolean {
   const ownKingSquare = findPieces({ type: 'king', side: side }, board)
   if (ownKingSquare.length !== 1) {
     throw new Error('Did not find exactly 1 king on own side!')
   }
-  const enemySide = opposite(side)
+  const enemySide = getEnemySide(side)
   const enemyMoves = getAllPotentialMoves(board, enemySide)
   return enemyMoves.some(move => move.to[0] === ownKingSquare[0]?.[0] && move.to[1] === ownKingSquare[0]?.[1])
 }
 
-export function move(board: Board, side: PieceSide, from: Square, to: Square): Move {
+export function move(board: Board, side: Side, from: Square, to: Square): Move {
   const validMoves = getValidMoves(board, from)
   const piece = atSquare(from, board)
   if (!piece || piece.side !== side || !validMoves.some(v => v.to === to)) {

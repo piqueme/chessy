@@ -5,7 +5,7 @@ import { getValidMoves, getPotentialMoves, isCheck } from '../moves'
 
 // helps compare sets of moves
 const moveSorter = (move1: Move, move2: Move) => {
-  if (move2.to[0] === move1.to[0]) { 
+  if (move2.to[0] === move1.to[0]) {
     return move1.to[1] - move2.to[1]
   }
   if (move2.to[0] < move1.to[0]) { return 1 }
@@ -29,7 +29,7 @@ describe('getPotentialMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [2, 1]
-    const moves = getPotentialMoves(testBoard, fromSquare)
+    const moves = getPotentialMoves(fromSquare, testBoard)
     const targets: Square[] = [[0, 0], [0, 2], [1, 3], [3, 3], [4, 0]]
     const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
@@ -51,7 +51,7 @@ describe('getPotentialMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [2, 1]
-    const moves = getPotentialMoves(testBoard, fromSquare)
+    const moves = getPotentialMoves(fromSquare, testBoard)
     const targets: Square[] = [[3, 1], [3, 2]]
     const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
@@ -73,7 +73,7 @@ describe('getPotentialMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [2, 1]
-    const moves = getPotentialMoves(testBoard, fromSquare)
+    const moves = getPotentialMoves(fromSquare, testBoard)
     const targets: Square[] = [[1, 0], [1, 1], [1, 2], [2, 2], [3, 0], [3, 1], [3, 2]]
     const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
@@ -95,7 +95,7 @@ describe('isCheck', () => {
       '|  |  |  |  |  |',
       '----------------',
     ].join('\n'))
-    expect(isCheck(testBoard, 'black')).toEqual(false)
+    expect(isCheck('black', testBoard)).toEqual(false)
   })
 
   test('isCheck validates that there is a check', () => {
@@ -112,7 +112,7 @@ describe('isCheck', () => {
       '|  |  |  |  |  |',
       '----------------',
     ].join('\n'))
-    expect(isCheck(testBoard, 'black')).toEqual(true)
+    expect(isCheck('black', testBoard)).toEqual(true)
   })
   // check cases
   //  own piece could put you in check but no other piece
@@ -138,7 +138,7 @@ describe('getValidMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [2, 1]
-    const moves = getValidMoves(testBoard, fromSquare)
+    const moves = getValidMoves(fromSquare, testBoard)
     const targets: Square[] = [[0, 0], [0, 2], [1, 3], [3, 3], [4, 0]]
     const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
@@ -160,7 +160,7 @@ describe('getValidMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [2, 1]
-    const moves = getValidMoves(testBoard, fromSquare)
+    const moves = getValidMoves(fromSquare, testBoard)
     const targets: Square[] = [[3, 3]]
     const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
@@ -182,7 +182,7 @@ describe('getValidMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [3, 3]
-    const moves = getValidMoves(testBoard, fromSquare)
+    const moves = getValidMoves(fromSquare, testBoard)
     expect(moves.sort(moveSorter)).toEqual([])
   });
 
@@ -202,7 +202,7 @@ describe('getValidMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [4, 3]
-    const moves = getValidMoves(testBoard, fromSquare)
+    const moves = getValidMoves(fromSquare, testBoard)
     const targets: Square[] = [[3, 2], [4, 2], [3, 4], [4, 4]]
     const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))

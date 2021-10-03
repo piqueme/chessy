@@ -5,7 +5,7 @@ type Direction = [number, number]
 export type Move = { from: Square, to: Square }
 
 
-function traverseUntilBlock(board: Board, from: Square, dirs: Direction[]): Square[] {
+function traverseUntilBlock(from: Square, dirs: Direction[], board: Board): Square[] {
   const piece = atSquare(from, board)
   if (!piece) { throw new Error('Cannot traverse without a piece!') }
 
@@ -23,25 +23,25 @@ function traverseUntilBlock(board: Board, from: Square, dirs: Direction[]): Squa
   return traversal
 }
 
-function getBishopMoves(board: Board, from: Square): Move[] {
+function getBishopMoves(from: Square, board: Board): Move[] {
   const diagonalDirs : Direction[] = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
-  const traversal: Square[] = traverseUntilBlock(board, from, diagonalDirs)
+  const traversal: Square[] = traverseUntilBlock(from, diagonalDirs, board)
   return traversal.map(target => ({ from, to: target }))
 }
 
-function getRookMoves(board: Board, from: Square): Move[] {
+function getRookMoves(from: Square, board: Board): Move[] {
   const rowColDirs: Direction[] = [[-1, 0], [0, 1], [0, -1], [1, 0]]
-  const traversal = traverseUntilBlock(board, from, rowColDirs)
+  const traversal = traverseUntilBlock(from, rowColDirs, board)
   return traversal.map(target => ({ from, to: target }))
 }
 
-function getKnightMoves(board: Board, from: Square) {
+function getKnightMoves(from: Square, board: Board) {
   const jumpDirs: Direction[] = [[-1, 2], [-1, -2], [1, -2], [1, 2], [-2, -1], [-2, 1], [2, 1], [2, -1]]
-  const traversal = traverseUntilBlock(board, from, jumpDirs)
+  const traversal = traverseUntilBlock(from, jumpDirs, board)
   return traversal.map(target => ({ from, to: target }))
 }
 
-function getPawnMoves(board: Board, from: Square) {
+function getPawnMoves(from: Square, board: Board) {
   const piece = atSquare(from, board)
   if (!piece || !(piece.type === 'pawn')) { throw new Error('Not a pawn being moved!'); }
   const moves: Move[] = []
@@ -63,13 +63,13 @@ function getPawnMoves(board: Board, from: Square) {
   return moves
 }
 
-function getQueenMoves(board: Board, from: Square): Move[] {
+function getQueenMoves(from: Square, board: Board): Move[] {
   const allDirs : Direction[] = [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [0, 1], [0, -1], [1, 0]]
-  const traversal: Square[] = traverseUntilBlock(board, from, allDirs)
+  const traversal: Square[] = traverseUntilBlock(from, allDirs, board)
   return traversal.map(target => ({ from, to: target }))
 }
 
-function getKingMoves(board: Board, from: Square): Move[] {
+function getKingMoves(from: Square, board: Board): Move[] {
   const piece = atSquare(from, board)
   if (!piece || !(piece.type === 'king')) { throw new Error('Not a king being moved!'); }
 
@@ -90,29 +90,29 @@ function getKingMoves(board: Board, from: Square): Move[] {
   return moves
 }
 
-export function getPotentialMoves(board: Board, from: Square): Move[] {
+export function getPotentialMoves(from: Square, board: Board): Move[] {
   const piece = atSquare(from, board)
   if (!piece) { throw new Error(`No piece at square: ${from} to get moves for!`) }
   switch(piece.type) {
     case 'pawn':
-      return getPawnMoves(board, from)
+      return getPawnMoves(from, board)
     case 'bishop':
-      return getBishopMoves(board, from)
+      return getBishopMoves(from, board)
     case 'rook':
-      return getRookMoves(board, from)
+      return getRookMoves(from, board)
     case 'knight':
-      return getKnightMoves(board, from)
+      return getKnightMoves(from, board)
     case 'queen':
-      return getQueenMoves(board, from)
+      return getQueenMoves(from, board)
     case 'king':
-      return getKingMoves(board, from)
+      return getKingMoves(from, board)
   }
 }
 
-export function getValidMoves(board: Board, from: Square): Move[] {
+export function getValidMoves(from: Square, board: Board): Move[] {
   const piece = atSquare(from, board)
   if (!piece) { return [] }
-  const potentialMoves = getPotentialMoves(board, from)
+  const potentialMoves = getPotentialMoves(from, board)
   const validMoves: Move[] = []
   potentialMoves.forEach(move => {
     const maybeCapturedPiece = atSquare(move.to, board)
@@ -123,7 +123,7 @@ export function getValidMoves(board: Board, from: Square): Move[] {
     }
     moveRow[move.to[1]] = piece
     fromRow[move.from[1]] = null
-    if (!isCheck(board, piece.side)) {
+    if (!isCheck(piece.side, board)) {
       validMoves.push(move)
     }
     fromRow[move.from[1]] = piece
@@ -132,25 +132,25 @@ export function getValidMoves(board: Board, from: Square): Move[] {
   return validMoves
 }
 
-function getAllPotentialMoves(board: Board, side: Side): Move[] {
+function getAllPotentialMoves(side: Side, board: Board): Move[] {
   const squares = findPieces({ side }, board)
   return squares.map(
-    square => getPotentialMoves(board, square)
+    square => getPotentialMoves(square, board)
   ).flat()
 }
 
-export function isCheck(board: Board, side: Side): boolean {
+export function isCheck(side: Side, board: Board): boolean {
   const ownKingSquare = findPieces({ type: 'king', side: side }, board)
   if (ownKingSquare.length !== 1) {
     throw new Error('Did not find exactly 1 king on own side!')
   }
   const enemySide = getEnemySide(side)
-  const enemyMoves = getAllPotentialMoves(board, enemySide)
+  const enemyMoves = getAllPotentialMoves(enemySide, board)
   return enemyMoves.some(move => move.to[0] === ownKingSquare[0]?.[0] && move.to[1] === ownKingSquare[0]?.[1])
 }
 
 export function move(board: Board, side: Side, from: Square, to: Square): Move {
-  const validMoves = getValidMoves(board, from)
+  const validMoves = getValidMoves(from, board)
   const piece = atSquare(from, board)
   if (!piece || piece.side !== side || !validMoves.some(v => v.to === to)) {
     throw new Error(`Move ${from}:${to} is not valid.`)
@@ -162,7 +162,7 @@ export function move(board: Board, side: Side, from: Square, to: Square): Move {
   }
   const maybeCapturedPiece = atSquare(to, board)
   toRow[to[1]] = piece
-  const inCheck = isCheck(board, side)
+  const inCheck = isCheck(side, board)
   if (inCheck) {
     fromRow[from[1]] = piece
     toRow[to[1]] = maybeCapturedPiece

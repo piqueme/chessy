@@ -4,14 +4,15 @@ import {
   reverseMap
 } from './utils'
 
-type PieceType = 'bishop' | 'rook' | 'knight' | 'king' | 'queen' | 'pawn'
+export type PieceType = 'bishop' | 'rook' | 'knight' | 'king' | 'queen' | 'pawn'
 export type Side = 'white' | 'black'
 export type Piece = {
   type: PieceType;
   side: Side;
 }
 
-export type Board = (Piece | null)[][]
+type Row = [(Piece | null), ...(Piece | null)[]]
+export type Board = [Row, ...Row[]]
 export type Square = [number, number]
 
 const pieceTypeSerializationMap: Map<PieceType, string> = new Map([
@@ -55,6 +56,31 @@ export function readPiece(pieceString: string): Piece {
     throw new Error(`Failed to parse piece from shortform string: ${pieceString}`)
   }
   return { type: typeData, side: sideData }
+}
+
+export function isBoardValid(board: (Piece | null)[][]): board is Board {
+  const colsPerRow = board.map(row => row.length)
+  const uniqueColsPerRow = new Set(colsPerRow).size
+  return (uniqueColsPerRow == 1 && !!board[0] && board[0].length > 0)
+}
+
+export function serializeBoard(board: Board): string {
+  const serializeRow = (row: Row): string => {
+    return [
+      '|',
+      row.map(piece => piece ? serializePiece(piece) : '  ').join('|'),
+      '|'
+    ].join('')
+  }
+
+  const numCols = board[0].length;
+  const rowDivider = '-'.repeat(3 * numCols + 1)
+  const serializedRows = board.map(serializeRow)
+  return [
+    rowDivider,
+    serializedRows.join('\n' + rowDivider + '\n'),
+    rowDivider,
+  ].join('\n')
 }
 
 export function readBoard(serializedBoard: string): Board {
@@ -112,34 +138,31 @@ export function createStandardBoard(): Board {
   ].join('\n'))
 }
 
-export function serializeBoard(board: Board): string {
-  const serializeRow = (row: (Piece | null)[]): string => {
-    return [
-      '|',
-      row.map(piece => piece ? serializePiece(piece) : '  ').join('|'),
-      '|'
-    ].join('')
-  }
-
-  if (!board[0]) { return '' }
-  const numCols = board[0].length;
-  const rowDivider = '-'.repeat(3 * numCols + 1)
-  const serializedRows = board.map(serializeRow)
-  return [
-    rowDivider,
-    serializedRows.join('\n' + rowDivider + '\n'),
-    rowDivider,
-  ].join('\n')
+export function inBoard(square: Square, board: Board): boolean {
+  return (
+    square[0] >= 0 && square[0] < board.length &&
+    square[1] >= 0 && square[1] < board[0].length
+  )
 }
 
 export function atSquare(square: Square, board: Board): Piece | null {
-  if (!inBoard(square, board)) { 
-    throw new Error(`Square ${square} is not in board!`) 
+  if (!inBoard(square, board)) {
+    throw new Error(`Square ${square} is not in board!`)
   }
   // at this point we can make Type assertions since we know the square exists
   const row = board[square[0]] as (Piece | null)[]
   const pieceAtSquare = row[square[1]] as Piece | null
   return pieceAtSquare
+}
+
+export function getAllSquares(board: Board): Square[] {
+  const squares: Square[] = []
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      squares.push([i, j])
+    }
+  }
+  return squares
 }
 
 export function findPieces({ type, side }: {
@@ -160,33 +183,7 @@ export function findPieces({ type, side }: {
   });
 }
 
-export function inBoard(square: Square, board: Board): boolean {
-  if (!board[0]) { return false }
-  return (
-    square[0] >= 0 && square[0] < board.length &&
-    square[1] >= 0 && square[1] < board[0].length
-  )
-}
-
-function isBoardValid(board: Board): boolean {
-  const colsPerRow = board.map(row => row.length)
-  const uniqueColsPerRow = new Set(colsPerRow).size
-  return (uniqueColsPerRow == 1 && !!board[0] && board[0].length > 0)
-}
-
-export function getAllSquares(board: Board): Square[] {
-  if (!board[0]) { return []; }
-  const squares: Square[] = []
-  for (let i = 0; i < board.length; i++) {
-    for (let j = 0; j < board[0].length; j++) {
-      squares.push([i, j])
-    }
-  }
-  return squares
-}
-
 export function serializeSquare(square: Square, board: Board): string {
-  if (!isBoardValid(board)) { throw new Error('Invalid board.') }
   if (!inBoard(square, board)) { throw new Error(`Square ${square} is not in board.`) }
 
   const numRows = board.length

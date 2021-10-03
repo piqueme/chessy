@@ -1,18 +1,23 @@
 import {
   serializePiece,
   readPiece,
+  isBoardValid,
   readBoard,
   createStandardBoard,
   serializeBoard,
-  serializeSquare
+  atSquare,
+  getAllSquares,
+  findPieces,
+  serializeSquare,
+  shift
 } from '../board'
-import type { Square, Piece } from '../board'
+import type { Side, Square, PieceType, Piece, Board } from '../board'
 
 
 const blackBishop: Piece = { type: 'bishop', side: 'black' }
 const whitePawn: Piece = { type: 'pawn', side: 'white' }
 const cp = (p: Piece): Piece => ({ ...p })
-const testBoard = [
+const testBoard: Board = [
   [cp(blackBishop), cp(whitePawn), null, null],
   [null, null, null, null],
   [null, null, null, null],
@@ -64,11 +69,35 @@ describe('readPiece', () => {
   });
 })
 
-describe('serializeBoard', () => {
-  test('returns an empty string when board has no rows', () => {
-    expect(serializeBoard([])).toEqual('')
-  });
+describe('isBoardValid', () => {
+  test('returns false when input is empty array', () => {
+    expect(isBoardValid([])).toEqual(false)
+  })
 
+  test('returns false when single row is empty', () => {
+    expect(isBoardValid([[]])).toEqual(false)
+  })
+
+  test('returns true for board with single row and column', () => {
+    expect(isBoardValid([[cp(whitePawn)]])).toEqual(true)
+  })
+
+  test('returns false for board with unequal columns in rows', () => {
+    expect(isBoardValid([
+      [cp(whitePawn), cp(whitePawn)],
+      [cp(whitePawn), null, cp(whitePawn)]
+    ])).toEqual(false)
+  })
+
+  test('returns true when multiple rows with equal number of columns', () => {
+    expect(isBoardValid([
+      [cp(whitePawn), cp(whitePawn), cp(whitePawn)],
+      [null, cp(whitePawn), cp(whitePawn)]
+    ])).toEqual(true)
+  })
+})
+
+describe('serializeBoard', () => {
   test('matches snapshot for small board with multiple pieces and space', () => {
     expect(serializeBoard(testBoard)).toEqual(serializedTestBoard)
   });
@@ -119,17 +148,56 @@ test('createStandardBoard creates a board with black knights at correct location
   expect(board[0]?.[6]).toEqual({ type: 'knight', side: 'black' })
 });
 
-describe('serializeSquare', () => {
-  test('throws an error when board has unequal row sizes', () => {
-    const testSquare: Square = [0, 0]
-    const badBoard = [
-      [cp(blackBishop), cp(whitePawn), cp(blackBishop)],
-      [null, null, cp(whitePawn)],
-      [cp(blackBishop), null]
-    ]
-    expect(() => { serializeSquare(testSquare, badBoard) }).toThrowError()
-  });
+describe('atSquare', () => {
+  test('throws an error if the specified square is not on the board', () => {
+    const testSquare: Square = [4, 4]
+    expect(() => { atSquare(testSquare, testBoard) }).toThrow()
+  })
 
+  test('returns piece if existing at square', () => {
+    const testSquare: Square = [0, 1]
+    expect(atSquare(testSquare, testBoard)).toEqual(whitePawn)
+  })
+
+  test('returns null if square is empty', () => {
+    const testSquare: Square = [3, 0]
+    expect(atSquare(testSquare, testBoard)).toEqual(null)
+  })
+})
+
+test('getAllSquares returns all squares for rectangular board', () => {
+  expect(getAllSquares(testBoard)).toEqual([
+    [0, 0], [0, 1], [0, 2], [0, 3],
+    [1, 0], [1, 1], [1, 2], [1, 3],
+    [2, 0], [2, 1], [2, 2], [2, 3],
+    [3, 0], [3, 1], [3, 2], [3, 3]
+  ])
+})
+
+describe('findPieces', () => {
+  test('returns all piece squares if no piece fields are specified', () => {
+    expect(findPieces({}, testBoard)).toEqual([
+      [0, 0], [0, 1],
+      [3, 2], [3, 3]
+    ])
+  })
+
+  test('returns white piece squares if white side only specified', () => {
+    const pieceParams = { side: 'white' as Side }
+    expect(findPieces(pieceParams, testBoard)).toEqual([
+      [0, 1], [3, 2]
+    ])
+  })
+
+  test('returns black bishop squares if black side and bishop type specified', () => {
+    const pieceParams = { type: 'bishop' as PieceType, side: 'black' as Side }
+    expect(findPieces(pieceParams, testBoard)).toEqual([
+      [0, 0], [3, 3]
+    ])
+  })
+})
+
+describe('serializeSquare', () => {
   test('throws an error when square is outside board', () => {
     const testSquare: Square = [7, 2]
     expect(() => { serializeSquare(testSquare, testBoard) }).toThrowError()
@@ -139,4 +207,21 @@ describe('serializeSquare', () => {
     const testSquare: Square = [1, 1]
     expect(serializeSquare(testSquare, testBoard)).toEqual('b3')
   });
+})
+
+describe('shift', () => {
+  test('returns same square if change is [0, 0]', () => {
+    const testSquare: Square = [2, 2]
+    expect(shift(testSquare, [0, 0])).toEqual([2, 2])
+  })
+
+  test('works correctly for negative change values', () => {
+    const testSquare: Square = [2, 2]
+    expect(shift(testSquare, [-3, 2])).toEqual([-1, 4])
+  })
+
+  test('works correctly, for positive change values', () => {
+    const testSquare: Square = [2, 2]
+    expect(shift(testSquare, [4, 7])).toEqual([6, 9])
+  })
 })

@@ -2,6 +2,7 @@ import {
   serializePiece,
   readPiece,
   readBoard,
+  createStandardBoard,
   serializeBoard,
   serializeSquare
 } from '../board'
@@ -55,6 +56,10 @@ test('readPiece throws an error when side in short-form is invalid', () => {
   expect(() => { readPiece('xP') }).toThrowError();
 });
 
+test('readPiece throws an error when side in short-form does not exist', () => {
+  expect(() => { readPiece('P') }).toThrowError();
+});
+
 test('serializeBoard returns an empty string when board has no rows', () => {
   expect(serializeBoard([])).toEqual('')
 });
@@ -98,6 +103,12 @@ test('readBoard throws an error for board with unequal row sizes', () => {
     '-------'
   ].join('\n')
   expect(() => { readBoard(badTestBoard) }).toThrowError()
+});
+
+test('createStandardBoard creates a board with black knights at correct locations', () => {
+  const board = createStandardBoard()
+  expect(board[0]?.[1]).toEqual({ type: 'knight', side: 'black' })
+  expect(board[0]?.[6]).toEqual({ type: 'knight', side: 'black' })
 });
 
 test('serializeSquare throws an error when board has unequal row sizes', () => {

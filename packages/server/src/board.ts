@@ -1,5 +1,5 @@
 type PieceType = 'bishop' | 'rook' | 'knight' | 'king' | 'queen' | 'pawn'
-type PieceSide = 'white' | 'black'
+export type PieceSide = 'white' | 'black'
 export type Piece = {
   type: PieceType;
   side: PieceSide;
@@ -43,6 +43,10 @@ const sideSerializationMap: Map<PieceSide, string> = new Map([
 ])
 
 const reverseSideMap = reverseMap(sideSerializationMap)
+
+export function opposite(side: PieceSide): PieceSide {
+  return (side === 'black') ? 'white' : 'black'
+}
 
 export function serializePiece(piece: Piece): string {
   const pieceTypeShort = pieceTypeSerializationMap.get(piece.type)
@@ -120,7 +124,47 @@ export function serializeBoard(board: Board): string {
   ].join('\n')
 }
 
-function inBoard(square: Square, board: Board): boolean {
+export function findPieces({ type, side }: {
+  type?: PieceType,
+  side?: PieceSide
+}, board: Board): Square[] {
+  const allSquares = getAllSquares(board)
+  return allSquares.filter(square => {
+    const piece = atSquare(square, board)
+    if (!piece) { return false; }
+    if (type && !(piece?.type === type)) {
+      return false
+    }
+    if (side && !(piece?.side === side)) {
+      return false
+    }
+    return true
+  });
+}
+
+export function createStandardBoard(): Board {
+  return readBoard([
+    '-------------------------',
+    '|bR|bN|bB|bQ|bK|bB|bN|bR|',
+    '-------------------------',
+    '|bP|bP|bP|bP|bP|bP|bP|bP|',
+    '-------------------------',
+    '|  |  |  |  |  |  |  |  |',
+    '-------------------------',
+    '|  |  |  |  |  |  |  |  |',
+    '-------------------------',
+    '|  |  |  |  |  |  |  |  |',
+    '-------------------------',
+    '|  |  |  |  |  |  |  |  |',
+    '-------------------------',
+    '|wP|wP|wP|wP|wP|wP|wP|wP|',
+    '-------------------------',
+    '|wR|wN|wB|wQ|wK|wB|wN|wR|',
+    '-------------------------',
+  ].join('\n'))
+}
+
+export function inBoard(square: Square, board: Board): boolean {
   if (!board[0]) { return false }
   return (
     square[0] >= 0 && square[0] < board.length &&
@@ -128,10 +172,29 @@ function inBoard(square: Square, board: Board): boolean {
   )
 }
 
+export function atSquare(square: Square, board: Board): Piece | null {
+  if (!inBoard(square, board)) { throw new Error('Square is not in board!') }
+  // at this point we can make Type assertions since we know the square exists
+  const row = board[square[0]] as (Piece | null)[]
+  const pieceAtSquare = row[square[1]] as Piece | null
+  return pieceAtSquare
+}
+
 function isBoardValid(board: Board): boolean {
   const colsPerRow = board.map(row => row.length)
   const uniqueColsPerRow = new Set(colsPerRow).size
   return (uniqueColsPerRow == 1 && !!board[0] && board[0].length > 0)
+}
+
+export function getAllSquares(board: Board): Square[] {
+  if (!board[0]) { return []; }
+  const squares: Square[] = []
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      squares.push([i, j])
+    }
+  }
+  return squares
 }
 
 export function serializeSquare(square: Square, board: Board): string {
@@ -142,4 +205,8 @@ export function serializeSquare(square: Square, board: Board): string {
   const colString = String.fromCharCode('a'.charCodeAt(0) + square[1])
   const rowString = numRows - square[0]
   return `${colString}${rowString}`
+}
+
+export function shift(square: Square, change: [number, number]): Square {
+  return [square[0] + change[0], square[1] + change[1]]
 }

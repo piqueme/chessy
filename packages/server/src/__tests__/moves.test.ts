@@ -31,7 +31,14 @@ describe('getPotentialMoves', () => {
     const fromSquare: Square = [2, 1]
     const moves = getPotentialMoves(fromSquare, testBoard)
     const targets: Square[] = [[0, 0], [0, 2], [1, 3], [3, 3], [4, 0]]
-    const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
+    const expectedMoves = targets.map(to => { 
+      const takenPiece = testBoard[to[0]]?.[to[1]] 
+      return {
+        from: fromSquare, 
+        to, 
+        ...(takenPiece ? { takenPiece } : {})
+      }
+    })
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
   });
 
@@ -53,7 +60,14 @@ describe('getPotentialMoves', () => {
     const fromSquare: Square = [2, 1]
     const moves = getPotentialMoves(fromSquare, testBoard)
     const targets: Square[] = [[3, 1], [3, 2]]
-    const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
+    const expectedMoves = targets.map(to => { 
+      const takenPiece = testBoard[to[0]]?.[to[1]] 
+      return {
+        from: fromSquare, 
+        to, 
+        ...(takenPiece ? { takenPiece } : {})
+      }
+    })
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
   });
 
@@ -75,7 +89,14 @@ describe('getPotentialMoves', () => {
     const fromSquare: Square = [2, 1]
     const moves = getPotentialMoves(fromSquare, testBoard)
     const targets: Square[] = [[1, 0], [1, 1], [1, 2], [2, 2], [3, 0], [3, 1], [3, 2]]
-    const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
+    const expectedMoves = targets.map(to => { 
+      const takenPiece = testBoard[to[0]]?.[to[1]] 
+      return {
+        from: fromSquare, 
+        to, 
+        ...(takenPiece ? { takenPiece } : {})
+      }
+    })
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
   });
 });
@@ -140,7 +161,14 @@ describe('getValidMoves', () => {
     const fromSquare: Square = [2, 1]
     const moves = getValidMoves(fromSquare, testBoard)
     const targets: Square[] = [[0, 0], [0, 2], [1, 3], [3, 3], [4, 0]]
-    const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
+    const expectedMoves = targets.map(to => { 
+      const takenPiece = testBoard[to[0]]?.[to[1]] 
+      return {
+        from: fromSquare, 
+        to, 
+        ...(takenPiece ? { takenPiece } : {})
+      }
+    })
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
   });
 
@@ -162,7 +190,14 @@ describe('getValidMoves', () => {
     const fromSquare: Square = [2, 1]
     const moves = getValidMoves(fromSquare, testBoard)
     const targets: Square[] = [[3, 3]]
-    const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
+    const expectedMoves = targets.map(to => { 
+      const takenPiece = testBoard[to[0]]?.[to[1]] 
+      return {
+        from: fromSquare, 
+        to, 
+        ...(takenPiece ? { takenPiece } : {})
+      }
+    })
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
   });
 
@@ -204,7 +239,14 @@ describe('getValidMoves', () => {
     const fromSquare: Square = [4, 3]
     const moves = getValidMoves(fromSquare, testBoard)
     const targets: Square[] = [[3, 2], [4, 2], [3, 4], [4, 4]]
-    const expectedMoves = targets.map(to => ({ from: fromSquare, to }))
+    const expectedMoves = targets.map(to => { 
+      const takenPiece = testBoard[to[0]]?.[to[1]] 
+      return {
+        from: fromSquare, 
+        to, 
+        ...(takenPiece ? { takenPiece } : {})
+      }
+    })
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
   });
 })

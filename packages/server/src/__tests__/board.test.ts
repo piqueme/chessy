@@ -9,9 +9,10 @@ import {
   getAllSquares,
   findPieces,
   serializeSquare,
-  shift
+  shift,
+  mutateBoard
 } from '../board'
-import type { Side, Square, PieceType, Piece, Board } from '../board'
+import type { Side, Square, PieceType, Piece, Board, Mutation } from '../board'
 
 
 const blackBishop: Piece = { type: 'bishop', side: 'black' }
@@ -223,5 +224,59 @@ describe('shift', () => {
   test('works correctly, for positive change values', () => {
     const testSquare: Square = [2, 2]
     expect(shift(testSquare, [4, 7])).toEqual([6, 9])
+  })
+})
+
+describe('mutateBoard', () => {
+  test('throws an error if mutation has square not in board', () => {
+    const mutations: Mutation[] = [
+      { square: [0, 2], piece: null },
+      { square: [5, 1], piece: cp(whitePawn) }
+    ]
+    expect(() => { mutateBoard(mutations, testBoard) }).toThrowError()
+  })
+
+  test('returns same pieces but different object identity board when no mutations', () => {
+    const mutations: Mutation[] = []
+    const newBoard = mutateBoard(mutations, testBoard)
+    expect(newBoard).toEqual(testBoard)
+    expect(newBoard).not.toBe(testBoard)
+    expect(newBoard[0]).not.toBe(testBoard[0])
+  })
+
+  test('returns new board correctly when all mutations are piece replacements', () => {
+    const mutations: Mutation[] = [
+      { square: [0, 2], piece: cp(blackBishop) },
+      { square: [3, 2], piece: cp(blackBishop) }
+    ]
+    const newBoard = mutateBoard(mutations, testBoard)
+    for (let i = 0; i < newBoard.length; i++) {
+      for (let j = 0; j < newBoard[0].length; j++) {
+        if ((i == 0 && j == 2) || (i == 3 && j == 2)) {
+          expect(newBoard[i]?.[j]).toEqual(blackBishop)
+        } else {
+          expect(newBoard[i]?.[j]).toEqual(testBoard[i]?.[j])
+        }
+      }
+    }
+  })
+
+  test('returns new board correctly when mutation has piece removals', () => {
+    const mutations: Mutation[] = [
+      { square: [0, 0], piece: null },
+      { square: [3, 2], piece: cp(blackBishop) }
+    ]
+    const newBoard = mutateBoard(mutations, testBoard)
+    for (let i = 0; i < newBoard.length; i++) {
+      for (let j = 0; j < newBoard[0].length; j++) {
+        if (i == 0 && j == 0) {
+          expect(newBoard[i]?.[j]).toEqual(null)
+        } else if (i == 3 && j == 2) {
+          expect(newBoard[i]?.[j]).toEqual(blackBishop)
+        } else {
+          expect(newBoard[i]?.[j]).toEqual(testBoard[i]?.[j])
+        }
+      }
+    }
   })
 })

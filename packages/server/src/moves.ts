@@ -1,12 +1,12 @@
 import type { Board, Piece, Square, Side } from './board'
-import { getEnemySide, shift, inBoard, findPieces, atSquare } from './board'
+import { getEnemySide, shift, inBoard, findPieces, atSquare, mutateBoard } from './board'
 
 type Direction = [number, number]
 export type Move = { from: Square, to: Square, takenPiece?: Piece }
 
 // moves need full information
 // traverse (maybe do a bit much) -> generate moves
-// 
+//
 
 function getTraversalUntilBlockOrEnemy(from: Square, side: Side, dirs: Direction[], board: Board): Move[] {
   const traversal: Move[] = []
@@ -16,8 +16,9 @@ function getTraversalUntilBlockOrEnemy(from: Square, side: Side, dirs: Direction
       traversal.push({ from, to: current })
       current = shift(current, dir)
     }
-    const pieceAtEnd = atSquare(current, board)
-    if (inBoard(current, board) && pieceAtEnd && pieceAtEnd.side === getEnemySide(side)) {
+    const finalSquareInBoard = inBoard(current, board)
+    const pieceAtEnd = finalSquareInBoard && atSquare(current, board)
+    if (finalSquareInBoard && pieceAtEnd && pieceAtEnd.side === getEnemySide(side)) {
       traversal.push({
         from,
         to: current,
@@ -83,8 +84,10 @@ function getPawnMoves(from: Square, board: Board) {
   }
   for (const dir of takeDirections) {
     const takeSquare = shift(from, dir)
-    if (inBoard(takeSquare, board) && atSquare(takeSquare, board)?.side === getEnemySide(pieceAtSquare.side)) {
-      moves.push({ from, to: takeSquare })
+    const takeSquareInBoard = inBoard(takeSquare, board)
+    const takenPiece = takeSquareInBoard ? atSquare(takeSquare, board) : null
+    if (takeSquareInBoard && takenPiece?.side === getEnemySide(pieceAtSquare.side)) {
+      moves.push({ from, to: takeSquare, takenPiece })
     }
   }
 
@@ -153,19 +156,15 @@ export function getValidMoves(from: Square, board: Board): Move[] {
   const potentialMoves = getPotentialMoves(from, board)
   const validMoves: Move[] = []
   potentialMoves.forEach(move => {
-    const maybeCapturedPiece = move.takenPiece || null
-    const moveRow = board[move.to[0]]
-    const fromRow = board[move.from[0]]
-    if (!moveRow || !fromRow) {
-      throw new Error('Bad board structure!')
-    }
-    moveRow[move.to[1]] = piece
-    fromRow[move.from[1]] = null
-    if (!isCheck(piece.side, board)) {
+    // may need to be careful here about GC
+    const boardAfterMove = mutateBoard([
+      { square: from, piece: null },
+      { square: move.to, piece }
+    ], board)
+
+    if (!isCheck(piece.side, boardAfterMove)) {
       validMoves.push(move)
     }
-    fromRow[move.from[1]] = piece
-    moveRow[move.to[1]] = maybeCapturedPiece
   })
   return validMoves
 }
@@ -184,32 +183,35 @@ export function isCheck(side: Side, board: Board): boolean {
   return enemyMoves.some(move => move.to[0] === ownKingSquare[0]?.[0] && move.to[1] === ownKingSquare[0]?.[1])
 }
 
-export function move(board: Board, side: Side, from: Square, to: Square): Move {
+export function move(board: Board, side: Side, from: Square, to: Square): {
+  board: Board,
+  move: Move
+} {
   const validMoves = getValidMoves(from, board)
   const matchedValidMove = validMoves.find(v => v.to === to)
   const piece = atSquare(from, board)
   if (!piece) {
     throw new Error('No piece exists at square')
-  } 
+  }
   if (piece.side !== side) {
     throw new Error('Side to move is not piece side.')
-  } 
+  }
   if (!matchedValidMove) {
     throw new Error(`Move ${from}:${to} is not valid.`)
   }
-  const toRow = board[to[0]]
-  const fromRow = board[from[0]]
-  if (!toRow || !fromRow) {
-    throw new Error('Target square does not exist.')
-  }
-  const maybeCapturedPiece = matchedValidMove.takenPiece || null
-  toRow[to[1]] = piece
-  const inCheck = isCheck(side, board)
+
+  const boardAfterMove = mutateBoard([
+    { square: from, piece: null },
+    { square: to, piece }
+  ], board)
+  const inCheck = isCheck(side, boardAfterMove)
   if (inCheck) {
-    fromRow[from[1]] = piece
-    toRow[to[1]] = maybeCapturedPiece
     throw new Error('Move would put you in check!')
   }
-  return { from, to }
+
+  return {
+    board: boardAfterMove,
+    move: matchedValidMove
+  }
 }
 

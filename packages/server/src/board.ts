@@ -4,15 +4,17 @@ import {
   reverseMap
 } from './utils'
 
+export type Mutation = { square: Square; piece: Piece | null }
 export type PieceType = 'bishop' | 'rook' | 'knight' | 'king' | 'queen' | 'pawn'
 export type Side = 'white' | 'black'
-export type Piece = {
+export type Piece = Readonly<{
   type: PieceType;
   side: Side;
-}
+}>
 
-type Row = [(Piece | null), ...(Piece | null)[]]
-export type Board = [Row, ...Row[]]
+type MutableRow = [(Piece | null), ...(Piece | null)[]]
+type Row = Readonly<MutableRow>
+export type Board = Readonly<[Row, ...Row[]]>
 export type Square = [number, number]
 
 const pieceTypeSerializationMap: Map<PieceType, string> = new Map([
@@ -58,7 +60,7 @@ export function readPiece(pieceString: string): Piece {
   return { type: typeData, side: sideData }
 }
 
-export function isBoardValid(board: (Piece | null)[][]): board is Board {
+export function isBoardValid(board: Readonly<Readonly<(Piece | null)[]>[]>): board is Board {
   const colsPerRow = board.map(row => row.length)
   const uniqueColsPerRow = new Set(colsPerRow).size
   return (uniqueColsPerRow == 1 && !!board[0] && board[0].length > 0)
@@ -150,7 +152,7 @@ export function atSquare(square: Square, board: Board): Piece | null {
     throw new Error(`Square ${square} is not in board!`)
   }
   // at this point we can make Type assertions since we know the square exists
-  const row = board[square[0]] as (Piece | null)[]
+  const row = board[square[0]] as Readonly<(Piece | null)[]>
   const pieceAtSquare = row[square[1]] as Piece | null
   return pieceAtSquare
 }
@@ -194,4 +196,24 @@ export function serializeSquare(square: Square, board: Board): string {
 
 export function shift(square: Square, change: [number, number]): Square {
   return [square[0] + change[0], square[1] + change[1]]
+}
+
+
+export function mutateBoard(
+  mutations: Mutation[],
+  board: Board
+): Board {
+  const newBoard = [...board.map(row => [...row])]
+  mutations.forEach(({ square, piece }) => {
+    if (!inBoard(square, board)) {
+      throw new Error(`Square ${square} is not in board.`)
+    }
+    // we know the square is in the board now
+    const row = newBoard[square[0]] as (Piece | null)[]
+    row[square[1]] = piece
+  })
+  if (!isBoardValid(newBoard)) {
+    throw new Error('Mutations resulted in an invalid board!')
+  }
+  return newBoard
 }

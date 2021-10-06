@@ -198,6 +198,9 @@ export function shift(square: Square, change: [number, number]): Square {
   return [square[0] + change[0], square[1] + change[1]]
 }
 
+export function squareEquals(square1: Square, square2: Square): boolean {
+  return square1[0] === square2[0] && square1[1] === square2[1]
+}
 
 export function mutateBoard(
   mutations: Mutation[],

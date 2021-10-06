@@ -1,7 +1,7 @@
 import { readBoard } from '../board'
 import type { Square } from '../board'
 import type { Move } from '../moves'
-import { getValidMoves, getPotentialMoves, isCheck } from '../moves'
+import { getValidMoves, getPotentialMoves, isCheck, move } from '../moves'
 
 // helps compare sets of moves
 const moveSorter = (move1: Move, move2: Move) => {
@@ -31,11 +31,43 @@ describe('getPotentialMoves', () => {
     const fromSquare: Square = [2, 1]
     const moves = getPotentialMoves(fromSquare, testBoard)
     const targets: Square[] = [[0, 0], [0, 2], [1, 3], [3, 3], [4, 0]]
-    const expectedMoves = targets.map(to => { 
-      const takenPiece = testBoard[to[0]]?.[to[1]] 
+    const expectedMoves = targets.map(to => {
+      const takenPiece = testBoard[to[0]]?.[to[1]]
       return {
-        from: fromSquare, 
-        to, 
+        from: fromSquare,
+        to,
+        ...(takenPiece ? { takenPiece } : {})
+      }
+    })
+    expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
+  });
+
+  test('finds all queen moves in presence of empty, blocked, and takeable squares', () => {
+    const testBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |wN|  |  |  |',
+      '----------------',
+      '|  |  |  |bB|  |',
+      '----------------',
+      '|  |  |wQ|  |  |',
+      '----------------',
+    ].join('\n'))
+
+    const fromSquare: Square = [4, 2]
+    const moves = getPotentialMoves(fromSquare, testBoard)
+    const targets: Square[] = [
+      [0, 2], [1, 2], [2, 2], [3, 2], [3, 3],
+      [2, 0], [3, 1], [4, 0], [4, 1], [4, 3], [4, 4]
+    ]
+    const expectedMoves = targets.map(to => {
+      const takenPiece = testBoard[to[0]]?.[to[1]]
+      return {
+        from: fromSquare,
+        to,
         ...(takenPiece ? { takenPiece } : {})
       }
     })
@@ -60,11 +92,11 @@ describe('getPotentialMoves', () => {
     const fromSquare: Square = [2, 1]
     const moves = getPotentialMoves(fromSquare, testBoard)
     const targets: Square[] = [[3, 1], [3, 2]]
-    const expectedMoves = targets.map(to => { 
-      const takenPiece = testBoard[to[0]]?.[to[1]] 
+    const expectedMoves = targets.map(to => {
+      const takenPiece = testBoard[to[0]]?.[to[1]]
       return {
-        from: fromSquare, 
-        to, 
+        from: fromSquare,
+        to,
         ...(takenPiece ? { takenPiece } : {})
       }
     })
@@ -89,11 +121,11 @@ describe('getPotentialMoves', () => {
     const fromSquare: Square = [2, 1]
     const moves = getPotentialMoves(fromSquare, testBoard)
     const targets: Square[] = [[1, 0], [1, 1], [1, 2], [2, 2], [3, 0], [3, 1], [3, 2]]
-    const expectedMoves = targets.map(to => { 
-      const takenPiece = testBoard[to[0]]?.[to[1]] 
+    const expectedMoves = targets.map(to => {
+      const takenPiece = testBoard[to[0]]?.[to[1]]
       return {
-        from: fromSquare, 
-        to, 
+        from: fromSquare,
+        to,
         ...(takenPiece ? { takenPiece } : {})
       }
     })
@@ -102,7 +134,7 @@ describe('getPotentialMoves', () => {
 });
 
 describe('isCheck', () => {
-  test('isCheck validates that there are no checks', () => {
+  test('validates that there are no checks', () => {
     const testBoard = readBoard([
       '----------------',
       '|  |  |  |  |  |',
@@ -119,7 +151,7 @@ describe('isCheck', () => {
     expect(isCheck('black', testBoard)).toEqual(false)
   })
 
-  test('isCheck validates that there is a check', () => {
+  test('isCheck validates that there is a check from a single piece', () => {
     const testBoard = readBoard([
       '----------------',
       '|  |  |  |  |  |',
@@ -135,15 +167,27 @@ describe('isCheck', () => {
     ].join('\n'))
     expect(isCheck('black', testBoard)).toEqual(true)
   })
-  // check cases
-  //  own piece could put you in check but no other piece
-  //  multiple pieces put you in check
-  //  no other pieces
-  //  no king on board
+
+  test('isCheck validates that there is a check from multiple piece', () => {
+    const testBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |wN|  |  |',
+      '----------------',
+      '|bQ|bK|  |wR|  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wB|  |',
+      '----------------',
+    ].join('\n'))
+    expect(isCheck('black', testBoard)).toEqual(true)
+  })
 })
 
 describe('getValidMoves', () => {
-  test('finds all knight moves in presence of empty, blocked, and takeable squares', () => {
+  test('finds all knight moves including those that remove check', () => {
     const testBoard = readBoard([
       '----------------',
       '|  |  |  |  |  |',
@@ -161,11 +205,11 @@ describe('getValidMoves', () => {
     const fromSquare: Square = [2, 1]
     const moves = getValidMoves(fromSquare, testBoard)
     const targets: Square[] = [[0, 0], [0, 2], [1, 3], [3, 3], [4, 0]]
-    const expectedMoves = targets.map(to => { 
-      const takenPiece = testBoard[to[0]]?.[to[1]] 
+    const expectedMoves = targets.map(to => {
+      const takenPiece = testBoard[to[0]]?.[to[1]]
       return {
-        from: fromSquare, 
-        to, 
+        from: fromSquare,
+        to,
         ...(takenPiece ? { takenPiece } : {})
       }
     })
@@ -190,11 +234,11 @@ describe('getValidMoves', () => {
     const fromSquare: Square = [2, 1]
     const moves = getValidMoves(fromSquare, testBoard)
     const targets: Square[] = [[3, 3]]
-    const expectedMoves = targets.map(to => { 
-      const takenPiece = testBoard[to[0]]?.[to[1]] 
+    const expectedMoves = targets.map(to => {
+      const takenPiece = testBoard[to[0]]?.[to[1]]
       return {
-        from: fromSquare, 
-        to, 
+        from: fromSquare,
+        to,
         ...(takenPiece ? { takenPiece } : {})
       }
     })
@@ -239,14 +283,177 @@ describe('getValidMoves', () => {
     const fromSquare: Square = [4, 3]
     const moves = getValidMoves(fromSquare, testBoard)
     const targets: Square[] = [[3, 2], [4, 2], [3, 4], [4, 4]]
-    const expectedMoves = targets.map(to => { 
-      const takenPiece = testBoard[to[0]]?.[to[1]] 
+    const expectedMoves = targets.map(to => {
+      const takenPiece = testBoard[to[0]]?.[to[1]]
       return {
-        from: fromSquare, 
-        to, 
+        from: fromSquare,
+        to,
         ...(takenPiece ? { takenPiece } : {})
       }
     })
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
   });
+})
+
+describe('move', () => {
+  test('throws error when no piece at from square', () => {
+    const testBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    expect(() => {
+      move([3, 3], [3, 4], 'black', testBoard)
+    }).toThrowError()
+  })
+
+  test('throws error if piece at from square is not given side', () => {
+    const testBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    expect(() => {
+      move([4, 3], [4, 2], 'black', testBoard)
+    }).toThrowError()
+  })
+
+  test('throws error if move goes to square out of piece movement range', () => {
+    const testBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    expect(() => {
+      move([4, 3], [4, 1], 'white', testBoard)
+    }).toThrowError()
+  })
+
+  test('throws error if move goes to square resulting in check', () => {
+    const testBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wB|  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    expect(() => {
+      move([3, 3], [2, 2], 'white', testBoard)
+    }).toThrowError()
+  })
+
+  test('returns a new updated board for a valid move to an empty square', () => {
+    const preMoveBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wB|  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    const postMoveBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wB|  |',
+      '----------------',
+      '|  |  |wK|  |  |',
+      '----------------',
+    ].join('\n'))
+
+    const from: Square = [4, 3]
+    const to: Square = [4, 2]
+    expect(move(from, to, 'white', preMoveBoard)).toEqual({
+      board: postMoveBoard,
+      move: {
+        from,
+        to,
+      }
+    })
+  })
+
+  test('returns a new updated board for a valid move taking a piece', () => {
+    const preMoveBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |wB|  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    const postMoveBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wB|  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    const from: Square = [2, 2]
+    const to: Square = [1, 3]
+    expect(move(from, to, 'white', preMoveBoard)).toEqual({
+      board: postMoveBoard,
+      move: {
+        from,
+        to,
+        takenPiece: { type: 'rook', side: 'black' }
+      }
+    })
+  })
 })

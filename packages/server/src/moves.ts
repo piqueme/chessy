@@ -11,6 +11,7 @@ import {
 
 type Direction = [number, number]
 export type Move = { from: Square, to: Square, takenPiece?: Piece }
+export type CheckState = 'SAFE' | 'CHECK' | 'CHECKMATE'
 
 // moves need full information
 // traverse (maybe do a bit much) -> generate moves
@@ -189,6 +190,18 @@ export function getValidMoves(from: Square, board: Board): Move[] {
     }
   })
   return validMoves
+}
+
+export function getCheckState(side: Side, board: Board): CheckState {
+  const ownKingSquare = findPieces({ type: 'king', side: side }, board)[0]
+  if (!ownKingSquare) { throw new Error('Could not find own king!') }
+
+  const kingMoves = getValidMoves(ownKingSquare, board)
+  const hasCheck = isCheck(side, board)
+  const hasMate = kingMoves.length === 0 && hasCheck
+  if (hasMate) { return 'CHECKMATE' }
+  if (hasCheck) { return 'CHECK' }
+  return 'SAFE'
 }
 
 export function move(from: Square, to: Square, side: Side, board: Board): {

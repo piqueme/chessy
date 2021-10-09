@@ -12,7 +12,7 @@ describe('countOccurrences', () => {
   })
 
   test('counts 0 for items when array is empty', () => {
-    const testArray = []
+    const testArray: string[] = []
     expect(countOccurrences(testArray, 2)).toEqual(0)
   })
 })

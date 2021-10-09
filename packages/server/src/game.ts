@@ -3,6 +3,23 @@ import { getCheckState, move } from './moves'
 import type { Side, Square, Board } from './board'
 import type { Move, CheckState } from './moves'
 
+// What is a puzzle?
+//  starting state -> Board, Side
+//  sequence of correct moves
+//  
+// Group Puzzle
+//  start
+//  history = Proposal + Move[]
+//  promoting
+//  check
+//  propose
+//    consensus
+//    move
+//      correct ? chess move | reject
+//  view
+//
+// Emit Events
+
 type ViewState = 'VIEWING' | 'CURRENT'
 type Game = {
   currentSide: Side;

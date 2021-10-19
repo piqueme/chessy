@@ -11,18 +11,18 @@ import type { Move } from '../moves'
 describe('game', () => {
   describe('at start', () => {
     test('is on white side', () => {
-      const game = createGame()
+      const game = createGame('test')
       expect(game.currentSide).toEqual('white')
     })
 
     test('has empty history', () => {
-      const game = createGame()
+      const game = createGame('test')
       expect(game.history).toHaveLength(0)
     })
   })
 
   describe('after 2 legal pawn and knight moves', () => {
-    let game = createGame()
+    let game = createGame('test')
     const moves: Move[] = [
       { from: [6, 4], to: [5, 4] },
       { from: [1, 3], to: [2, 3] },
@@ -31,7 +31,7 @@ describe('game', () => {
     ]
 
     beforeEach(() => {
-      game = createGame()
+      game = createGame('test')
       moves.forEach(move => {
         game = submitMove(move.from, move.to, game)
       })
@@ -81,7 +81,7 @@ describe('game', () => {
   })
 
   describe('after 2 legal pawn and knight moves and going to 2nd move', () => {
-    let game = createGame()
+    let game = createGame('test')
     const moves: Move[] = [
       { from: [6, 4], to: [5, 4] },
       { from: [1, 3], to: [2, 3] },
@@ -90,7 +90,7 @@ describe('game', () => {
     ]
 
     beforeEach(() => {
-      game = createGame()
+      game = createGame('test')
       moves.forEach(move => {
         game = submitMove(move.from, move.to, game)
       })

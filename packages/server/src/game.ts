@@ -6,7 +6,7 @@ import type { Move, CheckState } from './moves'
 // What is a puzzle?
 //  starting state -> Board, Side
 //  sequence of correct moves
-//  
+//
 // Group Puzzle
 //  start
 //  history = Proposal + Move[]
@@ -21,7 +21,8 @@ import type { Move, CheckState } from './moves'
 // Emit Events
 
 type ViewState = 'VIEWING' | 'CURRENT'
-type Game = {
+export type Game = {
+  id: string;
   currentSide: Side;
   board: Board;
   history: Move[];
@@ -29,8 +30,9 @@ type Game = {
   viewState: ViewState;
 }
 
-export function createGame(): Game {
+export function createGame(id: string): Game {
   return {
+    id,
     currentSide: 'white',
     board: createStandardBoard(),
     history: ([] as Move[]),
@@ -74,3 +76,7 @@ export function gotoMove(moveNumber: number, game: Game): Game {
   game.viewState = (moveNumber === game.history.length - 1) ? 'CURRENT' : 'VIEWING'
   return game
 }
+
+// export function serializeGame(game: Game): string {
+//   return ''
+// }

@@ -2,9 +2,6 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "build"
-  },
-  "references": [
-    { "path": "../core" }
-  ]
+    "outDir": "build/cjs"
+  }
 }

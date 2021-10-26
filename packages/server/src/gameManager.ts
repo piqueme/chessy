@@ -1,10 +1,5 @@
-import {
-  createGame,
-  submitMove as submitGameMove,
-  gotoMove as gotoGameMove
-} from './game'
-import type { Game } from './game'
-import type { Square } from './board'
+import { gameMutations } from '@chessy/core'
+import type { Game, Square } from '@chessy/core'
 import { v4 as uuidv4 } from 'uuid'
 
 export default class GameManager {
@@ -26,7 +21,7 @@ export default class GameManager {
    */
   createGame(): Game {
     const id = uuidv4()
-    const newGame = createGame(id)
+    const newGame = gameMutations.createGame(id)
     this.#games[id] = newGame
     return newGame
   }
@@ -43,13 +38,13 @@ export default class GameManager {
 
   submitMove(gameId: string, from: Square, to: Square): Game {
     const game = this.getGame(gameId)
-    submitGameMove(from, to, game)
+    gameMutations.submitMove(from, to, game)
     return game
   }
 
-  gotoMove(gameId: string, moveNumber: number): Game {
+  execMove(gameId: string, from: Square, to: Square): Game {
     const game = this.getGame(gameId)
-    gotoGameMove(moveNumber, game)
+    gameMutations.executeGameMove(from, to, game)
     return game
   }
 }

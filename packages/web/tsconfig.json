@@ -15,5 +15,7 @@
     "jsx": "react-jsx"
   },
   "include": ["./src"],
-  "references": []
+  "references": [
+    { "path": "../core" }
+  ]
 }

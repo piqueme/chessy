@@ -1,7 +1,13 @@
 import { readBoard } from '../board'
 import type { Square } from '../board'
 import type { Move } from '../moves'
-import { getValidMoves, getPotentialMoves, isCheck, move } from '../moves'
+import {
+  getValidMoves,
+  getPotentialMoves,
+  isCheck,
+  executeMove,
+  move
+} from '../moves'
 
 // helps compare sets of moves
 const moveSorter = (move1: Move, move2: Move) => {
@@ -453,6 +459,156 @@ describe('move', () => {
         from,
         to,
         takenPiece: { type: 'rook', side: 'black' }
+      }
+    })
+  })
+})
+
+describe('executeMove', () => {
+  // move needs from,to
+  // move will replace piece if exists
+  test('does not change board if from and to are both empty', () => {
+    const board = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |wB|  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    const from: Square = [1, 1]
+    const to: Square = [4, 1]
+    expect(executeMove(from, to, board)).toEqual({
+      board,
+      move: {
+        from,
+        to,
+      }
+    })
+  })
+
+  test('replaces "to" piece with "from" piece even if same side', () => {
+    const preMoveBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |wB|  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    const postMoveBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wB|  |',
+      '----------------',
+    ].join('\n'))
+
+    const from: Square = [2, 2]
+    const to: Square = [4, 3]
+    expect(executeMove(from, to, preMoveBoard)).toEqual({
+      board: postMoveBoard,
+      move: {
+        from,
+        to,
+      }
+    })
+  })
+
+  test('replaces "to" piece with "from" piece if different sides', () => {
+    const preMoveBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |wB|  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    const postMoveBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |bR|  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    const from: Square = [1, 3]
+    const to: Square = [2, 2]
+    expect(executeMove(from, to, preMoveBoard)).toEqual({
+      board: postMoveBoard,
+      move: {
+        from,
+        to,
+      }
+    })
+  })
+
+  test('takes piece at "from" and places it on empty "to" without move rules', () => {
+    const preMoveBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|  |  |wB|  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    const postMoveBoard = readBoard([
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |bR|  |',
+      '----------------',
+      '|wB|  |  |  |  |',
+      '----------------',
+      '|  |  |  |  |  |',
+      '----------------',
+      '|  |  |  |wK|  |',
+      '----------------',
+    ].join('\n'))
+
+    const from: Square = [2, 2]
+    const to: Square = [2, 0]
+    expect(executeMove(from, to, preMoveBoard)).toEqual({
+      board: postMoveBoard,
+      move: {
+        from,
+        to,
       }
     })
   })

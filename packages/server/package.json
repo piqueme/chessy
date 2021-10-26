@@ -5,23 +5,23 @@
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "@types/node": "^16.9.2",
-    "@types/uuid": "^8.3.1",
-    "esbuild": "^0.12.28"
+    "@types/uuid": "^8.3.1"
   },
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "build/server.js",
   "files": [
     "build"
   ],
   "scripts": {
-    "build": "yarn g:tsc",
+    "build": "yarn g:tsc -p tsconfig.json",
     "clean": "rm -rf ./build && rm tsconfig.tsbuildinfo",
     "dev": "yarn g:tsc -b -w --preserveWatchOutput",
     "test": "yarn g:test --selectProjects @chessy/server",
     "serve": "yarn node build/server.js"
   },
   "dependencies": {
+    "@chessy/core": "workspace:packages/core",
     "fastify": "^3.22.0",
+    "fastify-cors": "^6.0.2",
     "uuid": "^8.3.2"
   }
 }

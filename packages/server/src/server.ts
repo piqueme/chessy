@@ -1,7 +1,7 @@
 import fastify from 'fastify'
+import fastifyCors from 'fastify-cors'
 import { createGameManager } from './gameManager'
-import type { Square } from './board'
-import type { Game } from './game'
+import type { Square, Game } from '@chessy/core'
 
 const gameManager = createGameManager()
 const server = fastify()
@@ -9,6 +9,11 @@ const server = fastify()
 type GetGameRouteParams = {
   gameId: string
 }
+
+server.register(fastifyCors, {
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST'],
+})
 
 server.get<{
   Params: GetGameRouteParams

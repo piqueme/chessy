@@ -2,41 +2,82 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.content {
+  margin: auto;
+  width: 728px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.Board {
+  margin: auto;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  flex-wrap: wrap;
+  width: 384px;
 }
 
-.App-link {
-  color: #61dafb;
+.Board .Square {
+  width: 48px;
+  height: 48px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.Board .Square.black {
+  background-color: #454545;
 }
 
-button {
-  font-size: calc(10px + 2vmin);
+.Board .Square.white {
+  background-color: #efefef;
+}
+
+.Board .Piece {
+  background-image: url("/pieces.svg");
+  background-size: 288px 96px;
+  width: 48px;
+  height: 48px;
+}
+
+.Board .Piece.king-black {
+  background-position: top 48px left 0px;
+}
+
+.Board .Piece.queen-black {
+  background-position: top 48px left 240px;
+}
+
+.Board .Piece.rook-black {
+  background-position: top 48px left 96px;
+}
+
+.Board .Piece.bishop-black {
+  background-position: top 48px left 192px;
+}
+
+.Board .Piece.knight-black {
+  background-position: top 48px left 144px;
+}
+
+.Board .Piece.pawn-black {
+  background-position: top 48px left 48px;
+}
+
+.Board .Piece.king-white {
+  background-position: top 0px left 0px;
+}
+
+.Board .Piece.queen-white {
+  background-position: top 0px left 240px;
+}
+
+.Board .Piece.rook-white {
+  background-position: top 0px left 96px;
+}
+
+.Board .Piece.bishop-white {
+  background-position: top 0px left 192px;
+}
+
+.Board .Piece.knight-white {
+  background-position: top 0px left 144px;
+}
+
+.Board .Piece.pawn-white {
+  background-position: top 0px left 48px;
 }

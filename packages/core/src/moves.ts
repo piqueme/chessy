@@ -204,6 +204,28 @@ export function getCheckState(side: Side, board: Board): CheckState {
   return 'SAFE'
 }
 
+/**
+ * A 0-logic move of any pieces on one board square to another. Useful for
+ * client-side where we expect server has already validated the move.
+ */
+export function executeMove(from: Square, to: Square, board: Board): {
+  board: Board,
+  move: Move,
+} {
+  const piece = atSquare(from, board)
+  const takenPiece = atSquare(to, board)
+  const boardAfterMove = mutateBoard([
+    { square: from, piece: null },
+    { square: to, piece }
+  ], board)
+
+  return {
+    board: boardAfterMove,
+    move: { from, to },
+    ...(takenPiece ? { takenPiece } : {})
+  }
+}
+
 export function move(from: Square, to: Square, side: Side, board: Board): {
   board: Board,
   move: Move

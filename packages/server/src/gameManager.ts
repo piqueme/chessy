@@ -7,6 +7,7 @@ export default class GameManager {
 
   getGame(gameId: string): Game {
     const game = this.#games[gameId]
+    console.log("GOT GAME", this.#games, gameId)
     if (!game) { throw new Error('Game not found!') }
     return game
   }

@@ -45,6 +45,7 @@ server.post<{
   Reply: SubmitMoveReply
 }>('/submitMove', async (request) => {
   const { gameId, from, to } = request.body
+  console.log("REQUEST", request.body, gameId, from, to)
   const gameAfterMove = gameManager.submitMove(gameId, from, to)
   return gameAfterMove
 })

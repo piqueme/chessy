@@ -7,18 +7,20 @@ import type { Move, CheckState } from './moves'
 //  starting state -> Board, Side
 //  sequence of correct moves
 //
-// Group Puzzle
-//  start
-//  history = Proposal + Move[]
-//  promoting
-//  check
-//  propose
-//    consensus
-//    move
-//      correct ? chess move | reject
-//  view
+// What is a puzzle game?
+//    current board
+//    current side to move
+//    history of user moves
+//    player (IP)
+//    [computed -> state -> safe | stale | check | mate]
 //
-// Emit Events
+// Puzzle Game Behavior
+//  submit move
+//  execute move (shortcut all the logic)
+//  initialize
+//  close
+//  serialize (for storage)
+//  serialize (for transport)
 
 export type Game = {
   id: string;

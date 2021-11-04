@@ -1,71 +1,78 @@
 import {
-  createGame,
-  submitMove,
+  createFromPuzzle,
+  tryMove,
 } from '../game'
 import { readBoard } from '../board'
-import type { Move } from '../moves'
 
 // TODO: These tests are somewhat hacky, they could definitely be beefed up.
 
 describe('game', () => {
   describe('at start', () => {
     test('is on white side', () => {
-      const game = createGame('test')
-      expect(game.currentSide).toEqual('white')
+      const game = createFromPuzzle('test')
+      expect(game.sideToMove).toEqual('white')
     })
 
     test('has empty history', () => {
-      const game = createGame('test')
+      const game = createFromPuzzle('test')
       expect(game.history).toHaveLength(0)
     })
   })
 
-  describe('after 2 legal pawn and knight moves', () => {
-    let game = createGame('test')
-    const moves: Move[] = [
-      { from: [6, 4], to: [5, 4] },
-      { from: [1, 3], to: [2, 3] },
-      { from: [7, 6], to: [5, 5] },
-      { from: [0, 1], to: [2, 2] }
-    ]
-
-    beforeEach(() => {
-      game = createGame('test')
-      moves.forEach(move => {
-        game = submitMove(move.from, move.to, game)
-      })
+  describe('after incorrect move', () => {
+    test('no change in game state', () => {
+      const game = createFromPuzzle('test')
+      const moveResult = tryMove([5, 0], [0, 5], null, game)
+      expect(game).toEqual(moveResult[0])
     })
 
-    test('board has pieces in correct new state', () => {
-      expect(game.board).toEqual(
-        readBoard([
-          '-------------------------',
-          '|bR|  |bB|bQ|bK|bB|bN|bR|',
-          '-------------------------',
-          '|bP|bP|bP|  |bP|bP|bP|bP|',
-          '-------------------------',
-          '|  |  |bN|bP|  |  |  |  |',
-          '-------------------------',
-          '|  |  |  |  |  |  |  |  |',
-          '-------------------------',
-          '|  |  |  |  |  |  |  |  |',
-          '-------------------------',
-          '|  |  |  |  |wP|wN|  |  |',
-          '-------------------------',
-          '|wP|wP|wP|wP|  |wP|wP|wP|',
-          '-------------------------',
-          '|wR|wN|wB|wQ|wK|wB|  |wR|',
-          '-------------------------',
-        ].join('\n'))
-      )
+    test('move is marked as failure', () => {
+      const game = createFromPuzzle('test')
+      const moveResult = tryMove([5, 0], [0, 5], null, game)
+      expect(moveResult[1]).toEqual('FAILURE')
+    })
+  })
+
+  describe('after correct move', () => {
+    test('game board has updated positions', () => {
+      const game = createFromPuzzle('test')
+      const moveResult = tryMove([4, 6], [2, 5], null, game)
+      const expectedBoard = readBoard([
+        '-------------------------',
+        '|  |  |  |  |  |  |  |  |',
+        '-------------------------',
+        '|  |  |  |  |  |  |  |  |',
+        '-------------------------',
+        '|  |  |  |  |  |wN|bP|  |',
+        '-------------------------',
+        '|  |  |  |  |  |  |  |bK|',
+        '-------------------------',
+        '|  |  |  |bR|  |  |  |wP|',
+        '-------------------------',
+        '|wB|  |  |  |  |  |wP|wK|',
+        '-------------------------',
+        '|  |  |bB|bR|wR|  |  |  |',
+        '-------------------------',
+        '|  |  |  |  |  |  |  |  |',
+        '-------------------------',
+      ].join('\n'))
+      expect(moveResult[0].board).toEqual(expectedBoard)
     })
 
-    test('history has 4 moves (2 each white and black)', () => {
-      expect(game.history).toEqual(moves)
+    test('move is marked as successful', () => {
+      const game = createFromPuzzle('test')
+      const moveResult = tryMove([4, 6], [2, 5], null, game)
+      expect(moveResult[1]).toEqual('SUCCESS')
     })
 
-    test('check state is still safe', () => {
-      expect(game.checkState).toEqual('SAFE')
+    test('history contains new move', () => {
+      const game = createFromPuzzle('test')
+      const moveResult = tryMove([4, 6], [2, 5], null, game)
+      expect(moveResult[0].history).toEqual([{
+        from: [4, 6],
+        to: [2, 5],
+        resultCheckState: 'CHECK'
+      }])
     })
   })
 })

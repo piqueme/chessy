@@ -1,8 +1,8 @@
 export type { Side, Square, Piece, Board } from './board'
-export type { Game } from './game'
+export type { PuzzleGame } from './game'
 
-import { createGame, submitMove, executeGameMove } from './game'
-export const gameMutations = { createGame, submitMove, executeGameMove }
+import { createFromPuzzle, tryMove } from './game'
+export const gameMutations = { createFromPuzzle, tryMove }
 // EXPORTS
 // Types
 //  board, square, piece

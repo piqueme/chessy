@@ -14,6 +14,7 @@ export type Move = { from: Square, to: Square }
 export type Take = { piece: Piece; square: Square }
 export type MoveWithTake = Move & { take?: Take }
 export type MoveResult = { board: Board; take?: Take; promotion?: PieceType }
+export type HistoryMove = Move & { take?: Take; promotion?: PieceType; resultCheckState: CheckState }
 export type CheckState = 'SAFE' | 'CHECK' | 'CHECKMATE'
 
 function getTraversalUntilBlockOrEnemy(from: Square, side: Side, dirs: Direction[], board: Board): MoveWithTake[] {

@@ -1,14 +1,7 @@
 export type { Side, Square, Piece, Board } from './board'
-export type { PuzzleGame } from './game'
+export type { Puzzle } from './puzzle'
+export type { PuzzleMasterGame, PuzzlePlayerGame } from './game'
 
-import { createFromPuzzle, tryMove } from './game'
-export const gameMutations = { createFromPuzzle, tryMove }
-// EXPORTS
-// Types
-//  board, square, piece
-//  game
-//  move
-//
-// Actions
-//  submit move
-//  execute move
+export { createMasterGame, moveMasterGame, movePlayerGame } from './game'
+export { isValidMove, canPromoteFromAssumedValidMove } from './moves'
+export { getAllSquares, readBoard } from './board'

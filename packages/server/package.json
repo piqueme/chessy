@@ -5,7 +5,8 @@
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "@types/node": "^16.9.2",
-    "@types/uuid": "^8.3.1"
+    "@types/uuid": "^8.3.1",
+    "tsc-watch": "^4.5.0"
   },
   "main": "build/server.js",
   "files": [
@@ -14,7 +15,7 @@
   "scripts": {
     "build": "yarn g:tsc -p tsconfig.json",
     "clean": "rm -rf ./build && rm tsconfig.tsbuildinfo",
-    "dev": "yarn g:tsc -b -w --preserveWatchOutput",
+    "dev": "yarn tsc-watch --onSuccess \"node ./build/server.js\"",
     "test": "yarn g:test --selectProjects @chessy/server",
     "serve": "yarn node build/server.js"
   },

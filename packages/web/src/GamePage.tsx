@@ -1,30 +1,40 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { getAllSquares, isValidMove, movePlayerGame } from '@chessy/core'
 import ChessPiece from './ChessPiece'
 import CSSReset from './CSSReset'
 import axios from 'axios'
-import useSWR, { useSWRConfig } from 'swr'
+import useSWR from 'swr'
 import { DndProvider, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import type { Piece, Board, Square, PuzzlePlayerGame } from '@chessy/core'
 
-const TEST_PUZZLE_ID = 'test-puzzle'
-const GET_PUZZLE_KEY = `/game?q=byPuzzle&puzzleId=${TEST_PUZZLE_ID}&includeHistory`
+function getGameKey(gameId: string): string {
+  return `/game/${gameId}&includeHistory`
+}
+
+async function fetcher(url: string) {
+  const response = await instance.get(url)
+  return response.data
+}
 
 const instance = axios.create({
   baseURL: 'http://127.0.0.1:8080',
   timeout: 10000,
 })
-const fetcher = (url: string) => {
-  return instance.get(url).then(response => response.data)
-}
-
-type ReadyState = 'waiting' | 'loading' | 'ready'
 
 function GamePage(): JSX.Element {
-  const [readyState, setReadyState] = useState<ReadyState>('waiting')
-  const { mutate } = useSWRConfig()
-  const { data: game } = useSWR(readyState === 'ready' ? GET_PUZZLE_KEY: null, fetcher, { revalidateIfStale: false })
+  const params = useParams()
+  const navigate = useNavigate()
+  if (!params['gameId']) { throw new Error('whatup') }
+  const { data: game, error } = useSWR(getGameKey(params['gameId']), fetcher, { revalidateIfStale: false })
+
+  if (!game && !error) {
+    return <div> Loading </div>
+  }
+  if (!game && error) {
+    return <div> ERROR! </div>
+  }
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -47,23 +57,12 @@ function GamePage(): JSX.Element {
         >
           Chessy
         </h1>
-        {game ? (
-          <ChessBoard size="512px" board={game.board} readyState={readyState} />
-        ) : (
-          <button onClick={async () => {
-            setReadyState('loading')
-            const gameData = await instance.post('/game?includeHistory=true', {})
-            mutate(GET_PUZZLE_KEY, gameData.data, false)
-            setReadyState('ready')
-          }}>
-            Create a new game!
-          </button>
-        )}
+        <ChessBoard size="512px" board={game.board} gameId={game.id} />
         <button
           css={{ marginTop: 24 }}
           onClick={async () => {
             await instance.delete('/game')
-            setReadyState('waiting')
+            navigate('/puzzles')
           }}
         >
           Clear all games
@@ -74,7 +73,7 @@ function GamePage(): JSX.Element {
 }
 
 type SquareProps = {
-  readyState: ReadyState;
+  gameId: string;
   row: number;
   col: number;
   color?: 'black' | 'white';
@@ -85,19 +84,19 @@ type SquareProps = {
 type BoardProps = {
   size?: number | string;
   board: Board;
-  readyState: ReadyState;
+  gameId: string;
 };
 
 type DataPuzzleGame = PuzzlePlayerGame & { id: string }
 function ChessSquare({
+  gameId,
   row,
   col,
-  readyState = 'waiting',
   color = 'black',
   size = 48,
   piece
 }: SquareProps): JSX.Element {
-  const { data: game, mutate } = useSWR<DataPuzzleGame>(readyState === 'ready' ? GET_PUZZLE_KEY: null, fetcher, { revalidateIfStale: false, revalidateOnFocus: false })
+  const { data: game, mutate } = useSWR<DataPuzzleGame>(getGameKey(gameId), fetcher, { revalidateIfStale: false, revalidateOnFocus: false })
   const [, drop] = useDrop(
     () => ({
       accept: 'piece',
@@ -158,7 +157,7 @@ function ChessSquare({
   )
 }
 
-function ChessBoard({ size = '100%', board, readyState }: BoardProps): JSX.Element {
+function ChessBoard({ size = '100%', board, gameId }: BoardProps): JSX.Element {
   const squares = getAllSquares(board)
   return (
     <div css={{
@@ -174,7 +173,7 @@ function ChessBoard({ size = '100%', board, readyState }: BoardProps): JSX.Eleme
         const piece = board[square[0]]?.[square[1]]
         return (
           <ChessSquare
-            readyState={readyState}
+            gameId={gameId}
             row={square[0]}
             col={square[1]}
             key={`${square[0]}~${square[1]}`}

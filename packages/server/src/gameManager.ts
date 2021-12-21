@@ -1,32 +1,98 @@
-import {
-  createGame,
-  submitMove as submitGameMove,
-  gotoMove as gotoGameMove
-} from './game'
-import type { Game } from './game'
-import type { Square } from './board'
+import { createMasterGame, moveMasterGame } from '@chessy/core'
+import type { PuzzleMasterGame, PuzzlePlayerGame, Square, Puzzle } from '@chessy/core'
+import testPuzzles from './testPuzzles'
 import { v4 as uuidv4 } from 'uuid'
 
-export default class GameManager {
-  #games: { [gameId: string]: Game } = {}
+type StoredPuzzleGame = PuzzleMasterGame & { id: string; }
 
-  getGame(gameId: string): Game {
+type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
+type ProgressState = 'WAITING' | 'READY' | 'NOT_STARTED' | 'COMPLETED'
+type PuzzleMetadata = {
+  id: string;
+  title: string;
+  moveCount: number;
+  difficulty: Difficulty;
+  progress: ProgressState;
+};
+
+export type ServerPuzzleGame = Omit<PuzzlePlayerGame, 'history'> & {
+  id: string;
+  history?: PuzzleMasterGame['history'];
+}
+
+function randomOrDefault<T>(arr: [T, ...T[]]): T {
+  const randomIndex = Math.floor(Math.random() * arr.length)
+  return arr[randomIndex] || arr[0]
+}
+
+function convertPuzzleToMetadata(puzzle: Puzzle): PuzzleMetadata {
+  return {
+    id: puzzle.id,
+    title: `Test Puzzle ${puzzle.id[puzzle.id.length - 1]}`,
+    moveCount: puzzle.correctMoves.length,
+    difficulty: randomOrDefault(['EASY', 'MEDIUM', 'HARD']),
+    progress: randomOrDefault(['WAITING', 'READY', 'NOT_STARTED', 'COMPLETED'])
+  }
+}
+
+export function convertGameForResponse(game: StoredPuzzleGame, includeHistory = false): ServerPuzzleGame {
+  const { puzzle, history, ...gameForResponse } = game
+  return {
+    ...gameForResponse,
+    ...(includeHistory ? { history } : {}),
+    puzzleId: puzzle.id
+  }
+}
+
+export default class GameManager {
+  #games: { [gameId: string]: StoredPuzzleGame } = {}
+
+  getPuzzleMetadata(puzzleId: string): PuzzleMetadata {
+    const puzzle = testPuzzles.find(p => p.id === puzzleId)
+    if (!puzzle) { throw new Error('Puzzle not found!') }
+    return convertPuzzleToMetadata(puzzle)
+  }
+
+  getAllPuzzleMetadatas(): PuzzleMetadata[] {
+    return testPuzzles.map(convertPuzzleToMetadata)
+  }
+
+  getGame(gameId: string): StoredPuzzleGame {
     const game = this.#games[gameId]
     if (!game) { throw new Error('Game not found!') }
     return game
   }
 
+  getGameHistory(gameId: string): PuzzleMasterGame['history'] {
+    const game = this.#games[gameId]
+    if (!game) { throw new Error('Game not found!') }
+    return game.history
+  }
+
+  getGameByPuzzle(puzzleId: string): StoredPuzzleGame {
+    const games = Object.values(this.#games)
+    const matchedGame = games.find(game => game.puzzle.id === puzzleId)
+    if (!matchedGame) { throw new Error('Game not found!') }
+    return matchedGame
+  }
+
   // TODO: Pagination
-  getAllGames(): Game[] {
+  getAllGames(): StoredPuzzleGame[] {
     return Object.values(this.#games)
   }
 
   /**
    * Has a side effect of storing a game.
    */
-  createGame(): Game {
+  createGame(puzzleId = 'test-puzzle'): StoredPuzzleGame {
+    const games = Object.values(this.#games)
+    const matchedGame = games.find(game => game.puzzle.id === puzzleId)
+    if (matchedGame) {
+      throw new Error('Game already exists!')
+    }
     const id = uuidv4()
-    const newGame = createGame(id)
+    const puzzle = testPuzzles.find(p => p.id === puzzleId)
+    const newGame = { ...createMasterGame(puzzle), id }
     this.#games[id] = newGame
     return newGame
   }
@@ -41,16 +107,26 @@ export default class GameManager {
     delete this.#games[gameId]
   }
 
-  submitMove(gameId: string, from: Square, to: Square): Game {
-    const game = this.getGame(gameId)
-    submitGameMove(from, to, game)
-    return game
+  /**
+   * Has side effect of deleting all games.
+   */
+  removeAllGames(): void {
+    this.#games = {}
   }
 
-  gotoMove(gameId: string, moveNumber: number): Game {
+  move(gameId: string, from: Square, to: Square): {
+    game: StoredPuzzleGame;
+    puzzleMove?: { from: Square; to: Square };
+    success: boolean;
+  } {
     const game = this.getGame(gameId)
-    gotoGameMove(moveNumber, game)
-    return game
+    const moveResult = moveMasterGame(from, to, null, game)
+    const newStoredGame = { ...moveResult.game, id: game.id }
+    this.#games[game.id] = newStoredGame
+    return {
+      ...moveResult,
+      game: newStoredGame,
+    }
   }
 }
 

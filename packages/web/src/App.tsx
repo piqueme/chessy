@@ -1,24 +1,28 @@
 import React from 'react'
-import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Layout from './Layout'
+import GamePage from './GamePage'
+import PuzzlesPage from './PuzzlesPage'
 
 function App(): JSX.Element {
   return (
-    <div className="App">
-      Hello Vite + React!
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route path="game/:gameId" element={<GamePage />} />
+          <Route path="puzzles" element={<PuzzlesPage />} />
+          <Route
+            path="*"
+            element={
+              <main css={{ padding: "1rem" }}>
+                <p> There's nothing here! </p>
+              </main>
+            }
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
 export default App
-
-// SERVER
-// create game
-//  standard board
-// propose (user, game, ...)
-// game manager 
-//  getGames(user)
-//  getGame(game)
-//
-// CLIENT
-// button -> create game
-// connect via API, configure local!

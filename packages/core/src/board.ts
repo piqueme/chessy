@@ -4,6 +4,17 @@ import {
   reverseMap
 } from './utils'
 
+/**
+ * What should the Board module contains?
+ *  - key types for board, squares, pieces
+ *  - utility methods for updating the board, finding pieces and squares
+ *
+ * How should we structure the methods?
+ *  - read and mutation methods should clearly distinguish
+ *  - allow importing individual methods for lower size
+ *  - when importing help with namespacing
+ */
+
 export type Mutation = { square: Square; piece: Piece | null }
 export type PieceType = 'bishop' | 'rook' | 'knight' | 'king' | 'queen' | 'pawn'
 export type Side = 'white' | 'black'
@@ -16,6 +27,7 @@ type MutableRow = [(Piece | null), ...(Piece | null)[]]
 type Row = Readonly<MutableRow>
 export type Board = Readonly<[Row, ...Row[]]>
 export type Square = [number, number]
+export type Direction = [number, number]
 
 const pieceTypeSerializationMap: Map<PieceType, string> = new Map([
   ['bishop', 'B'],
@@ -200,6 +212,10 @@ export function shift(square: Square, change: [number, number]): Square {
 
 export function squareEquals(square1: Square, square2: Square): boolean {
   return square1[0] === square2[0] && square1[1] === square2[1]
+}
+
+export function squareDiff(square1: Square, square2: Square): [number, number] {
+  return [square2[0] - square1[0], square2[1] - square1[1]]
 }
 
 export function mutateBoard(

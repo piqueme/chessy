@@ -130,6 +130,33 @@ export function readBoard(serializedBoard: string): Board {
   }
 }
 
+function readCompressedRow(row: string): (Piece | null)[] {
+  const parsedRow: (Piece | null)[] = []
+  for (let i = 0; i < row.length; i++) {
+    const char = row[i]
+    if (!char) { throw new Error('Parsing error.') }
+    const spaces = parseInt(char, 10)
+    if (spaces) {
+      for (let j = 0; j < spaces; j++) {
+        parsedRow.push(null)
+      }
+    } else {
+      const pieceType = reversePieceTypeMap.get(char.toUpperCase())
+      if (!pieceType) { throw new Error('Parsing error.') }
+      const side = (char.toUpperCase() === char) ? 'white' : 'black'
+      parsedRow.push({ type: pieceType, side })
+    }
+  }
+  return parsedRow
+}
+
+export function readCompressedBoard(compressedBoard: string): Board {
+  const rows = compressedBoard.split('/')
+  const parsedRows = rows.map(readCompressedRow)
+  if (!isBoardValid(parsedRows)) { throw new Error('Invalid board!') }
+  return parsedRows
+}
+
 export function createStandardBoard(): Board {
   return readBoard([
     '-------------------------',

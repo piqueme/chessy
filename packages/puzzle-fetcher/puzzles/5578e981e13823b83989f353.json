@@ -1,0 +1,11 @@
+{
+  "blunderMove": "R2xe4",
+  "elo": 1518,
+  "fenBefore": "4r3/pp3p1k/2p2n2/7p/2PpN3/3P1N1P/PPnRr1BK/6R1 b - - 10 30",
+  "forcedLine": [
+    "Ng5+"
+  ],
+  "game_id": "554e2628e13823a3b99f312a",
+  "id": "5578e981e13823b83989f353",
+  "move_index": 59
+}

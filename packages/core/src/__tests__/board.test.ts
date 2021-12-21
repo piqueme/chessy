@@ -3,6 +3,7 @@ import {
   readPiece,
   isBoardValid,
   readBoard,
+  readCompressedBoard,
   createStandardBoard,
   serializeBoard,
   atSquare,
@@ -35,6 +36,7 @@ const serializedTestBoard = [
   '|  |  |wP|bB|',
   '-------------',
 ].join('\n')
+const compressedTestBoard = 'bP2/4/4/2Pb'
 
 describe('serializePiece', () => {
   test('correctly serializes black bishop', () => {
@@ -139,6 +141,22 @@ describe('readBoard', () => {
       '|bB|bB|wP|',
       '-------'
     ].join('\n')
+    expect(() => { readBoard(badTestBoard) }).toThrowError()
+  });
+})
+
+describe.only('readCompressedBoard', () => {
+  test('correctly reads boards with multiple pieces and space', () => {
+    expect(readCompressedBoard(compressedTestBoard)).toEqual(testBoard)
+  });
+
+  test('throws an error for board with invalid characters', () => {
+    const badTestBoard = 'x4/5/5/b3B/Q4'
+    expect(() => { readCompressedBoard(badTestBoard) }).toThrowError()
+  });
+
+  test('throws an error for board with unequal row sizes', () => {
+    const badTestBoard = 'p4p/5/5/Q4'
     expect(() => { readBoard(badTestBoard) }).toThrowError()
   });
 })

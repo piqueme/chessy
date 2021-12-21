@@ -1,0 +1,21 @@
+{
+  "blunderMove": "dxe5",
+  "elo": 2236,
+  "fenBefore": "3qn1k1/3b1p1r/p2p2p1/n1pPB1P1/2P5/3QP1N1/r3NRB1/5RK1 b - - 0 30",
+  "forcedLine": [
+    "Qxg6+",
+    "Rg7",
+    "Rxf7",
+    "Rxg6",
+    "Rf8+",
+    "Kh7",
+    "R1f7+",
+    "Ng7",
+    "Rxd8",
+    "Be8",
+    "Rxe8"
+  ],
+  "game_id": "554e0a80e1382399e3648802",
+  "id": "557b493fe13823b838fd1215",
+  "move_index": 59
+}

@@ -157,6 +157,28 @@ export function readCompressedBoard(compressedBoard: string): Board {
   return parsedRows
 }
 
+function serializeCompressedRow(row: Row): string {
+  const compressedRow = row.reduce<[string, number]>((acc, pieceOrNull) => {
+    if (pieceOrNull === null) {
+      return [acc[0], acc[1] + 1]
+    }
+    const spaceString = acc[1] > 0 ? acc[1].toString() : ''
+    const pieceString = pieceTypeSerializationMap.get(pieceOrNull.type)
+    if (!pieceString) {
+      throw new Error(`Invalid piece ${pieceOrNull} being serialized!`)
+    }
+    const pieceWithSideString = pieceOrNull.side === 'white' ? pieceString : pieceString.toLowerCase()
+    return [acc[0] + spaceString + pieceWithSideString, 0]
+  }, ['', 0])
+
+  const endSpaceString = compressedRow[1] > 0 ? compressedRow[1].toString() : ''
+  return compressedRow[0] + endSpaceString
+}
+
+export function serializeCompressedBoard(board: Board): string {
+  return board.map(serializeCompressedRow).join('/')
+}
+
 export function createStandardBoard(): Board {
   return readBoard([
     '-------------------------',

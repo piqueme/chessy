@@ -6,6 +6,7 @@ import {
   readCompressedBoard,
   createStandardBoard,
   serializeBoard,
+  serializeCompressedBoard,
   atSquare,
   getAllSquares,
   findPieces,
@@ -101,8 +102,14 @@ describe('isBoardValid', () => {
 })
 
 describe('serializeBoard', () => {
-  test('matches snapshot for small board with multiple pieces and space', () => {
+  test('works correctly for small board with multiple pieces and space', () => {
     expect(serializeBoard(testBoard)).toEqual(serializedTestBoard)
+  });
+})
+
+describe.only('serializeCompressedBoard', () => {
+  test('works correctly for small board with multiple pieces and space', () => {
+    expect(serializeCompressedBoard(testBoard)).toEqual(compressedTestBoard)
   });
 })
 
@@ -145,7 +152,7 @@ describe('readBoard', () => {
   });
 })
 
-describe.only('readCompressedBoard', () => {
+describe('readCompressedBoard', () => {
   test('correctly reads boards with multiple pieces and space', () => {
     expect(readCompressedBoard(compressedTestBoard)).toEqual(testBoard)
   });

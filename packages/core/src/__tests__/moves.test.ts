@@ -1,6 +1,6 @@
 import { readBoard } from '../board'
 import type { Square, Piece } from '../board'
-import type { Move, MoveWithTake } from '../moves'
+import type { Move, FullMove, MoveWithTake } from '../moves'
 import {
   getFeasibleMoves,
   isFeasibleMove,
@@ -9,6 +9,7 @@ import {
   getCheckState,
   canPromoteFromAssumedValidMove,
   executeMove,
+  notate,
 } from '../moves'
 
 // helps compare sets of moves
@@ -914,3 +915,98 @@ describe('executeMove', () => {
   })
 })
 
+// NOTE: This can be slightly annoying to maintain given all the notation move
+// types it's trying to satisfy
+describe.only('notate', () => {
+  const notationTestBoard = readBoard([
+    "-------------------------",
+    "|bK|  |  |  |  |  |  |  |",
+    "-------------------------",
+    "|  |  |wP|  |  |wP|  |  |",
+    "-------------------------",
+    "|  |wP|  |  |  |  |  |  |",
+    "-------------------------",
+    "|  |  |  |  |  |  |bP|wP|",
+    "-------------------------",
+    "|  |bB|  |bB|wK|  |  |  |",
+    "-------------------------",
+    "|  |wR|  |  |  |  |  |  |",
+    "-------------------------",
+    "|  |bB|  |  |  |  |  |  |",
+    "-------------------------",
+    "|  |  |  |  |  |  |  |  |",
+    "-------------------------",
+  ].join('\n'))
+
+  test('for basic non-pawn move includes piece and target square', () => {
+    const from: Square = [5, 1]
+    const to: Square = [5, 6]
+    const move = { from, to }
+
+    expect(notate(move, 'white', notationTestBoard)).toEqual('Rg3')
+  })
+
+  test('for basic pawn move includes only target square', () => {
+    const from: Square = [3, 7]
+    const to: Square = [2, 7]
+    const move = { from, to }
+
+    expect(notate(move, 'white', notationTestBoard)).toEqual('h6')
+  })
+
+  test('includes "x" with take for non-pawn move', () => {
+    const from: Square = [5, 1]
+    const to: Square = [4, 1]
+    const take = {
+      piece: { side: 'black', type: 'bishop' } as Piece,
+      square: [4, 1] as Square,
+    }
+    const move: FullMove = { from, to, take }
+
+    expect(notate(move, 'white', notationTestBoard)).toEqual('Rxd2')
+  })
+
+  test('for en passant appends e.p. without changing move target square', () => {
+    const from: Square = [3, 7]
+    const to: Square = [2, 6]
+    const take = {
+      piece: { side: 'black', type: 'pawn' } as Piece,
+      square: [3, 6] as Square,
+    }
+    const move: FullMove = { from, to, take }
+
+    expect(notate(move, 'white', notationTestBoard)).toEqual('hxg5')
+  })
+
+  test('when move results in check adds +', () => {
+    const from: Square = [5, 1]
+    const to: Square = [5, 0]
+    const move: FullMove = { from, to }
+
+    expect(notate(move, 'white', notationTestBoard)).toEqual('Ra3+')
+  })
+
+  test('when move results in checkmate adds #', () => {
+    const from: Square = [1, 2]
+    const to: Square = [0, 2]
+    const move: FullMove = { from, to, promotion: 'queen' }
+
+    expect(notate(move, 'white', notationTestBoard)).toEqual('c8=Q#')
+  })
+
+  test('when move results in promotion to queen includes "=Q"', () => {
+    const from: Square = [1, 5]
+    const to: Square = [0, 5]
+    const move: FullMove = { from, to }
+
+    expect(notate(move, 'white', notationTestBoard)).toEqual('f8=Q+')
+  })
+
+  test('when only way to identify piece moved is by unique square includes square', () => {
+    const from: Square = [4, 1]
+    const to: Square = [5, 2]
+    const move: FullMove = { from, to }
+
+    expect(notate(move, 'black', notationTestBoard)).toEqual('Bb4c3')
+  })
+})

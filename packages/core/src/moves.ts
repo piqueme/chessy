@@ -7,13 +7,15 @@ import {
   atSquare,
   squareEquals,
   squareDiff,
-  mutateBoard
+  mutateBoard,
+  serializePiece
 } from './board'
 
 export type Move = { from: Square, to: Square }
 export type Take = { piece: Piece; square: Square }
 export type MoveWithTake = Move & { take?: Take }
 export type MoveResult = { board: Board; take?: Take; promotion?: PieceType }
+export type FullMove = Move & { take?: Take; promotion?: PieceType }
 export type HistoryMove = Move & { take?: Take; promotion?: PieceType; resultCheckState: CheckState }
 export type CheckState = 'SAFE' | 'CHECK' | 'CHECKMATE'
 
@@ -298,3 +300,38 @@ export function executeMove(move: Move, previous: Move | null, promotePiece: Pie
   }
 }
 
+function notateSquare(square: Square): string {
+  const charCodeOfLowerA = 97
+  const column = String.fromCharCode(charCodeOfLowerA + square[1])
+  const row = 8 - square[0]
+  return `${column}${row}`
+}
+
+// NOTE: generally assumes move is valid...
+export function notate(move: FullMove, side: Side, board: Board): string {
+  const piece = atSquare(move.from, board)
+  if (!piece) { throw new Error('No piece being moved...') }
+  const pieceString = piece.type === 'pawn' ? '' : serializePiece(piece)
+  const targetSquareString = notateSquare(move.to)
+  const similarPieceSquares = findPieces(piece, board)
+  // ideally use isValidMove, but need to avoid expensive computation
+  const piecesWithSameMove = similarPieceSquares.filter(
+    square => isFeasibleMove({ from: square, to: move.to }, null, side, board)
+  )
+  const shouldDisambiguateColumn = new Set([move.from, ...piecesWithSameMove].map(square => square[1])).size < piecesWithSameMove.length
+  const shouldDisambiguateRow = new Set([move.from, ...piecesWithSameMove].map(square => square[0])).size < piecesWithSameMove.length
+  const disambiguationSquare = notateSquare(move.from)
+  const disambiguationString = `${shouldDisambiguateColumn ? disambiguationSquare[0] : ''}${shouldDisambiguateRow ? disambiguationSquare[1] : ''}`
+  const takeString = move.take ? 'x' : ''
+  // promotion string
+
+  return `${pieceString}${disambiguationString}${takeString}${targetSquareString}`
+}
+
+// export function parseMove(notation: string, board: Board): FullMove {
+//   notation -> piece type and side -> find
+//   notation -> any disambiguation before 'x' or 'square' ?
+//   notation -> see 'x'? implies take
+//   notation -> target square, if not e.p. add to take
+//    if e.p. subtract row from target for take square
+// }

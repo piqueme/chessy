@@ -1,5 +1,5 @@
 import { squareEquals, getEnemySide } from './board'
-import { getCheckState, executeMove as chessMove } from './moves'
+import { getCheckState, executeMove as chessMove, notate } from './moves'
 import { testPuzzle } from './puzzle'
 import type { Side, Square, Board, PieceType } from './board'
 import type { HistoryMove, CheckState } from './moves'
@@ -21,6 +21,16 @@ export type PuzzlePlayerGame = {
   history: HistoryMove[];
 }
 
+export function createPlayerGame(puzzle: Puzzle = testPuzzle): PuzzlePlayerGame {
+  return {
+    sideToMove: 'white',
+    board: puzzle.startBoard,
+    checkState: 'SAFE',
+    puzzleId: puzzle.id,
+    history: [],
+  }
+}
+
 export function createMasterGame(puzzle: Puzzle = testPuzzle): PuzzleMasterGame {
   return {
     sideToMove: 'white',
@@ -31,80 +41,76 @@ export function createMasterGame(puzzle: Puzzle = testPuzzle): PuzzleMasterGame 
   }
 }
 
-export function moveMasterGame(from: Square, to: Square, promote: PieceType | null, game: PuzzleMasterGame): {
+export function moveMasterGame(from: Square, to: Square, promotion: PieceType | undefined, game: PuzzleMasterGame): {
   game: PuzzleMasterGame;
   puzzleMove?: HistoryMove;
   success: boolean;
 } {
   const currentMoveCount = game.history.length
-  const nextValidMove = game.puzzle.correctMoves[currentMoveCount]
-  const previousMove = game.history[currentMoveCount - 1]
-  if (!nextValidMove) {
+  const nextCorrectMove = game.puzzle.correctMoves[currentMoveCount]?.move
+  const previousMove = game.history[currentMoveCount - 1]?.move
+  if (!nextCorrectMove) {
     throw new Error('No more moves left in the puzzle!')
   }
-  if (squareEquals(from, nextValidMove.from) && squareEquals(to, nextValidMove.to)) {
-    const userMoveResult = chessMove({ from, to }, previousMove || null, promote, game.sideToMove, game.board)
-    let finalMoveResult = userMoveResult
-    const newCheckState = getCheckState(previousMove || null, getEnemySide(game.sideToMove), userMoveResult.board)
-    const newHistory = [...game.history]
-    const newHistoryMove = {
-      from,
-      to,
-      ...(userMoveResult.take ? { take: userMoveResult.take } : {}),
-      ...(userMoveResult.promotion ? { promote: userMoveResult.promotion } : {}),
-      resultCheckState: newCheckState
-    }
-    newHistory.push(newHistoryMove)
-    const puzzleMove = game.puzzle.correctMoves[currentMoveCount + 1]
-    if (puzzleMove) {
-      const puzzleMoveResult = chessMove(
-        { from: puzzleMove.from, to: puzzleMove.to },
-        { from, to },
-        puzzleMove.promotion || null,
-        getEnemySide(game.sideToMove),
-        userMoveResult.board
-      )
-      newHistory.push(puzzleMove)
-      finalMoveResult = puzzleMoveResult
-    }
-
-    const newGameState = {
-      ...game,
-      sideToMove: puzzleMove ? game.sideToMove : getEnemySide(game.sideToMove),
-      board: finalMoveResult.board,
-      checkState: newHistory?.[newHistory.length - 1]?.resultCheckState || 'SAFE',
-      history: newHistory
-    }
-
-    return {
-      game: newGameState,
-      success: true,
-      ...(puzzleMove ? { puzzleMove } : {})
-    }
+  const isCorrectPuzzleMove = squareEquals(from, nextCorrectMove.from) && squareEquals(to, nextCorrectMove.to)
+  if (!isCorrectPuzzleMove) {
+    return { game, success: false }
   }
 
-  return { game, success: false }
+  const { fullMove: fullUserMove, newBoard: boardAfterUserMove } = chessMove({ from, to }, previousMove, promotion, game.sideToMove, game.board)
+  const notatedMove = notate(fullUserMove, previousMove, game.sideToMove, game.board)
+  const historyMove = { move: fullUserMove, notation: notatedMove }
+  const newHistory = [...game.history, historyMove]
+  const puzzleMove = game.puzzle.correctMoves[currentMoveCount + 1]
+  let finalMoveBoard = boardAfterUserMove
+
+  if (puzzleMove) {
+    const { newBoard: boardAfterPuzzleMove } = chessMove(
+      { from: puzzleMove.move.from, to: puzzleMove.move.to },
+      { from: fullUserMove.from, to: fullUserMove.to },
+      puzzleMove.move.promotion,
+      getEnemySide(game.sideToMove),
+      boardAfterUserMove,
+    )
+    finalMoveBoard = boardAfterPuzzleMove
+    newHistory.push(puzzleMove)
+  }
+
+  const newSideToMove = puzzleMove ? game.sideToMove : getEnemySide(game.sideToMove)
+  const newCheckState = getCheckState(
+    puzzleMove ? fullUserMove : previousMove,
+    newSideToMove,
+    finalMoveBoard
+  )
+
+  const newGameState = {
+    ...game,
+    sideToMove: newSideToMove,
+    board: finalMoveBoard,
+    checkState: newCheckState,
+    history: newHistory
+  }
+
+  return {
+    game: newGameState,
+    success: true,
+    ...(puzzleMove ? { puzzleMove } : {})
+  }
 }
 
-export function movePlayerGame(from: Square, to: Square, promote: PieceType | null, game: PuzzlePlayerGame): PuzzlePlayerGame {
-  const previousMove = game.history[game.history.length - 1]
-  const result = chessMove({ from, to }, previousMove || null, promote, game.sideToMove, game.board)
-  const { take, promotion } = result
+export function movePlayerGame(from: Square, to: Square, promotion: PieceType | undefined, game: PuzzlePlayerGame): PuzzlePlayerGame {
+  const previousMove = game.history[game.history.length - 1]?.move
+  const { fullMove, newBoard } = chessMove({ from, to }, previousMove, promotion, game.sideToMove, game.board)
+  const notatedMove = notate(fullMove, previousMove, game.sideToMove, game.board)
   const newSideToMove = getEnemySide(game.sideToMove)
-  const newCheckState = getCheckState(previousMove || null, newSideToMove, result.board)
+  const newCheckState = getCheckState(previousMove, newSideToMove, newBoard)
   const newHistory = [
     ...game.history,
-    {
-      from,
-      to,
-      ...(take ? { take } : {}),
-      ...(promotion ? { promotion } : {}),
-      resultCheckState: newCheckState
-    }
+    { move: fullMove, notation: notatedMove }
   ]
   const newGameState = {
     puzzleId: game.puzzleId,
-    board: result.board,
+    board: newBoard,
     sideToMove: getEnemySide(game.sideToMove),
     checkState: newCheckState,
     history: newHistory

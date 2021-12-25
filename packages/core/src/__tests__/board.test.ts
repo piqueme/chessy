@@ -107,7 +107,7 @@ describe('serializeBoard', () => {
   });
 })
 
-describe.only('serializeCompressedBoard', () => {
+describe('serializeCompressedBoard', () => {
   test('works correctly for small board with multiple pieces and space', () => {
     expect(serializeCompressedBoard(testBoard)).toEqual(compressedTestBoard)
   });

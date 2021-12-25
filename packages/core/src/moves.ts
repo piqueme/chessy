@@ -12,11 +12,10 @@ import {
 } from './board'
 
 export type Move = { from: Square, to: Square }
-export type Take = { piece: Piece; square: Square }
-export type MoveWithTake = Move & { take?: Take }
-export type MoveResult = { board: Board; take?: Take; promotion?: PieceType }
+type Take = { piece: Piece; square: Square }
+export type MoveWithTake = Move & { take?: Take } // exported only for testing!
 export type FullMove = Move & { take?: Take; promotion?: PieceType }
-export type HistoryMove = Move & { take?: Take; promotion?: PieceType; resultCheckState: CheckState }
+export type HistoryMove = { move: FullMove; notation: string }
 export type CheckState = 'SAFE' | 'CHECK' | 'CHECKMATE'
 
 function getTraversalUntilBlockOrEnemy(from: Square, side: Side, dirs: Direction[], board: Board): MoveWithTake[] {
@@ -82,7 +81,7 @@ function getFeasibleKnightMoves(from: Square, side: Side, board: Board): MoveWit
   return getTraversalUntilBlockOrEnemy(from, piece.side, jumpDirs, board)
 }
 
-function getFeasiblePawnMoves(from: Square, previous: Move | null, side: Side, board: Board): MoveWithTake[] {
+function getFeasiblePawnMoves(from: Square, previous: Move | undefined, side: Side, board: Board): MoveWithTake[] {
   const piece = atSquare(from, board)
   if (!piece) {
     throw new Error(`Piece not available at ${from} to move!`)
@@ -100,6 +99,7 @@ function getFeasiblePawnMoves(from: Square, previous: Move | null, side: Side, b
   const jumpDirection: Direction = piece.side === 'black' ? [2, 0] : [-2, 0]
   const takeDirections: Direction[] = piece.side === 'black' ? [[1, -1], [1, 1]] : [[-1, -1], [-1, 1]]
 
+  // forward moves
   const moveSquare = shift(from, moveDirection)
   if (inBoard(moveSquare, board) && !atSquare(moveSquare, board)) {
     moves.push({ from, to: moveSquare })
@@ -110,7 +110,8 @@ function getFeasiblePawnMoves(from: Square, previous: Move | null, side: Side, b
       moves.push({ from, to: jumpSquare })
     }
   }
-  // EN PASSANT
+
+  // Logic for handling en passant
   if (previous) {
     const pieceAtPreviousMoveTarget = previous ? atSquare(previous.to, board) : null
     const enemyPawnMovedLast = pieceAtPreviousMoveTarget?.type === 'pawn' && pieceAtPreviousMoveTarget?.side === getEnemySide(side)
@@ -123,6 +124,8 @@ function getFeasiblePawnMoves(from: Square, previous: Move | null, side: Side, b
       moves.push({ from, to: shift(from, dir), take })
     }
   }
+
+  // normal pawn takes
   for (const dir of takeDirections) {
     const takeSquare = shift(from, dir)
     const takeSquareInBoard = inBoard(takeSquare, board)
@@ -177,7 +180,8 @@ function getFeasibleKingMoves(from: Square, side: Side, board: Board): MoveWithT
   return moves
 }
 
-export function getFeasibleMoves(from: Square, previous: Move | null, side: Side, board: Board): MoveWithTake[] {
+// NOTE: exported only for testing
+export function getFeasibleMoves(from: Square, previous: Move | undefined, side: Side, board: Board): MoveWithTake[] {
   const piece = atSquare(from, board)
   if (!piece) { throw new Error(`No piece at square: ${from} to get moves for!`) }
   if (piece.side !== side) { throw new Error(`Piece moved does not match moving side.`) }
@@ -197,33 +201,32 @@ export function getFeasibleMoves(from: Square, previous: Move | null, side: Side
   }
 }
 
-function annotateMoveWithTake(move: Move, previous: Move | null, side: Side, board: Board): MoveWithTake {
+function getTakeForMove(move: Move, previous: Move | undefined, side: Side, board: Board): Take | undefined {
   const feasibleMoves = getFeasibleMoves(move.from, previous, side, board)
-  const annotatedMove = feasibleMoves.find(feasibleMove => squareEquals(feasibleMove.to, move.to))
-  if (!annotatedMove) { throw new Error('Given move is not feasible.'); }
-  return annotatedMove
+  const moveWithTake = feasibleMoves.find(feasibleMove => squareEquals(feasibleMove.to, move.to))
+  return moveWithTake?.take
 }
 
-export function isFeasibleMove(move: Move, previous: Move | null, side: Side, board: Board): boolean {
+function isFeasibleMove(move: Move, previous: Move | undefined, side: Side, board: Board): boolean {
   const feasibleMoves = getFeasibleMoves(move.from, previous, side, board)
   return feasibleMoves.some(feasibleMove => squareEquals(feasibleMove.to, move.to))
 }
 
-export function getAllFeasibleMoves(previous: Move | null, side: Side, board: Board): MoveWithTake[] {
+export function getAllFeasibleMoves(previous: Move | undefined, side: Side, board: Board): MoveWithTake[] {
   const squares = findPieces({ side }, board)
   return squares.map(
     square => getFeasibleMoves(square, previous, side, board)
   ).flat()
 }
 
-export function isCheck(previous: Move | null, side: Side, board: Board): boolean {
+export function isCheck(previous: Move | undefined, side: Side, board: Board): boolean {
   const ownKingSquare = findPieces({ type: 'king', side: side }, board)
   const enemySide = getEnemySide(side)
   const enemyMoves = getAllFeasibleMoves(previous, enemySide, board)
   return enemyMoves.some(move => move.to[0] === ownKingSquare[0]?.[0] && move.to[1] === ownKingSquare[0]?.[1])
 }
 
-export function getValidMoves(from: Square, previous: Move | null, side: Side, board: Board): MoveWithTake[] {
+export function getValidMoves(from: Square, previous: Move | undefined, side: Side, board: Board): MoveWithTake[] {
   const piece = atSquare(from, board)
   if (!piece) { return [] }
   const feasibleMoves = getFeasibleMoves(from, previous, side, board)
@@ -242,19 +245,12 @@ export function getValidMoves(from: Square, previous: Move | null, side: Side, b
   return validMoves
 }
 
-export function isValidMove(move: Move, previous: Move | null, side: Side, board: Board): boolean {
+export function isValidMove(move: Move, previous: Move | undefined, side: Side, board: Board): boolean {
   const validMoves = getValidMoves(move.from, previous, side, board)
   return validMoves.some(validMove => squareEquals(validMove.to, move.to))
 }
 
-export function getAllValidMoves(previous: Move | null, side: Side, board: Board): MoveWithTake[] {
-  const squares = findPieces({ side }, board)
-  return squares.map(
-    square => getValidMoves(square, previous, side, board)
-  ).flat()
-}
-
-export function getCheckState(previous: Move | null, side: Side, board: Board): CheckState {
+export function getCheckState(previous: Move | undefined, side: Side, board: Board): CheckState {
   const ownKingSquare = findPieces({ type: 'king', side: side }, board)[0]
   if (!ownKingSquare) { throw new Error('Could not find own king!') }
 
@@ -273,30 +269,39 @@ export function canPromoteFromAssumedValidMove(move: Move, side: Side, board: Bo
   return piece?.type === 'pawn' && move.to[0] === lastRow
 }
 
-export function executeMove(move: Move, previous: Move | null, promotePiece: PieceType | null, side: Side, board: Board): MoveResult {
+export function executeMove(move: Move, previous: Move | undefined, promotion: PieceType | undefined, side: Side, board: Board): {
+  fullMove: FullMove;
+  newBoard: Board;
+} {
   const isValid = isValidMove(move, previous, side, board)
   if (!isValid) {
     throw new Error(`Move ${move} is not valid.`)
   }
-  const moveWithTake = annotateMoveWithTake(move, previous, side, board)
-  let piece = atSquare(moveWithTake.from, board)
-  const canPromote = canPromoteFromAssumedValidMove(moveWithTake, side, board)
-  if (canPromote && !promotePiece) {
+  const take = getTakeForMove(move, previous, side, board)
+  let piece = atSquare(move.from, board)
+  const canPromote = canPromoteFromAssumedValidMove(move, side, board)
+  if (canPromote && !promotion) {
     throw new Error('Cannot make a final rank move without promotion.')
   }
-  if (canPromote && promotePiece) {
-    piece = { type: promotePiece, side };
+  if (canPromote && promotion) {
+    piece = { type: promotion, side };
   }
+
   const boardAfterMove = mutateBoard([
-    { square: moveWithTake.from, piece: null },
-    { square: moveWithTake.to, piece },
-    ...(moveWithTake.take?.square && !squareEquals(moveWithTake.take?.square, move.to) ? [{ square: moveWithTake.take?.square, piece: null }] : [])
+    { square: move.from, piece: null },
+    { square: move.to, piece },
+    ...(take?.square && !squareEquals(take?.square, move.to) ? [{ square: take?.square, piece: null }] : [])
   ], board)
 
+  const fullMove = {
+    ...move,
+    ...take && ({ take }),
+    ...promotion && ({ promotion }),
+  }
+
   return {
-    board: boardAfterMove,
-    ...(moveWithTake.take ? { take: moveWithTake.take } : {}),
-    ...(promotePiece ? { promotion: promotePiece } : {})
+    fullMove,
+    newBoard: boardAfterMove,
   }
 }
 
@@ -308,24 +313,50 @@ function notateSquare(square: Square): string {
 }
 
 // NOTE: generally assumes move is valid...
-export function notate(move: FullMove, side: Side, board: Board): string {
+// if pawn take, need to include column
+export function notate(move: FullMove, previous: FullMove | undefined, side: Side, board: Board): string {
   const piece = atSquare(move.from, board)
   if (!piece) { throw new Error('No piece being moved...') }
-  const pieceString = piece.type === 'pawn' ? '' : serializePiece(piece)
+  const pieceString = piece.type === 'pawn' ? '' : serializePiece(piece)[1]
   const targetSquareString = notateSquare(move.to)
+
+  // Disambiguation
+  // NOTE: ideally use isValidMove, but need to avoid expensive computation
   const similarPieceSquares = findPieces(piece, board)
-  // ideally use isValidMove, but need to avoid expensive computation
   const piecesWithSameMove = similarPieceSquares.filter(
-    square => isFeasibleMove({ from: square, to: move.to }, null, side, board)
+    square => isFeasibleMove({ from: square, to: move.to }, previous, side, board)
   )
+  const shouldIncludePawnColumnForTake = piece.type === 'pawn' && !!move.take
   const shouldDisambiguateColumn = new Set([move.from, ...piecesWithSameMove].map(square => square[1])).size < piecesWithSameMove.length
   const shouldDisambiguateRow = new Set([move.from, ...piecesWithSameMove].map(square => square[0])).size < piecesWithSameMove.length
   const disambiguationSquare = notateSquare(move.from)
-  const disambiguationString = `${shouldDisambiguateColumn ? disambiguationSquare[0] : ''}${shouldDisambiguateRow ? disambiguationSquare[1] : ''}`
-  const takeString = move.take ? 'x' : ''
-  // promotion string
+  const disambiguationString = `${(shouldDisambiguateColumn || shouldIncludePawnColumnForTake) ? disambiguationSquare[0] : ''}${shouldDisambiguateRow ? disambiguationSquare[1] : ''}`
 
-  return `${pieceString}${disambiguationString}${takeString}${targetSquareString}`
+  // handling piece takes
+  const takeString = move.take ? 'x' : ''
+
+  // promotion string, slightly hacky since we don't care about side
+  let promotionString = ''
+  if (move.promotion) {
+    const promotionPieceString = move.promotion ? serializePiece({ type: move.promotion, side: 'white' })[1] : ''
+    promotionString = '=' + promotionPieceString
+  }
+
+  // en passant
+  let enPassantString = ''
+  if (move.take && !squareEquals(move.take.square, move.to)) {
+    enPassantString = ' e.p.'
+  }
+
+  // test for check
+  const { newBoard } = executeMove(move, previous, move.promotion, side, board)
+  const newBoardCheckState = getCheckState(previous, getEnemySide(side), newBoard)
+  let checkStateString = ''
+  if (newBoardCheckState === 'CHECK') { checkStateString = '+' }
+  if (newBoardCheckState === 'CHECKMATE') { checkStateString = '#' }
+
+
+  return `${pieceString}${disambiguationString}${takeString}${targetSquareString}${promotionString}${checkStateString}${enPassantString}`
 }
 
 // export function parseMove(notation: string, board: Board): FullMove {

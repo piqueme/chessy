@@ -3,7 +3,6 @@ import type { Square, Piece } from '../board'
 import type { Move, FullMove, MoveWithTake } from '../moves'
 import {
   getFeasibleMoves,
-  isFeasibleMove,
   getAllFeasibleMoves,
   getValidMoves,
   getCheckState,
@@ -38,7 +37,7 @@ describe('getFeasibleMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [2, 1]
-    const moves = getFeasibleMoves(fromSquare, null, 'white', testBoard)
+    const moves = getFeasibleMoves(fromSquare, undefined, 'white', testBoard)
     const targets: Square[] = [[0, 0], [0, 2], [1, 3], [3, 3], [4, 0]]
     const expectedMoves = targets.map(to => {
       const takenPiece = testBoard[to[0]]?.[to[1]]
@@ -68,7 +67,7 @@ describe('getFeasibleMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [4, 2]
-    const moves = getFeasibleMoves(fromSquare, null, 'white', testBoard)
+    const moves = getFeasibleMoves(fromSquare, undefined, 'white', testBoard)
     const targets: Square[] = [
       [0, 2], [1, 2], [2, 2], [3, 2], [3, 3],
       [2, 0], [3, 1], [4, 0], [4, 1], [4, 3], [4, 4]
@@ -101,7 +100,7 @@ describe('getFeasibleMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [2, 1]
-    const moves = getFeasibleMoves(fromSquare, null, 'black', testBoard)
+    const moves = getFeasibleMoves(fromSquare, undefined, 'black', testBoard)
     const targets: Square[] = [[3, 1], [3, 2]]
     const expectedMoves = targets.map(to => {
       const takenPiece = testBoard[to[0]]?.[to[1]]
@@ -131,7 +130,7 @@ describe('getFeasibleMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [2, 1]
-    const moves = getFeasibleMoves(fromSquare, null, 'black', testBoard)
+    const moves = getFeasibleMoves(fromSquare, undefined, 'black', testBoard)
     const targets: Square[] = [[1, 0], [1, 1], [1, 2], [2, 2], [3, 0], [3, 1], [3, 2]]
     const expectedMoves = targets.map(to => {
       const takenPiece = testBoard[to[0]]?.[to[1]]
@@ -145,81 +144,6 @@ describe('getFeasibleMoves', () => {
     expect(moves.sort(moveSorter)).toEqual(expectedMoves.sort(moveSorter))
   });
 });
-
-describe('isFeasibleMove', () => {
-  test('validates pawn en passant', () => {
-    const testBoard = readBoard([
-      '----------------',
-      '|  |  |  |  |  |',
-      '----------------',
-      '|  |  |  |bP|bK|',
-      '----------------',
-      '|  |  |  |  |  |',
-      '----------------',
-      '|  |wP|bP|  |  |',
-      '----------------',
-      '|  |  |  |  |  |',
-      '----------------',
-      '|  |  |  |wP|  |',
-      '----------------',
-      '|  |  |  |  |  |',
-      '----------------',
-    ].join('\n'))
-
-    const isFeasible = isFeasibleMove({
-      from: [3, 1],
-      to: [2, 2],
-    }, {
-      from: [1, 2],
-      to: [3, 2]
-    }, 'white', testBoard)
-    expect(isFeasible).toEqual(true)
-  });
-
-  test('validates knight takes piece', () => {
-    const testBoard = readBoard([
-      '----------------',
-      '|  |  |  |  |  |',
-      '----------------',
-      '|  |  |wN|  |  |',
-      '----------------',
-      '|bQ|bK|  |  |  |',
-      '----------------',
-      '|  |wP|  |  |  |',
-      '----------------',
-      '|  |  |  |  |  |',
-      '----------------',
-    ].join('\n'))
-
-    const isFeasible = isFeasibleMove({
-      from: [1, 2],
-      to: [2, 0],
-    }, null, 'white', testBoard)
-    expect(isFeasible).toEqual(true)
-  });
-
-  test('rejects queen moves past enemy piece', () => {
-    const testBoard = readBoard([
-      '----------------',
-      '|  |  |bK|  |  |',
-      '----------------',
-      '|  |  |wN|  |  |',
-      '----------------',
-      '|bQ|  |wR|  |  |',
-      '----------------',
-      '|  |wP|  |  |  |',
-      '----------------',
-      '|  |  |  |  |  |',
-      '----------------',
-    ].join('\n'))
-
-    const isFeasible = isFeasibleMove({
-      from: [2, 0],
-      to: [2, 4],
-    }, null, 'black', testBoard)
-    expect(isFeasible).toEqual(false)
-  });
-})
 
 describe('getAllFeasibleMoves', () => {
   test('gets all feasible moves for small board with few pieces', () => {
@@ -238,7 +162,7 @@ describe('getAllFeasibleMoves', () => {
     ].join('\n'))
 
     const feasibleMoves = getAllFeasibleMoves(
-      null,
+      undefined,
       'black',
       testBoard
     )
@@ -281,7 +205,7 @@ describe('getValidMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [2, 1]
-    const moves = getValidMoves(fromSquare, null, 'white', testBoard)
+    const moves = getValidMoves(fromSquare, undefined, 'white', testBoard)
     const targets: Square[] = [[0, 0], [0, 2], [1, 3], [3, 3], [4, 0]]
     const expectedMoves = targets.map(to => {
       const takenPiece = testBoard[to[0]]?.[to[1]]
@@ -311,7 +235,7 @@ describe('getValidMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [2, 1]
-    const moves = getValidMoves(fromSquare, null, 'white', testBoard)
+    const moves = getValidMoves(fromSquare, undefined, 'white', testBoard)
     const targets: Square[] = [[3, 3]]
     const expectedMoves = targets.map(to => {
       const takenPiece = testBoard[to[0]]?.[to[1]]
@@ -341,7 +265,7 @@ describe('getValidMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [3, 3]
-    const moves = getValidMoves(fromSquare, null, 'white', testBoard)
+    const moves = getValidMoves(fromSquare, undefined, 'white', testBoard)
     expect(moves.sort(moveSorter)).toEqual([])
   });
 
@@ -361,7 +285,7 @@ describe('getValidMoves', () => {
     ].join('\n'))
 
     const fromSquare: Square = [4, 3]
-    const moves = getValidMoves(fromSquare, null, 'white', testBoard)
+    const moves = getValidMoves(fromSquare, undefined, 'white', testBoard)
     const targets: Square[] = [[3, 2], [4, 2], [3, 4], [4, 4]]
     const expectedMoves = targets.map(to => {
       return {
@@ -388,7 +312,7 @@ describe('getCheckState', () => {
       '|  |  |  |  |  |',
       '----------------',
     ].join('\n'))
-    expect(getCheckState(null, 'black', testBoard)).toEqual('SAFE')
+    expect(getCheckState(undefined, 'black', testBoard)).toEqual('SAFE')
   })
 
   test('validates that there is a check from a single piece', () => {
@@ -405,7 +329,7 @@ describe('getCheckState', () => {
       '|  |  |  |  |  |',
       '----------------',
     ].join('\n'))
-    expect(getCheckState(null, 'black', testBoard)).toEqual('CHECK')
+    expect(getCheckState(undefined, 'black', testBoard)).toEqual('CHECK')
   })
 
   test('validates that there is a check from multiple pieces', () => {
@@ -422,7 +346,7 @@ describe('getCheckState', () => {
       '|  |  |  |wB|  |',
       '----------------',
     ].join('\n'))
-    expect(getCheckState(null, 'black', testBoard)).toEqual('CHECK')
+    expect(getCheckState(undefined, 'black', testBoard)).toEqual('CHECK')
   })
 
   test('recognizes checkmate', () => {
@@ -439,7 +363,7 @@ describe('getCheckState', () => {
       '|  |  |  |  |  |',
       '----------------',
     ].join('\n'))
-    expect(getCheckState(null, 'black', testBoard)).toEqual('CHECKMATE')
+    expect(getCheckState(undefined, 'black', testBoard)).toEqual('CHECKMATE')
   })
 })
 
@@ -550,14 +474,6 @@ describe('canPromoteFromAssumedValidMove', () => {
   })
 })
 
-// pawn first move
-// pawn en passant
-// queen takes bishop
-// failure no piece at from
-// failure move to same side piece
-// failure move past piece
-// failure move into check
-
 describe('executeMove', () => {
   test('throws error when no piece at from square', () => {
     const testBoard = readBoard([
@@ -577,8 +493,8 @@ describe('executeMove', () => {
     expect(() => {
       executeMove(
         { from: [3, 3], to: [3, 4] },
-        null,
-        null,
+        undefined,
+        undefined,
         'black',
         testBoard
       )
@@ -603,8 +519,8 @@ describe('executeMove', () => {
     expect(() => {
       executeMove(
         { from: [4, 3], to: [4, 2] },
-        null,
-        null,
+        undefined,
+        undefined,
         'black',
         testBoard
       )
@@ -629,8 +545,8 @@ describe('executeMove', () => {
     expect(() => {
       executeMove(
         { from: [3, 1], to: [0, 4] },
-        null,
-        null,
+        undefined,
+        undefined,
         'white',
         testBoard
       )
@@ -655,8 +571,8 @@ describe('executeMove', () => {
     expect(() => {
       executeMove(
         { from: [3, 3], to: [2, 2] },
-        null,
-        null,
+        undefined,
+        undefined,
         'white',
         testBoard
       )
@@ -692,16 +608,18 @@ describe('executeMove', () => {
       '----------------',
     ].join('\n'))
 
+    const move: Move = { from: [4, 3], to: [4, 2] }
     const moveResult = executeMove(
-      { from: [4, 3], to: [4, 2] },
-      null,
-      null,
+      move,
+      undefined,
+      undefined,
       'white',
       preMoveBoard
     )
 
     expect(moveResult).toEqual({
-      board: postMoveBoard,
+      fullMove: move,
+      newBoard: postMoveBoard,
     })
   })
 
@@ -734,20 +652,24 @@ describe('executeMove', () => {
       '----------------',
     ].join('\n'))
 
+    const move: Move = { from: [2, 2], to: [1, 3] }
     const moveResult = executeMove(
-      { from: [2, 2], to: [1, 3] },
-      null,
-      null,
+      move,
+      undefined,
+      undefined,
       'white',
       preMoveBoard
     )
 
     expect(moveResult).toEqual({
-      board: postMoveBoard,
-      take: {
-        square: [1, 3],
-        piece: { type: 'rook', side: 'black' }
-      }
+      fullMove: {
+        ...move,
+        take: {
+          square: [1, 3],
+          piece: { type: 'rook', side: 'black' }
+        }
+      },
+      newBoard: postMoveBoard,
     })
   })
 
@@ -792,16 +714,18 @@ describe('executeMove', () => {
       '----------------',
     ].join('\n'))
 
+    const move: Move = { from: [1, 1], to: [3, 1] }
     const moveResult = executeMove(
-      { from: [1, 1], to: [3, 1] },
-      null,
-      null,
+      move,
+      undefined,
+      undefined,
       'black',
       preMoveBoard
     )
 
     expect(moveResult).toEqual({
-      board: postMoveBoard,
+      fullMove: move,
+      newBoard: postMoveBoard,
     })
   })
 
@@ -846,20 +770,25 @@ describe('executeMove', () => {
       '----------------',
     ].join('\n'))
 
+    const move: Move = { from: [3, 3], to: [2, 2] }
+    const previousMove: Move = { from: [1, 2], to: [3, 2] }
     const moveResult = executeMove(
-      { from: [3, 3], to: [2, 2] },
-      { from: [1, 2], to: [3, 2] },
-      null,
+      move,
+      previousMove,
+      undefined,
       'white',
       preMoveBoard
     )
 
     expect(moveResult).toEqual({
-      board: postMoveBoard,
-      take: {
-        piece: { side: 'black', type: 'pawn' },
-        square: [3, 2]
-      }
+      fullMove: {
+        ...move,
+        take: {
+          piece: { side: 'black', type: 'pawn' },
+          square: [3, 2]
+        }
+      },
+      newBoard: postMoveBoard,
     })
   })
 
@@ -896,28 +825,33 @@ describe('executeMove', () => {
       '----------------',
     ].join('\n'))
 
+    const move: Move = { from: [1, 1], to: [0, 2] }
+    const promotion = 'queen'
     const moveResult = executeMove(
-      { from: [1, 1], to: [0, 2] },
-      null,
-      'queen',
+      move,
+      undefined,
+      promotion,
       'white',
       preMoveBoard
     )
 
     expect(moveResult).toEqual({
-      board: postMoveBoard,
-      take: {
-        piece: { side: 'black', type: 'rook' },
-        square: [0, 2]
+      fullMove: {
+        ...move,
+        promotion,
+        take: {
+          piece: { side: 'black', type: 'rook' },
+          square: [0, 2]
+        },
       },
-      promotion: 'queen'
+      newBoard: postMoveBoard,
     })
   })
 })
 
 // NOTE: This can be slightly annoying to maintain given all the notation move
 // types it's trying to satisfy
-describe.only('notate', () => {
+describe('notate', () => {
   const notationTestBoard = readBoard([
     "-------------------------",
     "|bK|  |  |  |  |  |  |  |",
@@ -943,7 +877,7 @@ describe.only('notate', () => {
     const to: Square = [5, 6]
     const move = { from, to }
 
-    expect(notate(move, 'white', notationTestBoard)).toEqual('Rg3')
+    expect(notate(move, undefined, 'white', notationTestBoard)).toEqual('Rg3')
   })
 
   test('for basic pawn move includes only target square', () => {
@@ -951,7 +885,7 @@ describe.only('notate', () => {
     const to: Square = [2, 7]
     const move = { from, to }
 
-    expect(notate(move, 'white', notationTestBoard)).toEqual('h6')
+    expect(notate(move, undefined, 'white', notationTestBoard)).toEqual('h6')
   })
 
   test('includes "x" with take for non-pawn move', () => {
@@ -963,7 +897,7 @@ describe.only('notate', () => {
     }
     const move: FullMove = { from, to, take }
 
-    expect(notate(move, 'white', notationTestBoard)).toEqual('Rxd2')
+    expect(notate(move, undefined, 'white', notationTestBoard)).toEqual('Rxb4')
   })
 
   test('for en passant appends e.p. without changing move target square', () => {
@@ -974,8 +908,12 @@ describe.only('notate', () => {
       square: [3, 6] as Square,
     }
     const move: FullMove = { from, to, take }
+    const previous: FullMove = {
+      from: [1, 6],
+      to: [3, 6],
+    }
 
-    expect(notate(move, 'white', notationTestBoard)).toEqual('hxg5')
+    expect(notate(move, previous, 'white', notationTestBoard)).toEqual('hxg6 e.p.')
   })
 
   test('when move results in check adds +', () => {
@@ -983,7 +921,7 @@ describe.only('notate', () => {
     const to: Square = [5, 0]
     const move: FullMove = { from, to }
 
-    expect(notate(move, 'white', notationTestBoard)).toEqual('Ra3+')
+    expect(notate(move, undefined, 'white', notationTestBoard)).toEqual('Ra3+')
   })
 
   test('when move results in checkmate adds #', () => {
@@ -991,15 +929,15 @@ describe.only('notate', () => {
     const to: Square = [0, 2]
     const move: FullMove = { from, to, promotion: 'queen' }
 
-    expect(notate(move, 'white', notationTestBoard)).toEqual('c8=Q#')
+    expect(notate(move, undefined, 'white', notationTestBoard)).toEqual('c8=Q#')
   })
 
   test('when move results in promotion to queen includes "=Q"', () => {
     const from: Square = [1, 5]
     const to: Square = [0, 5]
-    const move: FullMove = { from, to }
+    const move: FullMove = { from, to, promotion: 'queen' }
 
-    expect(notate(move, 'white', notationTestBoard)).toEqual('f8=Q+')
+    expect(notate(move, undefined, 'white', notationTestBoard)).toEqual('f8=Q+')
   })
 
   test('when only way to identify piece moved is by unique square includes square', () => {
@@ -1007,6 +945,6 @@ describe.only('notate', () => {
     const to: Square = [5, 2]
     const move: FullMove = { from, to }
 
-    expect(notate(move, 'black', notationTestBoard)).toEqual('Bb4c3')
+    expect(notate(move, undefined, 'black', notationTestBoard)).toEqual('Bb4c3')
   })
 })

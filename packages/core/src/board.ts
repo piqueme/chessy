@@ -58,6 +58,12 @@ export function serializePiece(piece: Piece): string {
   return sideShort + pieceTypeShort
 }
 
+export function readPieceType(pieceTypeString: string): PieceType {
+  const typeData = reversePieceTypeMap.get(pieceTypeString)
+  if (!typeData) { throw new Error('Piece type could not be read!') }
+  return typeData
+}
+
 export function readPiece(pieceString: string): Piece {
   const side = pieceString[0]
   const type = pieceString[1]

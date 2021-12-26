@@ -21,3 +21,7 @@ export function reverseMap<T extends Primitive, U extends Primitive>(map: Map<U,
     Array.from(map, a => (a.reverse() as [T, U]))
   )
 }
+
+export function isUpperCase(s: string): boolean {
+  return s.toUpperCase() === s
+}

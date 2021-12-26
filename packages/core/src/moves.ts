@@ -8,8 +8,10 @@ import {
   squareEquals,
   squareDiff,
   mutateBoard,
-  serializePiece
+  serializePiece,
+  readPieceType,
 } from './board'
+import { isUpperCase } from './utils'
 
 export type Move = { from: Square, to: Square }
 type Take = { piece: Piece; square: Square }
@@ -359,10 +361,117 @@ export function notate(move: FullMove, previous: FullMove | undefined, side: Sid
   return `${pieceString}${disambiguationString}${takeString}${targetSquareString}${promotionString}${checkStateString}${enPassantString}`
 }
 
-// export function parseMove(notation: string, board: Board): FullMove {
-//   notation -> piece type and side -> find
-//   notation -> any disambiguation before 'x' or 'square' ?
-//   notation -> see 'x'? implies take
-//   notation -> target square, if not e.p. add to take
-//    if e.p. subtract row from target for take square
-// }
+function parseSquare(squareString: string, board: Board): Square {
+  const column = squareString[0]
+  const row = squareString[1]
+  if (!column || !row) { throw new Error(`String ${squareString} does not represent a square!`) }
+
+  const parsedColumn = column.charCodeAt(0) - 97
+  const parsedRow = board.length - parseInt(row)
+  if (
+    parsedColumn >= board[0].length || parsedColumn < 0 ||
+    parsedRow < 0 || parsedRow >= board.length
+  ) {
+    throw new Error(`Parsed square ${squareString} is out of board dimensions.`)
+  }
+
+  return [parsedRow, parsedColumn]
+}
+
+// NOTE: only works for limited range of squares
+const disambiguationRegex = /([a-z])?([1-9])?/
+function parseDisambiguationString(disambiguationString: string, board: Board): { row?: number; column?: number } {
+  const matches = disambiguationString.match(disambiguationRegex)
+  const columnString = matches?.[1]
+  const rowString = matches?.[2]
+
+  return {
+    ...columnString && ({ column: columnString.charCodeAt(0) - 97 }),
+    ...rowString && ({ row: board.length - parseInt(rowString) })
+  }
+}
+
+// NOTE: may be cleaner with RegExp
+export function parseMoveNotation(notation: string, side: Side, board: Board): FullMove {
+  // extract en passant
+  const enPassant = notation.endsWith(' e.p.')
+  const notationWithEnPassantRemoved = notation.split(' e.p.')[0]
+  if (notationWithEnPassantRemoved === undefined) { throw new Error('Bad notation string split') }
+
+  // extract check or checkmate
+  const hasCheckString = notation.endsWith('#') || notation.endsWith('+')
+  const notationWithCheckRemoved = hasCheckString ?
+    notationWithEnPassantRemoved.substr(0, notationWithEnPassantRemoved.length - 1) :
+    notationWithEnPassantRemoved
+
+  // extract promotion
+  const [notationWithPromotionRemoved, promotionString] = notationWithCheckRemoved.split('=')
+  const promotion = promotionString ? readPieceType(promotionString) : undefined
+  if (notationWithPromotionRemoved === undefined) { throw new Error('Bad notation string split') }
+
+  // extract target square
+  const targetSquareString = notationWithPromotionRemoved.substr(notationWithPromotionRemoved.length - 2)
+  const targetSquare = parseSquare(targetSquareString, board)
+  const notationWithTargetRemoved = notationWithPromotionRemoved.split(targetSquareString)[0]
+  if (notationWithTargetRemoved === undefined) { throw new Error('Bad notation string split') }
+
+  // extract take segment
+  const hasTake = notationWithTargetRemoved.endsWith('x')
+  let take: Take | undefined = undefined;
+  if (hasTake && enPassant) {
+    const takePiece = { type: 'pawn' as PieceType, side: getEnemySide(side) }
+    const backOneSquareDir: [number, number] = side === 'black' ? [-1, 0] : [1, 0]
+    const takeSquare = shift(targetSquare, backOneSquareDir)
+    take = { piece: takePiece, square: takeSquare }
+  } else if (hasTake) {
+    const takePiece = atSquare(targetSquare, board)
+    if (!takePiece || takePiece.side != getEnemySide(side)) {
+      throw new Error('Piece does not exist or has wrong side at target square in notation')
+    }
+    take = { piece: takePiece, square: targetSquare }
+  }
+  const notationWithTakeRemoved = notationWithTargetRemoved.split('x')[0]
+  if (notationWithTakeRemoved === undefined) { throw new Error('Bad notation string split') }
+
+  // extract piece being moved
+  const pieceType = isUpperCase(notationWithTakeRemoved[0] || 'a') ? readPieceType(notationWithTakeRemoved[0] || '') : 'pawn'
+  const piece = { side, type: pieceType }
+  const disambiguationString = notationWithTakeRemoved.substr(pieceType === 'pawn' ? 0 : 1)
+  const disambiguation = parseDisambiguationString(disambiguationString, board)
+  const similarPieceSquares = findPieces(piece, board)
+  const matchingPieceSquares = similarPieceSquares.filter(square => {
+    if (pieceType === 'pawn') {
+      const matchesRow =
+        (disambiguation.row === undefined && Math.abs(square[0] - targetSquare[0]) <= 2) ||
+        (disambiguation.row !== undefined && square[0] === disambiguation.row)
+      const matchesColumn =
+        (disambiguation.column === undefined && (square[1] === targetSquare[1])) ||
+        (disambiguation.column !== undefined && (square[1] === disambiguation.column))
+      return matchesRow && matchesColumn
+    }
+    const matchesRow = disambiguation.row === undefined || (disambiguation.row === square[0])
+    const matchesColumn = disambiguation.column === undefined || (disambiguation.column === square[1])
+    return matchesRow && matchesColumn
+  })
+  if (matchingPieceSquares.length === 0) {
+    throw new Error('Could not find piece matching disambiguation in notation')
+  }
+  if (matchingPieceSquares.length > 1 && pieceType !== 'pawn') {
+    throw new Error('Squares for move could not be disambiguated')
+  }
+  const matchingPawnSquare =
+    matchingPieceSquares.find(square => Math.abs(square[0] - targetSquare[0]) === 1) ||
+    matchingPieceSquares.find(square => Math.abs(square[0] - targetSquare[0]) === 2)
+
+  const matchingPieceSquare = pieceType === 'pawn' ? matchingPawnSquare : matchingPieceSquares[0]
+  if (!matchingPieceSquare) {
+    throw new Error('Could not find matching piece for notated move')
+  }
+
+  return {
+    from: matchingPieceSquare,
+    to: targetSquare,
+    ...take && ({ take }),
+    ...promotion && ({ promotion }),
+  }
+}

@@ -9,6 +9,7 @@ import {
   canPromoteFromAssumedValidMove,
   executeMove,
   notate,
+  parseMoveNotation,
 } from '../moves'
 
 // helps compare sets of moves
@@ -946,5 +947,220 @@ describe('notate', () => {
     const move: FullMove = { from, to }
 
     expect(notate(move, undefined, 'black', notationTestBoard)).toEqual('Bb4c3')
+  })
+})
+
+describe('parseMoveNotation', () => {
+  test('parses correctly for pawn move forward', () => {
+    const board = readBoard([
+      "-------------------------",
+      "|  |  |bK|  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |wP|  |wP|  |wP|wP|  |",
+      "-------------------------",
+      "|  |  |wK|  |  |  |  |  |",
+      "-------------------------",
+    ].join('\n'))
+
+    const notatedMove = 'd4'
+    expect(parseMoveNotation(notatedMove, 'white', board)).toEqual({
+      from: [6, 3],
+      to: [4, 3],
+    })
+  })
+
+  test('parses correctly for pawn take', () => {
+    const board = readBoard([
+      "-------------------------",
+      "|  |  |bK|  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |bB|  |  |  |",
+      "-------------------------",
+      "|  |  |  |wP|wP|  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |wK|  |  |  |  |  |",
+      "-------------------------",
+    ].join('\n'))
+
+    const notatedMove = 'dxe5'
+    expect(parseMoveNotation(notatedMove, 'white', board)).toEqual({
+      from: [4, 3],
+      to: [3, 4],
+      take: {
+        piece: { type: 'bishop', side: 'black' },
+        square: [3, 4]
+      }
+    })
+  })
+
+  test('parses correctly for bishop move without take', () => {
+    const board = readBoard([
+      "-------------------------",
+      "|  |  |bK|  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |bB|  |  |  |",
+      "-------------------------",
+      "|  |  |  |wP|wP|  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |wK|  |  |  |  |  |",
+      "-------------------------",
+    ].join('\n'))
+
+    const notatedMove = 'Bg3'
+    expect(parseMoveNotation(notatedMove, 'black', board)).toEqual({
+      from: [3, 4],
+      to: [5, 6],
+    })
+  })
+
+  test('parses correctly for rook take with disambiguation', () => {
+    const board = readBoard([
+      "-------------------------",
+      "|  |  |bK|  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |bR|  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |bB|  |  |  |",
+      "-------------------------",
+      "|  |bR|  |wP|wP|  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |wK|  |  |  |  |  |",
+      "-------------------------",
+    ].join('\n'))
+
+    const notatedMove = 'Rbxd4'
+    expect(parseMoveNotation(notatedMove, 'black', board)).toEqual({
+      from: [4, 1],
+      to: [4, 3],
+      take: {
+        piece: { type: 'pawn', side: 'white' },
+        square: [4, 3]
+      }
+    })
+  })
+
+  test('parses correctly for knight take placing king in check', () => {
+    const board = readBoard([
+      "-------------------------",
+      "|  |  |bK|  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |bB|  |  |  |",
+      "-------------------------",
+      "|  |  |  |wP|wP|bN|  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |wB|  |  |  |",
+      "-------------------------",
+      "|  |  |wK|  |  |  |  |  |",
+      "-------------------------",
+    ].join('\n'))
+
+    const notatedMove = 'Nxe2+'
+    expect(parseMoveNotation(notatedMove, 'black', board)).toEqual({
+      from: [4, 5],
+      to: [6, 4],
+      take: {
+        piece: { type: 'bishop', side: 'white' },
+        square: [6, 4]
+      }
+    })
+  })
+
+  test('parses correctly for en passant', () => {
+    const board = readBoard([
+      "-------------------------",
+      "|  |  |bK|  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|wP|bP|  |  |bB|  |  |  |",
+      "-------------------------",
+      "|  |  |  |wP|wP|  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |wK|  |  |  |  |  |",
+      "-------------------------",
+    ].join('\n'))
+
+    const notatedMove = 'axb6 e.p.'
+    expect(parseMoveNotation(notatedMove, 'white', board)).toEqual({
+      from: [3, 0],
+      to: [2, 1],
+      take: {
+        piece: { type: 'pawn', side: 'black' },
+        square: [3, 1]
+      }
+    })
+  })
+
+  test('parses correctly for pawn promotion resulting in checkmate', () => {
+    const board = readBoard([
+      "-------------------------",
+      "|bK|  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |wP|  |  |  |  |",
+      "-------------------------",
+      "|  |wQ|  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |bP|  |  |bB|  |  |  |",
+      "-------------------------",
+      "|  |  |  |wP|wP|  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |wK|  |  |  |  |  |",
+      "-------------------------",
+    ].join('\n'))
+
+    const notatedMove = 'd8=R#'
+    expect(parseMoveNotation(notatedMove, 'white', board)).toEqual({
+      from: [1, 3],
+      to: [0, 3],
+      promotion: 'rook',
+    })
   })
 })

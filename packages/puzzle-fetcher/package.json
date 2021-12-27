@@ -12,8 +12,11 @@
     "test": "yarn g:test --selectProjects @chessy/puzzle-fetcher"
   },
   "dependencies": {
+    "@chessy/core": "workspace:packages/core",
+    "@types/js-yaml": "^4.0.5",
     "axios": "^0.24.0",
     "chalk": "4",
+    "js-yaml": "^4.1.0",
     "mkdirp": "^1.0.4",
     "yargs": "^17.3.0"
   },

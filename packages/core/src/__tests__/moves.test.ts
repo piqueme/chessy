@@ -1071,6 +1071,38 @@ describe('parseMoveNotation', () => {
     })
   })
 
+  test('parses correctly for knight take when multiple knights exist', () => {
+    const board = readBoard([
+      "-------------------------",
+      "|  |  |bK|  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |bR|  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |bB|  |  |  |",
+      "-------------------------",
+      "|  |bR|  |wP|bP|  |  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |wN|  |  |",
+      "-------------------------",
+      "|  |  |  |  |  |wN|  |  |",
+      "-------------------------",
+      "|  |  |wK|  |  |  |  |  |",
+      "-------------------------",
+    ].join('\n'))
+
+    const notatedMove = 'Nxe4'
+    expect(parseMoveNotation(notatedMove, 'white', board)).toEqual({
+      from: [6, 5],
+      to: [4, 4],
+      take: {
+        piece: { type: 'pawn', side: 'black' },
+        square: [4, 4]
+      }
+    })
+  })
+
   test('parses correctly for knight take placing king in check', () => {
     const board = readBoard([
       "-------------------------",

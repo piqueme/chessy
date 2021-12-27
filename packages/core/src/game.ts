@@ -5,12 +5,14 @@ import type { Side, Square, Board, PieceType } from './board'
 import type { HistoryMove, CheckState } from './moves'
 import type { Puzzle } from './puzzle'
 
+export type History = HistoryMove[];
+
 export type PuzzleMasterGame = {
   sideToMove: Side;
   board: Board;
   checkState: CheckState;
   puzzle: Puzzle;
-  history: HistoryMove[];
+  history: History;
 }
 
 export type PuzzlePlayerGame = {
@@ -18,7 +20,7 @@ export type PuzzlePlayerGame = {
   board: Board;
   checkState: CheckState;
   puzzleId: string;
-  history: HistoryMove[];
+  history: History;
 }
 
 export function createPlayerGame(puzzle: Puzzle = testPuzzle): PuzzlePlayerGame {

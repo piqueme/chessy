@@ -391,7 +391,8 @@ function parseDisambiguationString(disambiguationString: string, board: Board): 
   }
 }
 
-// NOTE: may be cleaner with RegExp
+// NOTE: My god this is awful. Definitely deserves cleanup, but fuck it. May be
+// better with RegExp or something. "Algebraic notation" my ass.
 export function parseMoveNotation(notation: string, side: Side, board: Board): FullMove {
   // extract en passant
   const enPassant = notation.endsWith(' e.p.')
@@ -456,14 +457,20 @@ export function parseMoveNotation(notation: string, side: Side, board: Board): F
   if (matchingPieceSquares.length === 0) {
     throw new Error('Could not find piece matching disambiguation in notation')
   }
-  if (matchingPieceSquares.length > 1 && pieceType !== 'pawn') {
-    throw new Error('Squares for move could not be disambiguated')
-  }
   const matchingPawnSquare =
     matchingPieceSquares.find(square => Math.abs(square[0] - targetSquare[0]) === 1) ||
     matchingPieceSquares.find(square => Math.abs(square[0] - targetSquare[0]) === 2)
 
-  const matchingPieceSquare = pieceType === 'pawn' ? matchingPawnSquare : matchingPieceSquares[0]
+  // NOTE: ideally should be testing move validity, but expensive
+  const matchingNonPawnSquare = matchingPieceSquares.find(s => isFeasibleMove(
+    { from: s, to: targetSquare },
+    undefined,
+    side,
+    board
+  ))
+
+  const matchingPieceSquare = pieceType === 'pawn' ? matchingPawnSquare : matchingNonPawnSquare
+  // const matchingPieceSquare = pieceType === 'pawn' ? matchingPawnSquare : matchingPieceSquares[0]
   if (!matchingPieceSquare) {
     throw new Error('Could not find matching piece for notated move')
   }

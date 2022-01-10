@@ -21,8 +21,11 @@
   },
   "dependencies": {
     "@chessy/core": "workspace:packages/core",
+    "dotenv": "^10.0.0",
     "fastify": "^3.22.0",
     "fastify-cors": "^6.0.2",
+    "fastify-plugin": "^3.0.0",
+    "mongoose": "^6.1.5",
     "uuid": "^8.3.2"
   }
 }

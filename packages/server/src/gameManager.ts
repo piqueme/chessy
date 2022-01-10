@@ -2,6 +2,7 @@ import { createMasterGame, moveMasterGame } from '@chessy/core'
 import type { PuzzleMasterGame, PuzzlePlayerGame, Square, Puzzle } from '@chessy/core'
 import testPuzzles from './testPuzzles'
 import { v4 as uuidv4 } from 'uuid'
+import mongoose from 'mongoose'
 
 type StoredPuzzleGame = PuzzleMasterGame & { id: string; }
 
@@ -45,7 +46,12 @@ export function convertGameForResponse(game: StoredPuzzleGame, includeHistory = 
 }
 
 export default class GameManager {
+  db: mongoose.Connection;
   #games: { [gameId: string]: StoredPuzzleGame } = {}
+
+  constructor(db: mongoose.Connection) {
+    this.db = db
+  }
 
   getPuzzleMetadata(puzzleId: string): PuzzleMetadata {
     const puzzle = testPuzzles.find(p => p.id === puzzleId)
@@ -130,6 +136,6 @@ export default class GameManager {
   }
 }
 
-export function createGameManager(): GameManager {
-  return new GameManager()
+export function createGameManager(db: mongoose.Connection): GameManager {
+  return new GameManager(db)
 }

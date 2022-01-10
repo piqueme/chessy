@@ -3,6 +3,7 @@ reports/
 
 **/build
 **/*.tsbuildinfo
+**/.env
 
 .yarn/*
 !.yarn/patches

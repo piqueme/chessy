@@ -1,0 +1,592 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`[INTEGRATION] blunder fetching and parsing pipeline fetches and parses puzzles, throwing out fetch/parse failures 1`] = `
+Array [
+  Object {
+    "correctMoves": Array [
+      Object {
+        "move": Object {
+          "from": Array [
+            3,
+            2,
+          ],
+          "take": Object {
+            "piece": Object {
+              "side": "white",
+              "type": "queen",
+            },
+            "square": Array [
+              6,
+              5,
+            ],
+          },
+          "to": Array [
+            6,
+            5,
+          ],
+        },
+        "notation": "Qxf2",
+      },
+      Object {
+        "move": Object {
+          "from": Array [
+            7,
+            3,
+          ],
+          "to": Array [
+            6,
+            3,
+          ],
+        },
+        "notation": "Rd2",
+      },
+      Object {
+        "move": Object {
+          "from": Array [
+            6,
+            5,
+          ],
+          "to": Array [
+            5,
+            4,
+          ],
+        },
+        "notation": "Qe3",
+      },
+    ],
+    "id": "5579ebe8e13823b81c3dfa46",
+    "sideToMove": "black",
+    "startBoard": Array [
+      Array [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        Object {
+          "side": "black",
+          "type": "rook",
+        },
+        null,
+      ],
+      Array [
+        null,
+        null,
+        null,
+        null,
+        Object {
+          "side": "black",
+          "type": "bishop",
+        },
+        null,
+        Object {
+          "side": "black",
+          "type": "king",
+        },
+        null,
+      ],
+      Array [
+        Object {
+          "side": "black",
+          "type": "pawn",
+        },
+        null,
+        null,
+        null,
+        null,
+        Object {
+          "side": "black",
+          "type": "pawn",
+        },
+        null,
+        null,
+      ],
+      Array [
+        null,
+        Object {
+          "side": "black",
+          "type": "pawn",
+        },
+        Object {
+          "side": "black",
+          "type": "queen",
+        },
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        null,
+        Object {
+          "side": "black",
+          "type": "bishop",
+        },
+        null,
+        null,
+      ],
+      Array [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      Array [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      Array [
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        null,
+        null,
+        Object {
+          "side": "white",
+          "type": "queen",
+        },
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        null,
+      ],
+      Array [
+        null,
+        null,
+        Object {
+          "side": "white",
+          "type": "king",
+        },
+        Object {
+          "side": "white",
+          "type": "rook",
+        },
+        null,
+        null,
+        null,
+        Object {
+          "side": "white",
+          "type": "rook",
+        },
+      ],
+    ],
+  },
+  Object {
+    "correctMoves": Array [
+      Object {
+        "move": Object {
+          "from": Array [
+            4,
+            5,
+          ],
+          "take": Object {
+            "piece": Object {
+              "side": "black",
+              "type": "knight",
+            },
+            "square": Array [
+              5,
+              5,
+            ],
+          },
+          "to": Array [
+            5,
+            5,
+          ],
+        },
+        "notation": "Rxf3",
+      },
+      Object {
+        "move": Object {
+          "from": Array [
+            1,
+            1,
+          ],
+          "take": Object {
+            "piece": Object {
+              "side": "white",
+              "type": "rook",
+            },
+            "square": Array [
+              5,
+              5,
+            ],
+          },
+          "to": Array [
+            5,
+            5,
+          ],
+        },
+        "notation": "Bxf3",
+      },
+      Object {
+        "move": Object {
+          "from": Array [
+            5,
+            4,
+          ],
+          "to": Array [
+            4,
+            5,
+          ],
+        },
+        "notation": "Bf4",
+      },
+    ],
+    "id": "557ec911e13823b832e33b35",
+    "sideToMove": "white",
+    "startBoard": Array [
+      Array [
+        null,
+        null,
+        Object {
+          "side": "black",
+          "type": "king",
+        },
+        Object {
+          "side": "black",
+          "type": "rook",
+        },
+        null,
+        null,
+        Object {
+          "side": "black",
+          "type": "rook",
+        },
+        null,
+      ],
+      Array [
+        null,
+        Object {
+          "side": "black",
+          "type": "bishop",
+        },
+        Object {
+          "side": "black",
+          "type": "queen",
+        },
+        Object {
+          "side": "black",
+          "type": "knight",
+        },
+        null,
+        null,
+        null,
+        null,
+      ],
+      Array [
+        Object {
+          "side": "black",
+          "type": "pawn",
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        Object {
+          "side": "black",
+          "type": "pawn",
+        },
+      ],
+      Array [
+        null,
+        null,
+        null,
+        null,
+        null,
+        Object {
+          "side": "white",
+          "type": "bishop",
+        },
+        null,
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+      ],
+      Array [
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        null,
+        Object {
+          "side": "black",
+          "type": "pawn",
+        },
+        Object {
+          "side": "white",
+          "type": "queen",
+        },
+        null,
+        Object {
+          "side": "white",
+          "type": "rook",
+        },
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        null,
+      ],
+      Array [
+        null,
+        Object {
+          "side": "black",
+          "type": "pawn",
+        },
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        null,
+        Object {
+          "side": "white",
+          "type": "bishop",
+        },
+        Object {
+          "side": "black",
+          "type": "knight",
+        },
+        Object {
+          "side": "white",
+          "type": "knight",
+        },
+        null,
+      ],
+      Array [
+        null,
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      Array [
+        Object {
+          "side": "white",
+          "type": "rook",
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        Object {
+          "side": "white",
+          "type": "king",
+        },
+        null,
+      ],
+    ],
+  },
+  Object {
+    "correctMoves": Array [
+      Object {
+        "move": Object {
+          "from": Array [
+            2,
+            0,
+          ],
+          "to": Array [
+            2,
+            5,
+          ],
+        },
+        "notation": "Rf6+",
+      },
+      Object {
+        "move": Object {
+          "from": Array [
+            1,
+            5,
+          ],
+          "to": Array [
+            0,
+            6,
+          ],
+        },
+        "notation": "Kg8",
+      },
+      Object {
+        "move": Object {
+          "from": Array [
+            6,
+            4,
+          ],
+          "take": Object {
+            "piece": Object {
+              "side": "black",
+              "type": "rook",
+            },
+            "square": Array [
+              0,
+              4,
+            ],
+          },
+          "to": Array [
+            0,
+            4,
+          ],
+        },
+        "notation": "Rxe8+",
+      },
+    ],
+    "id": "557a8640e13823b81d8200d7",
+    "sideToMove": "white",
+    "startBoard": Array [
+      Array [
+        null,
+        null,
+        null,
+        null,
+        Object {
+          "side": "black",
+          "type": "rook",
+        },
+        null,
+        null,
+        null,
+      ],
+      Array [
+        null,
+        Object {
+          "side": "black",
+          "type": "rook",
+        },
+        null,
+        null,
+        null,
+        Object {
+          "side": "black",
+          "type": "king",
+        },
+        null,
+        Object {
+          "side": "black",
+          "type": "pawn",
+        },
+      ],
+      Array [
+        Object {
+          "side": "white",
+          "type": "rook",
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      Array [
+        null,
+        Object {
+          "side": "black",
+          "type": "pawn",
+        },
+        null,
+        Object {
+          "side": "black",
+          "type": "bishop",
+        },
+        null,
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        null,
+        null,
+      ],
+      Array [
+        Object {
+          "side": "black",
+          "type": "pawn",
+        },
+        null,
+        null,
+        Object {
+          "side": "white",
+          "type": "bishop",
+        },
+        null,
+        Object {
+          "side": "white",
+          "type": "king",
+        },
+        null,
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+      ],
+      Array [
+        null,
+        null,
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      Array [
+        null,
+        null,
+        Object {
+          "side": "white",
+          "type": "pawn",
+        },
+        null,
+        Object {
+          "side": "white",
+          "type": "rook",
+        },
+        null,
+        null,
+        null,
+      ],
+      Array [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+    ],
+  },
+]
+`;

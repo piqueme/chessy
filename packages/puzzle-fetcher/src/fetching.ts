@@ -1,6 +1,5 @@
-import yargs from 'yargs/yargs'
-import chalk from 'chalk'
 import axios from 'axios'
+import pmap from 'p-map'
 import mkdirp from 'mkdirp'
 import path from 'path'
 import yaml from 'js-yaml'
@@ -14,15 +13,15 @@ import {
 } from '@chessy/core'
 import type { Board, Puzzle, Side, History } from '@chessy/core'
 
-type Blunder = {
+export type Blunder = {
   id: string;
   elo: number;
   blunderMove: string;
   fenBefore: string;
   forcedLine: string[];
   move_index: number;
-  pgn_id: string;
-  pv: string[];
+  pgn_id?: string;
+  pv?: string[];
 }
 
 type BlunderResponse = {
@@ -30,7 +29,7 @@ type BlunderResponse = {
   status: "ok";
 }
 
-async function fetchBlunder(): Promise<Blunder> {
+export async function fetchBlunder(): Promise<Blunder> {
   const response = await axios.post<BlunderResponse>('https://chessblunders.org/api/blunder/get', {
     type: 'rated',
   });
@@ -41,21 +40,7 @@ function sleep(timeInMillis: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, timeInMillis))
 }
 
-async function writeBlunders(blunders: Blunder[], targetDir = './'): Promise<void> {
-  await mkdirp(targetDir)
-  let p = Promise.resolve()
-  blunders.forEach(blunder => {
-    p = p.then(() => {
-      writeFile(
-        path.join(targetDir, blunder.id + '.json'),
-        JSON.stringify(blunder, null, 2)
-      )
-    })
-  })
-  return p
-}
-
-async function writePuzzles(puzzles: Puzzle[], targetDir = './'): Promise<void> {
+export async function writePuzzles(puzzles: Puzzle[], targetDir = './'): Promise<void> {
   await mkdirp(targetDir)
   let p = Promise.resolve()
   puzzles.forEach(puzzle => {
@@ -74,7 +59,7 @@ async function writePuzzles(puzzles: Puzzle[], targetDir = './'): Promise<void> 
   return p
 }
 
-function parseBlunder(blunder: Blunder): Puzzle {
+export function parseBlunder(blunder: Blunder): Puzzle {
   const [compressedBoard, compressedSide] = blunder.fenBefore.split(' ')
   if (!compressedBoard || !compressedSide) { throw new Error(`Improper starting fen for blunder ${blunder.id}`) }
   const preBlunderBoard = readCompressedBoard(compressedBoard)
@@ -104,50 +89,43 @@ function parseBlunder(blunder: Blunder): Puzzle {
   }
 }
 
-async function run({ numPuzzles, pause }: {
-  numPuzzles: number;
-  pause: number;
-}): Promise<void> {
-  const blunders: Blunder[] = []
-  console.log(chalk.green(`Starting to fetch all puzzles...`))
-  for (let i = 0; i < numPuzzles; i++) {
-    try {
-      const newBlunder = await fetchBlunder()
-      blunders.push(newBlunder)
-      console.log(`Fetched blunder ${i + 1}/${numPuzzles}`)
-      await sleep(pause)
-    } catch (e) {
-      console.log(chalk.red(`Failed to fetch blunder ${i + 1}/${numPuzzles}`))
-    }
+async function fetchAndParseBlunder(): Promise<Puzzle> {
+  const blunder = await fetchBlunder()
+  try {
+    const puzzle = parseBlunder(blunder)
+    return puzzle
+  } catch (e) {
+    throw new Error(`Failed to parse blunder!\n${JSON.stringify(blunder, null, 2)}`)
   }
-  console.log(chalk.green(`Completed fetching all puzzles!`))
-  await writeBlunders(blunders, './blunders')
-  console.log(chalk.green(`Completed writing all puzzles!`))
-
-  const puzzles = blunders.map((blunder, i) => {
-    try {
-      const puzzle = parseBlunder(blunder)
-      console.log(`Parsed blunder ${i + 1}/${numPuzzles}`)
-      return puzzle
-    } catch (e) {
-      console.error(chalk.red(e))
-      return null
-    }
-  })
-
-  const writablePuzzles = puzzles.filter((p): p is Puzzle => p !== null)
-  const successCount = writablePuzzles.length
-  const errorCount = numPuzzles - successCount
-  await writePuzzles(writablePuzzles, './puzzles')
-  console.log(`Statistics: ${successCount} success, ${errorCount} error`)
-  console.log(chalk.green(`Completed writing all puzzles!`))
 }
 
-(async () => {
-  const { n: numPuzzles, p: pause } = yargs(process.argv.slice(2)).options({
-    n: { type: 'number', alias: 'numPuzzles', default: 50 },
-    p: { type: 'number', alias: 'pause', default: 2000 },
-  }).parseSync()
+type FetchOptions = {
+  numPuzzles: number;
+  pause: number;
+  concurrency: number;
+};
 
-  await run({ numPuzzles, pause })
-})();
+/**
+ * Fetches puzzles from designated source and parses them into Chessy
+ * Puzzle data type. Allows configuration of concurrency and timeouts.
+ * Currently only fetches from Chess Blunders database.
+ */
+export async function fetch({
+  numPuzzles,
+  pause = 2000,
+  concurrency = 1
+}: FetchOptions): Promise<(Puzzle | undefined)[]> {
+  const mapper = async () => {
+    try {
+      const puzzle = await fetchAndParseBlunder()
+      await sleep(pause)
+      return puzzle
+    } catch (e) {
+      console.error(e)
+      return undefined
+    }
+  }
+  const requestIndex = (new Array(numPuzzles)).fill(undefined)
+  const puzzles = await pmap(requestIndex, mapper, { concurrency, stopOnError: false })
+  return puzzles.filter(p => !!p)
+}

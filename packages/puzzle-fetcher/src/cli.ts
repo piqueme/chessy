@@ -1,6 +1,7 @@
 import yargs from 'yargs/yargs'
 import chalk from 'chalk'
-import { fetch, writePuzzles } from './fetching'
+import { fetch } from './fetching'
+import { writePuzzles } from './io'
 import type { Puzzle } from '@chessy/core'
 
 type Options = {

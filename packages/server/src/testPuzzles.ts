@@ -3,7 +3,6 @@ import { readBoard } from '@chessy/core'
 
 const testPuzzles: Puzzle[] = [
   {
-    id: 'test-puzzle-1',
     startBoard: readBoard([
       '-------------------------',
       '|  |  |  |  |  |  |  |  |',
@@ -40,7 +39,6 @@ const testPuzzles: Puzzle[] = [
     ]
   },
   {
-    id: 'test-puzzle-2',
     startBoard: readBoard([
       '-------------------------',
       '|  |  |  |  |  |  |bQ|bK|',
@@ -84,7 +82,6 @@ const testPuzzles: Puzzle[] = [
     ]
   },
   {
-    id: 'test-puzzle-3',
     startBoard: readBoard([
       '-------------------------',
       '|  |  |  |  |  |bN|  |bR|',
@@ -128,7 +125,6 @@ const testPuzzles: Puzzle[] = [
     ]
   },
   {
-    id: 'test-puzzle-4',
     startBoard: readBoard([
       '-------------------------',
       '|  |  |  |  |  |  |  |  |',
@@ -165,7 +161,6 @@ const testPuzzles: Puzzle[] = [
     ]
   },
   {
-    id: 'test-puzzle-5',
     startBoard: readBoard([
       '-------------------------',
       '|  |  |wB|  |  |  |  |  |',

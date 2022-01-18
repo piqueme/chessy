@@ -15,11 +15,27 @@ type StoredPuzzleGame = Stored<PuzzleMasterGame>
 
 // DB SETUP
 type Models = {
-  Puzzle: Model<Puzzle>,
-  Game: Model<PuzzleMasterGame>
+  Puzzle: Model<StoredPuzzle>,
+  Game: Model<StoredPuzzleGame>
 }
-const PuzzleSchema = new Schema<Puzzle>()
-const GameSchema = new Schema<PuzzleMasterGame>()
+const PuzzleSchema = new Schema<StoredPuzzle>({
+  _id: String,
+  sideToMove: String,
+  startBoard: [[{ type: { type: String, side: String } }]],
+  correctMoves: [{
+    move: {
+      from: [Number],
+      to: [Number],
+      take: {
+        piece: { type: String, side: String },
+        square: [Number]
+      },
+      promotion: String,
+    },
+    notation: String
+  }]
+})
+const GameSchema = new Schema<StoredPuzzleGame>({ _id: String })
 
 function createModels(db: Connection): Models {
   return {
@@ -77,6 +93,7 @@ export default class GameManager {
       _id: resolvedID,
       ...puzzle
     })
+    console.log("PUZZLING", JSON.stringify(puzzleDocument, null, 2))
     await puzzleDocument.save()
   }
 

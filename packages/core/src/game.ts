@@ -15,20 +15,18 @@ export type PuzzleMasterGame = {
   history: History;
 }
 
-export type PuzzlePlayerGame = {
+export type PlayerGame = {
   sideToMove: Side;
   board: Board;
   checkState: CheckState;
-  puzzleId: string;
   history: History;
 }
 
-export function createPlayerGame(puzzle: Puzzle = testPuzzle): PuzzlePlayerGame {
+export function createPlayerGame(puzzle: Puzzle = testPuzzle): PlayerGame {
   return {
     sideToMove: 'white',
     board: puzzle.startBoard,
     checkState: 'SAFE',
-    puzzleId: puzzle.id,
     history: [],
   }
 }
@@ -100,7 +98,7 @@ export function moveMasterGame(from: Square, to: Square, promotion: PieceType | 
   }
 }
 
-export function movePlayerGame(from: Square, to: Square, promotion: PieceType | undefined, game: PuzzlePlayerGame): PuzzlePlayerGame {
+export function movePlayerGame(from: Square, to: Square, promotion: PieceType | undefined, game: PlayerGame): PlayerGame {
   const previousMove = game.history[game.history.length - 1]?.move
   const { fullMove, newBoard } = chessMove({ from, to }, previousMove, promotion, game.sideToMove, game.board)
   const notatedMove = notate(fullMove, previousMove, game.sideToMove, game.board)
@@ -111,7 +109,6 @@ export function movePlayerGame(from: Square, to: Square, promotion: PieceType | 
     { move: fullMove, notation: notatedMove }
   ]
   const newGameState = {
-    puzzleId: game.puzzleId,
     board: newBoard,
     sideToMove: getEnemySide(game.sideToMove),
     checkState: newCheckState,

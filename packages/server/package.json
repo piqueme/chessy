@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@chessy/core": "workspace:packages/core",
+    "@chessy/puzzle-fetcher": "workspace:packages/puzzle-fetcher",
     "dotenv": "^10.0.0",
     "fastify": "^3.22.0",
     "fastify-cors": "^6.0.2",

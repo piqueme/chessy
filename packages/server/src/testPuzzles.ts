@@ -25,9 +25,18 @@ const testPuzzles: Puzzle[] = [
     ].join('\n')),
     sideToMove: 'white',
     correctMoves: [
-      { from: [4, 6], to: [2, 5], resultCheckState: 'CHECK' },
-      { from: [3, 7], to: [2, 7], resultCheckState: 'SAFE' },
-      { from: [5, 0], to: [0, 5], resultCheckState: 'CHECKMATE' },
+      {
+        move: { from: [4, 6], to: [2, 5] },
+        notation: 'Nf6+',
+      },
+      {
+        move: { from: [3, 7], to: [2, 7] },
+        notation: 'Kh6',
+      },
+      {
+        move: { from: [5, 0], to: [0, 5] },
+        notation: 'Bf8#'
+      }
     ]
   },
   {
@@ -53,9 +62,25 @@ const testPuzzles: Puzzle[] = [
     ].join('\n')),
     sideToMove: 'white',
     correctMoves: [
-      { from: [7, 4], to: [0, 4], resultCheckState: 'SAFE' },
-      { from: [7, 6], to: [7, 4], resultCheckState: 'SAFE' },
-      { from: [5, 6], to: [5, 1], resultCheckState: 'CHECKMATE' },
+      {
+        move: { from: [7, 4], to: [0, 4] },
+        notation: 'Re8',
+      },
+      {
+        move: {
+          from: [0, 6],
+          to: [0, 4],
+          take: {
+            piece: { type: 'rook', side: 'white' },
+            square: [0, 4]
+          },
+        },
+        notation: 'Qxe8',
+      },
+      {
+        move: { from: [5, 6], to: [5, 1] },
+        notation: 'Qg7#',
+      },
     ]
   },
   {
@@ -81,9 +106,25 @@ const testPuzzles: Puzzle[] = [
     ].join('\n')),
     sideToMove: 'white',
     correctMoves: [
-      { from: [4, 5], to: [3, 5], resultCheckState: 'CHECK' },
-      { from: [2, 6], to: [3, 6], resultCheckState: 'SAFE' },
-      { from: [3, 5], to: [3, 6], resultCheckState: 'CHECKMATE' },
+      {
+        move: { from: [4, 5], to: [3, 5] },
+        notation: 'Rf5+',
+      },
+      {
+        move: { from: [2, 6], to: [3, 6] },
+        notation: 'Rg5',
+      },
+      {
+        move: {
+          from: [3, 5],
+          to: [3, 6],
+          take: {
+            piece: { type: 'rook', side: 'black' },
+            square: [3, 6],
+          }
+        },
+        notation: 'Rxg5#',
+      }
     ]
   },
   {
@@ -109,9 +150,18 @@ const testPuzzles: Puzzle[] = [
     ].join('\n')),
     sideToMove: 'white',
     correctMoves: [
-      { from: [7, 4], to: [6, 3], resultCheckState: 'SAFE' },
-      { from: [2, 6], to: [0, 4], resultCheckState: 'SAFE' },
-      { from: [2, 7], to: [3, 5], resultCheckState: 'CHECKMATE' },
+      {
+        move: { from: [7, 4], to: [6, 3] },
+        notation: 'Bd2',
+      },
+      {
+        move: { from: [2, 6], to: [0, 4] },
+        notation: 'Be8',
+      },
+      {
+        move: { from: [2, 7], to: [3, 5] },
+        notation: 'Nf5#',
+      },
     ]
   },
   {
@@ -137,9 +187,25 @@ const testPuzzles: Puzzle[] = [
     ].join('\n')),
     sideToMove: 'white',
     correctMoves: [
-      { from: [0, 2], to: [2, 0], resultCheckState: 'SAFE' },
-      { from: [4, 2], to: [5, 3], resultCheckState: 'SAFE' },
-      { from: [2, 0], to: [3, 1], resultCheckState: 'CHECKMATE' },
+      {
+        move: { from: [0, 2], to: [2, 0] },
+        notation: 'Ba6',
+      },
+      {
+        move: { from: [4, 2], to: [5, 3] },
+        notation: 'Kd3',
+      },
+      {
+        move: {
+          from: [2, 0],
+          to: [3, 1],
+          take: {
+            piece: { type: 'pawn', side: 'black' },
+            square: [3, 1],
+          }
+        },
+        notation: 'Bxb5#',
+      }
     ]
   },
 ];

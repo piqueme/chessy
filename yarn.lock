@@ -1483,6 +1483,7 @@ __metadata:
     chalk: 4
     js-yaml: ^4.1.0
     mkdirp: ^1.0.4
+    p-map: 4
     yargs: ^17.3.0
   languageName: unknown
   linkType: soft
@@ -1492,6 +1493,7 @@ __metadata:
   resolution: "@chessy/server@workspace:packages/server"
   dependencies:
     "@chessy/core": "workspace:packages/core"
+    "@chessy/puzzle-fetcher": "workspace:packages/puzzle-fetcher"
     "@types/jest": ^27.0.2
     "@types/node": ^16.9.2
     "@types/uuid": ^8.3.1
@@ -6479,7 +6481,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-map@npm:^4.0.0":
+"p-map@npm:4, p-map@npm:^4.0.0":
   version: 4.0.0
   resolution: "p-map@npm:4.0.0"
   dependencies:

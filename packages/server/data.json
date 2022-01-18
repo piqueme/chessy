@@ -1,0 +1,98 @@
+{
+  "sideToMove": "white",
+  "correctMoves": [{
+    "move": {
+      "from": [3, 5],
+      "to": [2, 4]
+    },
+    "notation": "Bd6"
+  }, {
+    "move": {
+      "from": [4, 7],
+      "to": [3, 5]
+    },
+    "notation": "Ne5"
+  }],
+  "startBoard": [
+    [
+      { "type": "king", "side": "black" },
+      { "type": "queen", "side": "white" },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      { "type": "bishop", "side": "white" },
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      { "type": "pawn", "side": "black" },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  ]
+}

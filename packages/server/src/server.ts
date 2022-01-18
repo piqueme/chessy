@@ -1,10 +1,11 @@
 import dotenv from 'dotenv'
 import fastify from 'fastify'
+import fp from 'fastify-plugin'
 import fastifyCors from 'fastify-cors'
 import fastifyMongoose from './fastify-mongoose'
 import type { FastifyPluginAsync } from 'fastify'
-import GameManager, { createGameManager, convertGameForResponse } from './gameManager'
-import type { Square } from '@chessy/core'
+import GameManager, { createGameManager } from './gameManager'
+import type { Side, Square, Board } from '@chessy/core'
 import type { MongoosePluginOptions } from './fastify-mongoose'
 
 dotenv.config()
@@ -18,6 +19,7 @@ declare module 'fastify' {
 
 const managers: FastifyPluginAsync = async (server) => {
   const gameManager = createGameManager(server.db)
+  console.log("MANAGING", gameManager)
   server.decorate('gameManager', gameManager)
 }
 
@@ -29,26 +31,28 @@ server.register(fastifyCors, {
 const mongooseOptions: MongoosePluginOptions = {
   uri: process.env['DB_URI'] as string,
   connectOptions: {
+    user: process.env['DB_USERNAME'] as string,
+    pass: process.env['DB_PASSWORD'] as string,
     autoIndex: false
   }
 }
 server.register(fastifyMongoose, mongooseOptions)
-server.register(managers)
+server.register(fp(managers))
 
-type GetGameRouteParams = {
-  gameId: string;
-}
-type GameQueryString = {
-  includeHistory?: boolean;
-};
-server.get<{
-  Params: GetGameRouteParams;
-  Querystring: GameQueryString;
-}>('/game/:gameId', async (request) => {
-  console.log(`[GET] ${request.url}`)
-  const game = server.gameManager.getGame(request.params.gameId)
-  return convertGameForResponse(game, request.query.includeHistory)
-})
+// type GetGameRouteParams = {
+//   gameId: string;
+// }
+// type GameQueryString = {
+//   includeHistory?: boolean;
+// };
+// server.get<{
+//   Params: GetGameRouteParams;
+//   Querystring: GameQueryString;
+// }>('/game/:gameId', async (request) => {
+//   console.log(`[GET] ${request.url}`)
+//   const game = server.gameManager.getGame(request.params.gameId)
+//   return convertGameForResponse(game, request.query.includeHistory)
+// })
 
 type GamePuzzleFinderQueryString = {
   q: 'byPuzzle';
@@ -134,6 +138,31 @@ server.get<{
   throw new Error(`Invalid finder!`)
 })
 
+type CreatePuzzleBody = {
+  startBoard: Board;
+  sideToMove: Side;
+  correctMoves: {
+    move: {
+      from: Square;
+      to: Square;
+    },
+    notation: string;
+  }[];
+}
+type CreatePuzzleReply = {
+  success: boolean;
+}
+server.post<{
+  Body: CreatePuzzleBody;
+  Reply: CreatePuzzleReply
+}>('/puzzle', async (request) => {
+  console.log(`[POST] ${request.url}`)
+  console.log(`BODY: ${JSON.stringify(request.body, null, 2)}`)
+  console.log("in method game manager", server.gameManager)
+  await server.gameManager.createPuzzle(request.body)
+  return { success: true }
+})
+
 type MoveParams = {
   gameId: string;
 }
@@ -158,7 +187,7 @@ server.post<{
   const { puzzleMove, success } = server.gameManager.move(gameId, from, to)
   return {
     success,
-    ...(puzzleMove ? { puzzleMove } : {})
+    ...(puzzleMove ? { puzzleMove: puzzleMove.move } : {})
   }
 })
 

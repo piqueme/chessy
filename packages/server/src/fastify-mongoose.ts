@@ -19,12 +19,14 @@ declare module 'fastify' {
 const connectDatabase: FastifyPluginAsync<MongoosePluginOptions> = async (fastify, options) => {
   try {
     mongoose.connection.on('connected', () => {
+      console.log("GOT A CONNECTION")
       fastify.log.info({ actor: 'MongoDB' }, 'connected')
     })
     mongoose.connection.on('disconnected', () => {
       fastify.log.error({ actor: 'MongoDB' }, 'disconnected')
     })
     const db = await mongoose.createConnection(options.uri, options.connectOptions)
+    console.log("Connection?", db)
     fastify.decorate('db', db)
   } catch (error) {
     throw new Error(`Failed to load Mongoose Fastify plugin: ${error}`)

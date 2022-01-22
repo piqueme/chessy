@@ -2077,12 +2077,14 @@ __metadata:
     "@types/js-yaml": ^4.0.5
     "@types/mkdirp": ^1.0.2
     "@types/node": ^17.0.2
+    "@types/uuid": ^8.3.4
     "@types/yargs": ^17.0.7
     axios: ^0.24.0
     chalk: 4
     js-yaml: ^4.1.0
     mkdirp: ^1.0.4
     p-map: 4
+    uuid: ^8.3.2
     yargs: ^17.3.0
   languageName: unknown
   linkType: soft
@@ -2095,7 +2097,9 @@ __metadata:
     "@chessy/puzzle-fetcher": "workspace:packages/puzzle-fetcher"
     "@types/jest": ^27.0.2
     "@types/node": ^16.9.2
+    "@types/url-join": ^4.0.1
     "@types/uuid": ^8.3.1
+    axios: ^0.25.0
     dotenv: ^10.0.0
     fastify: ^3.22.0
     fastify-cors: ^6.0.2
@@ -2105,7 +2109,9 @@ __metadata:
     mercurius: ^9.1.0
     mercurius-codegen: ^3.3.0
     mongoose: ^6.1.5
+    p-map: 4
     tsc-watch: ^4.5.0
+    url-join: ^4.0.1
     uuid: ^8.3.2
   languageName: unknown
   linkType: soft
@@ -3690,10 +3696,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/url-join@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@types/url-join@npm:4.0.1"
+  checksum: 29444b90e165b3970c8ad3fcef1e2de092e72b67e1f3aaff3016eea1697f98a01a28fb4f71f8044e3338a95bd2262327e9299be416efe5297018658760a331b4
+  languageName: node
+  linkType: hard
+
 "@types/uuid@npm:^8.3.1":
   version: 8.3.1
   resolution: "@types/uuid@npm:8.3.1"
   checksum: b41bdc5e86c6f0f1899306be10455636da0f2168c9489b869edd6837ddeb7c0e501b1ff7d857402462986bada2a379125743dd895fa801d03437cd632116a373
+  languageName: node
+  linkType: hard
+
+"@types/uuid@npm:^8.3.4":
+  version: 8.3.4
+  resolution: "@types/uuid@npm:8.3.4"
+  checksum: 6f11f3ff70f30210edaa8071422d405e9c1d4e53abbe50fdce365150d3c698fe7bbff65c1e71ae080cbfb8fded860dbb5e174da96fdbbdfcaa3fb3daa474d20f
   languageName: node
   linkType: hard
 
@@ -4225,6 +4245,15 @@ __metadata:
   dependencies:
     follow-redirects: ^1.14.4
   checksum: 468cf496c08a6aadfb7e699bebdac02851e3043d4e7d282350804ea8900e30d368daa6e3cd4ab83b8ddb5a3b1e17a5a21ada13fc9cebd27b74828f47a4236316
+  languageName: node
+  linkType: hard
+
+"axios@npm:^0.25.0":
+  version: 0.25.0
+  resolution: "axios@npm:0.25.0"
+  dependencies:
+    follow-redirects: ^1.14.7
+  checksum: 2a8a3787c05f2a0c9c3878f49782357e2a9f38945b93018fb0c4fd788171c43dceefbb577988628e09fea53952744d1ecebde234b561f1e703aa43e0a598a3ad
   languageName: node
   linkType: hard
 
@@ -6313,6 +6342,16 @@ __metadata:
     debug:
       optional: true
   checksum: f004a76b2ee3a849772c2816e30928253bf47537b0f00184d89f4966413add96a228a4d96ca8c702bc045a683c52c2ba41545c915cc1a5e33bf8fd9d07b59aee
+  languageName: node
+  linkType: hard
+
+"follow-redirects@npm:^1.14.7":
+  version: 1.14.7
+  resolution: "follow-redirects@npm:1.14.7"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: f6d03e5e30877431065bca0d1b2e3db93949eb799d368a5c07ea8a4b71205f0349a3f8f0191bf13a07c93885522834dca1dc8e527dc99a772c6911fba24edc5f
   languageName: node
   linkType: hard
 
@@ -10962,6 +11001,13 @@ __metadata:
   dependencies:
     punycode: ^2.1.0
   checksum: 7167432de6817fe8e9e0c9684f1d2de2bb688c94388f7569f7dbdb1587c9f4ca2a77962f134ec90be0cc4d004c939ff0d05acc9f34a0db39a3c797dada262633
+  languageName: node
+  linkType: hard
+
+"url-join@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "url-join@npm:4.0.1"
+  checksum: f74e868bf25dbc8be6a8d7237d4c36bb5b6c62c72e594d5ab1347fe91d6af7ccd9eb5d621e30152e4da45c2e9a26bec21390e911ab54a62d4d82e76028374ee5
   languageName: node
   linkType: hard
 

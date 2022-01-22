@@ -19,12 +19,14 @@
     "js-yaml": "^4.1.0",
     "mkdirp": "^1.0.4",
     "p-map": "4",
+    "uuid": "^8.3.2",
     "yargs": "^17.3.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
     "@types/mkdirp": "^1.0.2",
     "@types/node": "^17.0.2",
+    "@types/uuid": "^8.3.4",
     "@types/yargs": "^17.0.7"
   }
 }

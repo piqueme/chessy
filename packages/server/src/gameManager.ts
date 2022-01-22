@@ -21,13 +21,13 @@ type Models = {
 const PuzzleSchema = new Schema<StoredPuzzle>({
   _id: String,
   sideToMove: String,
-  startBoard: [[{ type: { type: String, side: String } }]],
+  startBoard: [[{ type: { type: String }, side: String } ]],
   correctMoves: [{
     move: {
       from: [Number],
       to: [Number],
       take: {
-        piece: { type: String, side: String },
+        piece: { type: { type: String }, side: String },
         square: [Number]
       },
       promotion: String,
@@ -89,12 +89,17 @@ export default class GameManager {
 
   async createPuzzle(puzzle: Puzzle, { id }: { id?: string }): Promise<void> {
     const resolvedID = id || uuidv4()
+    console.log(`Storing puzzle to DB: ${resolvedID}`)
     const puzzleDocument = new this.models.Puzzle({
       _id: resolvedID,
       ...puzzle
     })
-    console.log("PUZZLING", JSON.stringify(puzzleDocument, null, 2))
-    await puzzleDocument.save()
+    console.log(`Puzzle parsed!`)
+    try {
+      await puzzleDocument.save()
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async createGameFromPuzzle(puzzleId = 'test-puzzle'): Promise<void> {

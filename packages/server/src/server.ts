@@ -140,6 +140,7 @@ const resolvers: IResolvers = {
   Mutation: {
     createPuzzle: async (_: unknown, { puzzle }: any, context) => {
       const { id, ...otherPuzzleFields } = puzzle
+      console.log("ADDING PUZZLE API", id)
       await context.gameManager.createPuzzle(otherPuzzleFields, { id })
       return puzzle
     }

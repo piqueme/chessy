@@ -58,7 +58,6 @@ export function parseBlunder(blunder: Blunder): Puzzle {
     [startBoard, [] as History, sideToMove]
   )
   return {
-    id: blunder.id,
     startBoard,
     sideToMove,
     correctMoves: finalHistory,
@@ -90,7 +89,7 @@ export async function fetch({
   numPuzzles,
   pause = 2000,
   concurrency = 1
-}: FetchOptions): Promise<(Puzzle | undefined)[]> {
+}: FetchOptions): Promise<(Puzzle)[]> {
   const mapper = async () => {
     try {
       const puzzle = await fetchAndParseBlunder()
@@ -103,5 +102,5 @@ export async function fetch({
   }
   const requestIndex = (new Array(numPuzzles)).fill(undefined)
   const puzzles = await pmap(requestIndex, mapper, { concurrency, stopOnError: false })
-  return puzzles.filter(p => !!p)
+  return (puzzles.filter(p => !!p) as Puzzle[])
 }

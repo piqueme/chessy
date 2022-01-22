@@ -1,4 +1,5 @@
 import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 import yaml from 'js-yaml'
 import { writeFile } from 'fs/promises'
 import mkdirp from 'mkdirp'
@@ -15,7 +16,7 @@ export async function writePuzzles(puzzles: Puzzle[], targetDir = './'): Promise
     })
     p = p.then(() => {
         writeFile(
-        path.join(targetDir, puzzle.id + '.yml'),
+        path.join(targetDir, uuidv4() + '.yml'),
         serializedYaml,
         'utf-8',
       )

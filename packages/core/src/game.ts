@@ -33,7 +33,7 @@ export function createPlayerGame(puzzle: Puzzle = testPuzzle): PlayerGame {
 
 export function createMasterGame(puzzle: Puzzle = testPuzzle): PuzzleMasterGame {
   return {
-    sideToMove: 'white',
+    sideToMove: puzzle.sideToMove,
     board: puzzle.startBoard,
     checkState: 'SAFE',
     puzzle,

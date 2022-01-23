@@ -15,47 +15,14 @@ dotenv.config()
 const server = fastify()
 
 // GRAPHQL
-// const schema = gql`
-//   """ Representation of a chess piece. """
-//   type Piece {
-//     type: String!
-//     side: String!
-//   }
-//   type Take {
-//     piece: Piece!
-//     square: [Number!]!
-//   }
-//   type Move {
-//     from: [Number!]!
-//     to: [Number!]!
-//     take: Take
-//     promotion: String
-//   }
-//   type HistoryMove {
-//     move: Move!
-//     notation: String!
-//   }
-//   type Puzzle {
-//     id: ID!
-//     sideToMove: String!
-//     startBoard: [[Piece]]
-//     correctMoves: [HistoryMove!]
-
-//     get(id: ID): Puzzle
-//   }
-//   type Game {
-//     sideToMove: String!
-//     board: [[Piece]]
-//     checkState: String!
-//     history: [HistoryMove!]
-
-//     get(id: ID): Game
-//   }
-//   type Query {
-//     puzzle: Puzzle
-//     game: Game
-//   }
-// `
+// TODO: Logging on every request.
+// TODO: Documentation of fields.
+// TODO: De-duplicate input and query types with fragments.
+// TODO: Figure out how to restrict fields for different users.
+// TODO: Pagination
+// TODO: Editor GraphQL Linting
+// TODO: "Reset Game" Operation
+// TODO: "Inspect Move" Operation
 const schema = gql`
   """ Representation of a chess piece. """
   type Piece {
@@ -81,9 +48,26 @@ const schema = gql`
     sideToMove: String!
     startBoard: [[Piece]]
     correctMoves: [HistoryMove!]
+
+    game: Game
+  }
+  type Game {
+    id: ID!
+    board: [[Piece]]
+    sideToMove: String!
+    checkState: String!
+    puzzle: Puzzle!
+    history: [HistoryMove!]!
   }
   type Query {
-    getPuzzle(id: ID): Puzzle
+    game(id: ID): Game
+    puzzle(id: ID): Puzzle
+    puzzles: [Puzzle]
+  }
+  type MoveResult {
+    game: Game
+    puzzleMove: HistoryMove
+    success: Boolean!
   }
 
   input PieceInput {
@@ -113,6 +97,9 @@ const schema = gql`
 
   type Mutation {
     createPuzzle(puzzle: CreatePuzzleInput!): Puzzle
+    createGameFromPuzzle(puzzleId: String!): Game
+    deleteGame(gameId: String!): String!
+    move(gameId: String!, move: MoveInput!): MoveResult
   }
 `
 
@@ -123,26 +110,56 @@ type PromiseType<T> = T extends PromiseLike<infer U> ? U : T
 declare module 'mercurius' {
   interface MercuriusContext extends PromiseType<ReturnType<typeof buildContext>> {}
 }
-//
-// puzzle
-//  byID
-//  (later) bySide
-//  (later) by number of moves
-//  (later) by elo
+
+// TODO: Figure out how to get Typescript validation (?)
+// TODO: Figure out how to get deeper validation beyond type?
 const resolvers: IResolvers = {
   Query: {
-    getPuzzle: async (_: unknown, { id }: { id: string }, context) => {
-      console.log("I GOT A QUERY GET PUZZLE!")
-      const puzzle = context.gameManager.getPuzzle(id)
-      return puzzle
+    game: async (_: unknown, { id }: { id: string }, context) => {
+      console.log("Query Resolver: game", id)
+      const game = await context.gameManager.getGame(id)
+      return game
+    },
+    puzzle: async (_: unknown, { id }: { id: string }, context) => {
+      console.log("Query Resolver: puzzle", id)
+      const puzzle = await context.gameManager.getPuzzle(id)
+      const games = await context.gameManager.getGamesByPuzzles([id])
+      return {
+        ...puzzle,
+        game: games[0]
+      }
+    },
+    puzzles: async (_a: unknown, _b: unknown, context) => {
+      console.log("Query Resolver: puzzles")
+      const puzzles = await context.gameManager.getAllPuzzles()
+      const games = await context.gameManager.getGamesByPuzzles(puzzles.map(p => p.id))
+      return puzzles.map(p => ({
+        ...p,
+        game: games.find(g => g.puzzle.id === p.id)
+      }))
     }
   },
   Mutation: {
     createPuzzle: async (_: unknown, { puzzle }: any, context) => {
       const { id, ...otherPuzzleFields } = puzzle
-      console.log("ADDING PUZZLE API", id)
-      await context.gameManager.createPuzzle(otherPuzzleFields, { id })
-      return puzzle
+      console.log("Mutation Resolver: createPuzzle")
+      const storedPuzzle = await context.gameManager.createPuzzle(otherPuzzleFields, { id })
+      return storedPuzzle
+    },
+    createGameFromPuzzle: async (_: unknown, { puzzleId }: { puzzleId: string }, context) => {
+      console.log("Mutation Resolver: createGameFromPuzzle")
+      const game = await context.gameManager.createGameFromPuzzle(puzzleId)
+      return game
+    },
+    deleteGame: async (_: unknown, { gameId }: { gameId: string }, context) => {
+      console.log("Mutation Resolver: deleteGame")
+      const game = await context.gameManager.removeGame(gameId)
+      return game.id
+    },
+    move: async (_: unknown, { gameId, move }: { gameId: string, move: any }, context) => {
+      console.log("Mutation Resolver: move")
+      const moveResult = await context.gameManager.move(gameId, move.from, move.to)
+      return moveResult
     }
   }
 }
@@ -173,164 +190,13 @@ const mongooseOptions: MongoosePluginOptions = {
 }
 server.register(fastifyMongoose, mongooseOptions)
 server.register(fp(managers))
+// TODO: Make GraphiQL an environment variable.
 server.register(mercurius, {
   schema,
   resolvers,
   context: buildContext,
-  graphiql: true, // NOTE: This can be toggled by environment (dev)
+  graphiql: true,
 })
-
-// type GetGameRouteParams = {
-//   gameId: string;
-// }
-// type GameQueryString = {
-//   includeHistory?: boolean;
-// };
-// server.get<{
-//   Params: GetGameRouteParams;
-//   Querystring: GameQueryString;
-// }>('/game/:gameId', async (request) => {
-//   console.log(`[GET] ${request.url}`)
-//   const game = server.gameManager.getGame(request.params.gameId)
-//   return convertGameForResponse(game, request.query.includeHistory)
-// })
-
-// type GamePuzzleFinderQueryString = {
-//   q: 'byPuzzle';
-//   puzzleId: string;
-//   includeHistory?: boolean;
-// };
-// type GameAllFinderQueryString = {
-//   q: 'all';
-//   includeHistory?: boolean;
-// };
-// type GameFinderQueryString =
-//   GamePuzzleFinderQueryString |
-//   GameAllFinderQueryString
-// server.get<{
-//   Querystring: GameFinderQueryString
-// }>('/game', async (request) => {
-//   console.log(`[GET] ${request.url}`)
-//   console.log(`Query Params: ${JSON.stringify(request.query, null, 2)}`)
-//   if (request.query.q === 'all') {
-//     return server.gameManager.getAllGames()
-//   }
-//   if (request.query.q === 'byPuzzle') {
-//     const game = server.gameManager.getGameByPuzzle(request.query.puzzleId)
-//     return convertGameForResponse(game, request.query.includeHistory)
-//   }
-//   throw new Error(`Invalid finder!`)
-// })
-
-// type GameCreateQueryString = {
-//   includeHistory?: boolean;
-// };
-// type GameCreateBody = {
-//   puzzleId: string;
-// };
-// server.post<{
-//   Body: GameCreateBody;
-//   Querystring: GameCreateQueryString
-// }>('/game', async (request) => {
-//   console.log(`[POST] ${request.url}`)
-//   const game = server.gameManager.createGame(request.body.puzzleId)
-//   return convertGameForResponse(game, request.query.includeHistory)
-// })
-
-// type GameDeleteParams = {
-//   gameId: string;
-// };
-// server.delete<{
-//   Params: GameDeleteParams
-// }>('/game/:gameId', async (request) => {
-//   console.log(`[DELETE] ${request.url}`)
-//   server.gameManager.removeGame(request.params.gameId)
-//   return {}
-// })
-
-// server.delete('/game', async (request) => {
-//   console.log(`[DELETE] ${request.url}`)
-//   server.gameManager.removeAllGames()
-//   return {}
-// })
-
-// type GetPuzzleRouteParams = {
-//   puzzleId: string;
-// }
-// server.get<{
-//   Params: GetPuzzleRouteParams;
-// }>('/puzzle/:puzzleId', async (request) => {
-//   console.log(`[GET] ${request.url}`)
-//   const puzzleMetadata = server.gameManager.getPuzzleMetadata(request.params.puzzleId)
-//   return puzzleMetadata
-// })
-
-// type PuzzleAllFinderQueryString = {
-//   q: 'all';
-// };
-// server.get<{
-//   Querystring: PuzzleAllFinderQueryString
-// }>('/puzzle', async (request) => {
-//   console.log(`[GET] ${request.url}`)
-//   console.log(`Query Params: ${JSON.stringify(request.query, null, 2)}`)
-//   if (request.query.q === 'all') {
-//     return server.gameManager.getAllPuzzleMetadatas()
-//   }
-//   throw new Error(`Invalid finder!`)
-// })
-
-// type CreatePuzzleBody = {
-//   startBoard: Board;
-//   sideToMove: Side;
-//   correctMoves: {
-//     move: {
-//       from: Square;
-//       to: Square;
-//     },
-//     notation: string;
-//   }[];
-// }
-// type CreatePuzzleReply = {
-//   success: boolean;
-// }
-// server.post<{
-//   Body: CreatePuzzleBody;
-//   Reply: CreatePuzzleReply
-// }>('/puzzle', async (request) => {
-//   console.log(`[POST] ${request.url}`)
-//   console.log(`BODY: ${JSON.stringify(request.body, null, 2)}`)
-//   console.log("in method game manager", server.gameManager)
-//   await server.gameManager.createPuzzle(request.body)
-//   return { success: true }
-// })
-
-// type MoveParams = {
-//   gameId: string;
-// }
-// type MoveBody = {
-//   from: Square;
-//   to: Square;
-// }
-// type MoveReply = {
-//   success: boolean;
-//   puzzleMove?: { from: Square; to: Square };
-// }
-
-// server.post<{
-//   Params: MoveParams;
-//   Body: MoveBody;
-//   Reply: MoveReply;
-// }>('/game/:gameId/submitMove', async (request) => {
-//   console.log(`[POST] ${request.url}`)
-//   console.log(`BODY: ${JSON.stringify(request.body, null, 2)}`)
-//   const { gameId } = request.params
-//   const { from, to } = request.body
-//   const { puzzleMove, success } = server.gameManager.move(gameId, from, to)
-//   return {
-//     success,
-//     ...(puzzleMove ? { puzzleMove: puzzleMove.move } : {})
-//   }
-// })
 
 server.listen(8080, (err, address) => {
   if (err) {

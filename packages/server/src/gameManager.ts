@@ -11,31 +11,43 @@ import type { Connection, Model } from 'mongoose'
 
 type Stored<T> = T & { _id: string; }
 type StoredPuzzle = Stored<Puzzle>
-type StoredPuzzleGame = Stored<PuzzleMasterGame>
+type StoredPuzzleGame = Stored<PuzzleMasterGame> & { puzzle: StoredPuzzle }
+type ObjectPuzzle = Omit<StoredPuzzle, '_id'> & { id: string }
+type ObjectPuzzleGame = Omit<StoredPuzzleGame, '_id' | 'puzzle'> & { id: string } & { puzzle: ObjectPuzzle }
 
 // DB SETUP
+// TODO: Remove Mongoose schema duplication with Typescript types, hard to synchronize.
+// TODO: Tighten up types with validations.
 type Models = {
   Puzzle: Model<StoredPuzzle>,
   Game: Model<StoredPuzzleGame>
 }
+const HistoryMoveSchema = new Schema<HistoryMove>({
+  move: {
+    from: [Number],
+    to: [Number],
+    take: {
+      piece: { type: { type: String }, side: String },
+      square: { type: [Number], default: undefined }
+    },
+    promotion: String,
+  },
+  notation: String
+})
 const PuzzleSchema = new Schema<StoredPuzzle>({
   _id: String,
   sideToMove: String,
   startBoard: [[{ type: { type: String }, side: String } ]],
-  correctMoves: [{
-    move: {
-      from: [Number],
-      to: [Number],
-      take: {
-        piece: { type: { type: String }, side: String },
-        square: [Number]
-      },
-      promotion: String,
-    },
-    notation: String
-  }]
+  correctMoves: [HistoryMoveSchema]
 })
-const GameSchema = new Schema<StoredPuzzleGame>({ _id: String })
+const GameSchema = new Schema<StoredPuzzleGame>({
+  _id: String,
+  board: [[{ type: { type: String }, side: String } ]],
+  sideToMove: String,
+  checkState: String,
+  puzzle: PuzzleSchema,
+  history: [HistoryMoveSchema]
+})
 
 function createModels(db: Connection): Models {
   return {
@@ -45,30 +57,24 @@ function createModels(db: Connection): Models {
 }
 // END DB SETUP
 
-// type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
-// type ProgressState = 'WAITING' | 'READY' | 'NOT_STARTED' | 'COMPLETED'
-// type PuzzleMetadata = {
-//   id: string;
-//   title: string;
-//   moveCount: number;
-//   difficulty: Difficulty;
-//   progress: ProgressState;
-// };
+// QUERIES
+// get all puzzles
+//  get puzzles > or < X difficulty
+//  get puzzles by author
+// get games
+//  get in progress games (puzzle)
+//  get completed games (puzzle)
+//  by ID (from URL)
 
-// function randomOrDefault<T>(arr: [T, ...T[]]): T {
-//   const randomIndex = Math.floor(Math.random() * arr.length)
-//   return arr[randomIndex] || arr[0]
-// }
+function convertStoredToObjectPuzzle(storedPuzzle: StoredPuzzle): ObjectPuzzle {
+  const { _id, ...otherPuzzleFields } = storedPuzzle
+  return { id: _id, ...otherPuzzleFields }
+}
 
-// function convertPuzzleToMetadata(puzzle: Puzzle): PuzzleMetadata {
-//   return {
-//     id: puzzle.id,
-//     title: `Test Puzzle ${puzzle.id[puzzle.id.length - 1]}`,
-//     moveCount: puzzle.correctMoves.length,
-//     difficulty: randomOrDefault(['EASY', 'MEDIUM', 'HARD']),
-//     progress: randomOrDefault(['WAITING', 'READY', 'NOT_STARTED', 'COMPLETED'])
-//   }
-// }
+function convertObjectToStoredPuzzle(objectPuzzle: ObjectPuzzle): StoredPuzzle {
+  const { id, ...otherPuzzleFields } = objectPuzzle
+  return { _id: id, ...otherPuzzleFields }
+}
 
 export default class GameManager {
   models: Models;
@@ -77,74 +83,79 @@ export default class GameManager {
     this.models = createModels(db)
   }
 
-  // getPuzzleMetadata(puzzleId: string): PuzzleMetadata {
-  //   const puzzle = testPuzzles.find(p => p.id === puzzleId)
-  //   if (!puzzle) { throw new Error('Puzzle not found!') }
-  //   return convertPuzzleToMetadata(puzzle)
-  // }
+  async getPuzzle(id: string): Promise<ObjectPuzzle> {
+    const puzzleDocument = await this.models.Puzzle.findById(id).exec()
+    if (!puzzleDocument) {
+      throw new Error(`No puzzle found in DB with ID: ${id}`)
+    }
+    const puzzleObject = puzzleDocument.toObject()
+    return convertStoredToObjectPuzzle(puzzleObject)
+  }
 
-  // getAllPuzzleMetadatas(): PuzzleMetadata[] {
-  //   return testPuzzles.map(convertPuzzleToMetadata)
-  // }
+  async getAllPuzzles(): Promise<ObjectPuzzle[]> {
+    const puzzleDocuments = await this.models.Puzzle.find().exec()
+    const puzzleObjects = puzzleDocuments.map(p => p.toObject())
+    return puzzleObjects.map(convertStoredToObjectPuzzle)
+  }
 
-  async createPuzzle(puzzle: Puzzle, { id }: { id?: string }): Promise<void> {
+  async createPuzzle(puzzle: Puzzle, { id }: { id?: string }): Promise<ObjectPuzzle> {
     const resolvedID = id || uuidv4()
-    console.log(`Storing puzzle to DB: ${resolvedID}`)
-    const puzzleDocument = new this.models.Puzzle({
-      _id: resolvedID,
-      ...puzzle
-    })
-    console.log(`Puzzle parsed!`)
+    const storedPuzzle = { _id: resolvedID, ...puzzle }
+    const puzzleDocument = new this.models.Puzzle(storedPuzzle)
     try {
       await puzzleDocument.save()
+      return { id: resolvedID, ...puzzle }
     } catch (e) {
-      console.error(e)
+      throw new Error('Failed to save to DB during puzzle creation')
     }
   }
 
-  async createGameFromPuzzle(puzzleId = 'test-puzzle'): Promise<void> {
-    const puzzle = await this.models.Puzzle.findById(puzzleId).exec()
-    if (!puzzle) {
-      throw new Error(`No puzzle found in DB with ID: ${puzzleId}`)
+  async createGameFromPuzzle(puzzleId = 'test-puzzle'): Promise<ObjectPuzzleGame> {
+    const puzzle = await this.getPuzzle(puzzleId)
+    const existingGames = await this.models.Game.find({ 'puzzle._id': puzzleId }).exec()
+    if (existingGames.length > 0) {
+      throw new Error(`Game already exists in DB for puzzle with ID: ${puzzleId}`)
     }
     const gameID = uuidv4()
-    const gameDocument = new this.models.Game({
-      _id: gameID,
-      ...createMasterGame(puzzle)
-    })
-    await gameDocument.save()
-  }
-
-  async getPuzzle(puzzleId: string): Promise<StoredPuzzle> {
-    const puzzle = await this.models.Puzzle.findById(puzzleId).exec()
-    if (!puzzle) {
-      throw new Error(`No puzzle found in DB with ID: ${puzzleId}`)
+    const game = createMasterGame(puzzle)
+    const storedPuzzle = convertObjectToStoredPuzzle(puzzle)
+    const storedGame = { _id: gameID, ...game, puzzle: storedPuzzle }
+    const gameDocument = new this.models.Game(storedGame)
+    try {
+      await gameDocument.save()
+      return { id: gameID, ...game, puzzle }
+    } catch (e) {
+      throw new Error('Failed to save game in DB during creation')
     }
-    return puzzle
   }
 
-  async getGame(gameId: string): Promise<StoredPuzzleGame> {
-    const game = await this.models.Game.findById(gameId).exec()
-    if (!game) {
+  async getGame(gameId: string): Promise<ObjectPuzzleGame> {
+    const gameDocument = await this.models.Game.findById(gameId).exec()
+    if (!gameDocument) {
       throw new Error(`No game found in DB with ID: ${gameId}`)
     }
-    return game
+    const gameObject = gameDocument.toObject()
+    const puzzle = convertStoredToObjectPuzzle(gameObject.puzzle)
+    return { id: gameObject._id, ...gameObject, puzzle }
   }
 
-  async getGameByPuzzle(puzzleId: string): Promise<StoredPuzzleGame> {
-    const game = await this.models.Game.findOne({ 'puzzle._id': puzzleId })
-    if (!game) {
-      throw new Error(`No game found in DB for puzzle with ID: ${puzzleId}`)
-    }
-    return game
+  async getGamesByPuzzles(puzzleIds: string[]): Promise<ObjectPuzzleGame[]> {
+    const gameDocuments = await this.models.Game.find({ 'puzzle._id': { $in: puzzleIds } }).exec()
+    const gameObjects = gameDocuments.map(g => g.toObject())
+    return gameObjects.map(g => {
+      const puzzle = convertStoredToObjectPuzzle(g.puzzle)
+      return { id: g._id, ...g, puzzle }
+    })
   }
 
-  async removeGame(gameId: string): Promise<StoredPuzzleGame> {
-    const game = await this.models.Game.findByIdAndDelete(gameId).exec()
-    if (!game) {
+  async removeGame(gameId: string): Promise<ObjectPuzzleGame> {
+    const gameDocument = await this.models.Game.findByIdAndDelete(gameId).exec()
+    if (!gameDocument) {
       throw new Error(`No game found in DB for ID: ${gameId}`)
     }
-    return game
+    const gameObject = gameDocument.toObject()
+    const puzzle = convertStoredToObjectPuzzle(gameObject.puzzle)
+    return { id: gameObject._id, ...gameObject, puzzle }
   }
 
   // NOTE: Dangerous, for internal use only!
@@ -153,15 +164,25 @@ export default class GameManager {
   }
 
   async move(gameId: string, from: Square, to: Square): Promise<{
-    game: StoredPuzzleGame;
+    game: ObjectPuzzleGame;
     puzzleMove?: HistoryMove;
     success: boolean;
   }> {
     const game = await this.getGame(gameId)
     const moveResult = moveMasterGame(from, to, undefined, game)
-    return {
-      ...moveResult,
-      game: { ...moveResult.game, _id: game._id },
+    const moveResultPuzzle = moveResult.game.puzzle
+    const storedPuzzle = { _id: game.puzzle.id, ...moveResultPuzzle }
+    const storedGame = { _id: game.id, ...moveResult.game, puzzle: storedPuzzle }
+    try {
+      await this.models.Game.findOneAndReplace({ id: gameId }, storedGame)
+      const objectPuzzle = { id: game.puzzle.id, ...moveResultPuzzle }
+      const objectGame = { ...moveResult.game, puzzle: objectPuzzle, id: game.id }
+      return {
+        ...moveResult,
+        game: objectGame
+      }
+    } catch (e) {
+      throw new Error('Failed to save game after move to DB.')
     }
   }
 }

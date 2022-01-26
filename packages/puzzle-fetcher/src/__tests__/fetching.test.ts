@@ -128,7 +128,6 @@ describe('parsing blunder', () => {
   test('outputs puzzle with start board after blunder move and moves excluding blunder move in history', () => {
     const parsedPuzzle = parseBlunder(mockBlunder)
     expect(parsedPuzzle).toEqual({
-      id: 'mock-blunder-id',
       startBoard: boardAfterBlunderMove,
       sideToMove: mockSideToMove,
       correctMoves: [{ move: moveTwo, notation: moveTwoNotation }]

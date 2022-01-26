@@ -54,7 +54,6 @@ Array [
         "notation": "Qe3",
       },
     ],
-    "id": "5579ebe8e13823b81c3dfa46",
     "sideToMove": "black",
     "startBoard": Array [
       Array [
@@ -252,7 +251,6 @@ Array [
         "notation": "Bf4",
       },
     ],
-    "id": "557ec911e13823b832e33b35",
     "sideToMove": "white",
     "startBoard": Array [
       Array [
@@ -458,7 +456,6 @@ Array [
         "notation": "Rxe8+",
       },
     ],
-    "id": "557a8640e13823b81d8200d7",
     "sideToMove": "white",
     "startBoard": Array [
       Array [

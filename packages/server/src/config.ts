@@ -6,6 +6,7 @@ export type Config = {
   databaseURI: string;
   databaseUser: string;
   databasePassword: string;
+  logging: boolean;
 }
 
 export default async(): Promise<Config> => {
@@ -13,6 +14,7 @@ export default async(): Promise<Config> => {
     serverURI: 'http://127.0.0.1:8080',
     databaseURI: process.env['DB_URI'] as string,
     databaseUser: process.env['DB_USERNAME'] as string,
-    databasePassword: process.env['DB_PASSWORD'] as string
+    databasePassword: process.env['DB_PASSWORD'] as string,
+    logging: process.env['LOGGING'] === 'true'
   }
 }

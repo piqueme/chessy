@@ -10,9 +10,8 @@ import type { FastifyPluginAsync, FastifyInstance } from 'fastify'
 import GameManager, { createGameManager } from './gameManager'
 // import type { Side, Square, Board } from '@chessy/core'
 import type { MongoosePluginOptions } from './fastify-mongoose'
+import type { MercuriusPlugin } from 'mercurius'
 import type { Config } from './config'
-
-const server = fastify()
 
 // GRAPHQL
 // TODO: Logging on every request.
@@ -97,18 +96,18 @@ const schema = gql`
 
   type Mutation {
     createPuzzle(puzzle: CreatePuzzleInput!): Puzzle
-    createGameFromPuzzle(puzzleId: String!): Game
-    deleteGame(gameId: String!): String!
-    move(gameId: String!, move: MoveInput!): MoveResult
+    createGameFromPuzzle(puzzleId: ID!): Game
+    deleteGame(gameId: ID!): ID!
+    move(gameId: ID!, move: MoveInput!): MoveResult
   }
 `
 
-const buildContext = async () => {
-  return { gameManager: server.gameManager }
-}
 type PromiseType<T> = T extends PromiseLike<infer U> ? U : T
 declare module 'mercurius' {
-  interface MercuriusContext extends PromiseType<ReturnType<typeof buildContext>> {}
+  // Mercurius unfortunately requires the interface context type to be defined
+  // this way.
+  /* eslint-disable-next-line @typescript-eslint/no-empty-interface */
+  interface MercuriusContext extends PromiseType<{ gameManager: GameManager }> {}
 }
 
 // TODO: Figure out how to get Typescript validation (?)
@@ -167,6 +166,7 @@ const resolvers: IResolvers = {
 declare module 'fastify' {
   export interface FastifyInstance {
     gameManager: GameManager
+    graphql: MercuriusPlugin
   }
 }
 
@@ -178,6 +178,8 @@ const managers: FastifyPluginAsync = async (server) => {
 export default async ({ overrideConfig = {} }: { overrideConfig?: Partial<Config> }): Promise<FastifyInstance> => {
   const baseConfig = await getConfig()
   const finalConfig = { ...baseConfig, ...overrideConfig }
+  const server = fastify({ logger: finalConfig.logging })
+
   await server.register(fastifyCors, {
     origin: finalConfig.serverURI,
     methods: ['GET', 'POST', 'DELETE'],
@@ -197,8 +199,15 @@ export default async ({ overrideConfig = {} }: { overrideConfig?: Partial<Config
   await server.register(mercurius, {
     schema,
     resolvers,
-    context: buildContext,
+    context: async () => ({ gameManager: server.gameManager }),
     graphiql: true,
+  })
+
+  server.addHook('onClose', async (instance) => {
+    await instance.db.close()
+  })
+  server.graphql.addHook('preParsing', async (_schema, source, _context) => {
+    server.log.info({ query: source }, 'Received a GraphQL query')
   })
 
   server.listen(8080, (err, address) => {
@@ -208,11 +217,7 @@ export default async ({ overrideConfig = {} }: { overrideConfig?: Partial<Config
     }
     console.log(`Server listening at ${address}`)
   })
-
-  server.addHook('onClose', async (instance) => {
-    await instance.db.close()
-  })
-
   await server.ready()
+
   return server
 }

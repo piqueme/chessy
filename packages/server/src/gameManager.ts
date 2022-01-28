@@ -12,8 +12,8 @@ import type { Connection, Model } from 'mongoose'
 type Stored<T> = T & { _id: string; }
 type StoredPuzzle = Stored<Puzzle>
 type StoredPuzzleGame = Stored<PuzzleMasterGame> & { puzzle: StoredPuzzle }
-type ObjectPuzzle = Omit<StoredPuzzle, '_id'> & { id: string }
-type ObjectPuzzleGame = Omit<StoredPuzzleGame, '_id' | 'puzzle'> & { id: string } & { puzzle: ObjectPuzzle }
+export type ObjectPuzzle = Omit<StoredPuzzle, '_id'> & { id: string }
+export type ObjectPuzzleGame = Omit<StoredPuzzleGame, '_id' | 'puzzle'> & { id: string } & { puzzle: ObjectPuzzle }
 
 // DB SETUP
 // TODO: Remove Mongoose schema duplication with Typescript types, hard to synchronize.

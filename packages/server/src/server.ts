@@ -1,3 +1,6 @@
 import createServer from './createServer'
 
-createServer()
+(async() => {
+  //const server = await createServer({})
+  await createServer({})
+})()

@@ -3,6 +3,7 @@ import {
   range,
   reverseMap
 } from './utils'
+import Log from './logger'
 
 /**
  * What should the Board module contains?
@@ -53,14 +54,20 @@ export function serializePiece(piece: Piece): string {
   const pieceTypeShort = pieceTypeSerializationMap.get(piece.type)
   const sideShort = sideSerializationMap.get(piece.side)
   if (!pieceTypeShort || !sideShort) {
-    throw new Error('Failed to translate piece to shortform text.')
+    const error = new Error('Failed to translate piece to shortform text.')
+    Log.logger.debug(error)
+    throw error
   }
   return sideShort + pieceTypeShort
 }
 
 export function readPieceType(pieceTypeString: string): PieceType {
   const typeData = reversePieceTypeMap.get(pieceTypeString)
-  if (!typeData) { throw new Error('Piece type could not be read!') }
+  if (!typeData) {
+    const error = new Error('Piece type could not be read!')
+    Log.logger.debug(error)
+    throw error
+  }
   return typeData
 }
 
@@ -68,12 +75,16 @@ export function readPiece(pieceString: string): Piece {
   const side = pieceString[0]
   const type = pieceString[1]
   if (!type || !side) {
-    throw new Error(`Failed to parse piece from shortform string: ${pieceString}`)
+    const error = new Error(`Failed to parse piece from shortform string: ${pieceString}`)
+    Log.logger.debug(error)
+    throw error
   }
   const typeData = reversePieceTypeMap.get(type)
   const sideData = reverseSideMap.get(side)
   if (!typeData || !sideData) {
-    throw new Error(`Failed to parse piece from shortform string: ${pieceString}`)
+    const error = new Error(`Failed to parse piece from shortform string: ${pieceString}`)
+    Log.logger.debug(error)
+    throw error
   }
   return { type: typeData, side: sideData }
 }
@@ -114,7 +125,9 @@ export function readBoard(serializedBoard: string): Board {
     if (!dividers.every(
       divider => !!divider && divider.split('').every(c => c == '-')
     )) {
-      throw new Error(`Failed to parse board:\n${serializedBoard}`)
+      const error = new Error(`Failed to parse board:\n${serializedBoard}`)
+      Log.logger.debug(error)
+      throw error
     }
 
     // parse rows
@@ -128,11 +141,15 @@ export function readBoard(serializedBoard: string): Board {
     })
 
     if (!isBoardValid(board)) {
-      throw new Error(`Failed to parse board:\n${serializedBoard}`)
+      const error = new Error(`Failed to parse board:\n${serializedBoard}`)
+      Log.logger.debug(error)
+      throw error
     }
     return board
   } catch (err) {
-    throw new Error(`Failed to parse board:\n${serializedBoard}`)
+    const error = new Error(`Failed to parse board:\n${serializedBoard}`)
+    Log.logger.debug(error)
+    throw error
   }
 }
 
@@ -140,7 +157,11 @@ function readCompressedRow(row: string): (Piece | null)[] {
   const parsedRow: (Piece | null)[] = []
   for (let i = 0; i < row.length; i++) {
     const char = row[i]
-    if (!char) { throw new Error('Parsing error.') }
+    if (!char) {
+      const error = new Error('Failed to parse row.')
+      Log.logger.debug(error)
+      throw error
+    }
     const spaces = parseInt(char, 10)
     if (spaces) {
       for (let j = 0; j < spaces; j++) {
@@ -148,7 +169,11 @@ function readCompressedRow(row: string): (Piece | null)[] {
       }
     } else {
       const pieceType = reversePieceTypeMap.get(char.toUpperCase())
-      if (!pieceType) { throw new Error('Parsing error.') }
+      if (!pieceType) {
+        const error = new Error('Parsing error.')
+        Log.logger.debug(error)
+        throw error
+      }
       const side = (char.toUpperCase() === char) ? 'white' : 'black'
       parsedRow.push({ type: pieceType, side })
     }
@@ -157,9 +182,15 @@ function readCompressedRow(row: string): (Piece | null)[] {
 }
 
 export function readCompressedBoard(compressedBoard: string): Board {
+  Log.logger.info(`Reading compressed FEN board.\n${compressedBoard}`)
   const rows = compressedBoard.split('/')
   const parsedRows = rows.map(readCompressedRow)
-  if (!isBoardValid(parsedRows)) { throw new Error('Invalid board!') }
+  if (!isBoardValid(parsedRows)) {
+    const error = new Error('Invalid board!')
+    Log.logger.debug(error)
+    throw error
+  }
+  Log.logger.info(`Parsed FEN board.\n${serializeBoard(parsedRows)}`)
   return parsedRows
 }
 
@@ -171,7 +202,9 @@ function serializeCompressedRow(row: Row): string {
     const spaceString = acc[1] > 0 ? acc[1].toString() : ''
     const pieceString = pieceTypeSerializationMap.get(pieceOrNull.type)
     if (!pieceString) {
-      throw new Error(`Invalid piece ${pieceOrNull} being serialized!`)
+      const error = new Error(`Invalid piece ${pieceOrNull} being serialized!`)
+      Log.logger.debug(error)
+      throw error
     }
     const pieceWithSideString = pieceOrNull.side === 'white' ? pieceString : pieceString.toLowerCase()
     return [acc[0] + spaceString + pieceWithSideString, 0]
@@ -216,7 +249,9 @@ export function inBoard(square: Square, board: Board): boolean {
 
 export function atSquare(square: Square, board: Board): Piece | null {
   if (!inBoard(square, board)) {
-    throw new Error(`Square ${square} is not in board!`)
+    const error = new Error(`Square ${square} is not in board!`)
+    Log.logger.debug(error)
+    throw error
   }
   // at this point we can make Type assertions since we know the square exists
   const row = board[square[0]] as Readonly<(Piece | null)[]>
@@ -253,7 +288,11 @@ export function findPieces({ type, side }: {
 }
 
 export function serializeSquare(square: Square, board: Board): string {
-  if (!inBoard(square, board)) { throw new Error(`Square ${square} is not in board.`) }
+  if (!inBoard(square, board)) {
+    const error = new Error(`Square ${square} is not in board.`)
+    Log.logger.debug(error)
+    throw error
+  }
 
   const numRows = board.length
   const colString = String.fromCharCode('a'.charCodeAt(0) + square[1])
@@ -277,17 +316,23 @@ export function mutateBoard(
   mutations: Mutation[],
   board: Board
 ): Board {
+  Log.logger.info(`Mutating board...\n${serializeBoard(board)}`)
   const newBoard = [...board.map(row => [...row])]
   mutations.forEach(({ square, piece }) => {
     if (!inBoard(square, board)) {
-      throw new Error(`Square ${square} is not in board.`)
+      const error = new Error(`Square ${square} is not in board.`)
+      Log.logger.debug(error)
+      throw error
     }
     // we know the square is in the board now
     const row = newBoard[square[0]] as (Piece | null)[]
     row[square[1]] = piece
   })
   if (!isBoardValid(newBoard)) {
-    throw new Error('Mutations resulted in an invalid board!')
+    const error = Error('Mutations resulted in an invalid board!')
+    Log.logger.debug(error)
+    throw error
   }
+  Log.logger.info(`Mutated board successfully!\n${serializeBoard(newBoard)}`)
   return newBoard
 }

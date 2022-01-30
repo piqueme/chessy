@@ -23,5 +23,8 @@
     "clean": "rm -rf ./build && rm tsconfig.tsbuildinfo",
     "dev": "yarn g:tsc -b -w --preserveWatchOutput",
     "test": "yarn g:test --selectProjects @chessy/core"
+  },
+  "dependencies": {
+    "pino": "^7.6.5"
   }
 }

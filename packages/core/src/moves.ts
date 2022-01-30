@@ -9,9 +9,12 @@ import {
   squareDiff,
   mutateBoard,
   serializePiece,
+  serializeSquare,
+  serializeBoard,
   readPieceType,
 } from './board'
 import { isUpperCase } from './utils'
+import Log from './logger'
 
 export type Move = { from: Square, to: Square }
 type Take = { piece: Piece; square: Square }
@@ -47,12 +50,20 @@ function getTraversalUntilBlockOrEnemy(from: Square, side: Side, dirs: Direction
 function getFeasibleBishopMoves(from: Square, side: Side, board: Board): MoveWithTake[] {
   const piece = atSquare(from, board)
   if (!piece) {
-    throw new Error(`Piece not available at ${from} to move!`)
+    const error = new Error(`Piece not available at ${from} to move!`)
+    Log.logger.debug(error)
+    throw error
   }
   if (!(piece.type === 'bishop')) {
-    throw new Error(`Piece is not a bishop to move!`)
+    const error = new Error(`Piece is not a bishop to move!`)
+    Log.logger.debug(error)
+    throw error
   }
-  if (piece.side !== side) { throw new Error(`Piece moved does not match moving side.`) }
+  if (piece.side !== side) {
+    const error = new Error(`Piece moved does not match moving side.`)
+    Log.logger.debug(error)
+    throw error
+  }
   const diagonalDirs : Direction[] = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
   return getTraversalUntilBlockOrEnemy(from, piece.side, diagonalDirs, board)
 }
@@ -60,12 +71,20 @@ function getFeasibleBishopMoves(from: Square, side: Side, board: Board): MoveWit
 function getFeasibleRookMoves(from: Square, side: Side, board: Board): MoveWithTake[] {
   const piece = atSquare(from, board)
   if (!piece) {
-    throw new Error(`Piece not available at ${from} to move!`)
+    const error = new Error(`Piece not available at ${from} to move!`)
+    Log.logger.debug(error)
+    throw error
   }
   if (!(piece.type === 'rook')) {
-    throw new Error(`Piece is not a rook to move!`)
+    const error = new Error(`Piece is not a rook to move!`)
+    Log.logger.debug(error)
+    throw error
   }
-  if (piece.side !== side) { throw new Error(`Piece moved does not match moving side.`) }
+  if (piece.side !== side) {
+    const error = new Error(`Piece moved does not match moving side.`)
+    Log.logger.debug(error)
+    throw error
+  }
   const rowColDirs: Direction[] = [[-1, 0], [0, 1], [0, -1], [1, 0]]
   return getTraversalUntilBlockOrEnemy(from, piece.side, rowColDirs, board)
 }
@@ -73,12 +92,20 @@ function getFeasibleRookMoves(from: Square, side: Side, board: Board): MoveWithT
 function getFeasibleKnightMoves(from: Square, side: Side, board: Board): MoveWithTake[] {
   const piece = atSquare(from, board)
   if (!piece) {
-    throw new Error(`Piece not available at ${from} to move!`)
+    const error = new Error(`Piece not available at ${from} to move!`)
+    Log.logger.debug(error)
+    throw error
   }
   if (!(piece.type === 'knight')) {
-    throw new Error(`Piece is not a knight to move!`)
+    const error = new Error(`Piece is not a knight to move!`)
+    Log.logger.debug(error)
+    throw error
   }
-  if (piece.side !== side) { throw new Error(`Piece moved does not match moving side.`) }
+  if (piece.side !== side) {
+    const error = new Error(`Piece moved does not match moving side.`)
+    Log.logger.debug(error)
+    throw error
+  }
   const jumpDirs: Direction[] = [[-1, 2], [-1, -2], [1, -2], [1, 2], [-2, -1], [-2, 1], [2, 1], [2, -1]]
   return getTraversalUntilBlockOrEnemy(from, piece.side, jumpDirs, board)
 }
@@ -86,12 +113,20 @@ function getFeasibleKnightMoves(from: Square, side: Side, board: Board): MoveWit
 function getFeasiblePawnMoves(from: Square, previous: Move | undefined, side: Side, board: Board): MoveWithTake[] {
   const piece = atSquare(from, board)
   if (!piece) {
-    throw new Error(`Piece not available at ${from} to move!`)
+    const error = new Error(`Piece not available at ${from} to move!`)
+    Log.logger.debug(error)
+    throw error
   }
   if (!(piece.type === 'pawn')) {
-    throw new Error(`Piece is not a pawn to move!`)
+    const error = new Error(`Piece is not a pawn to move!`)
+    Log.logger.debug(error)
+    throw error
   }
-  if (piece.side !== side) { throw new Error(`Piece moved does not match moving side.`) }
+  if (piece.side !== side) {
+    const error = new Error(`Piece moved does not match moving side.`)
+    Log.logger.debug(error)
+    throw error
+  }
   const moves: MoveWithTake[] = []
 
   const startRow = piece.side === 'black' ? 1 : board.length - 2
@@ -144,12 +179,20 @@ function getFeasiblePawnMoves(from: Square, previous: Move | undefined, side: Si
 function getFeasibleQueenMoves(from: Square, side: Side, board: Board): MoveWithTake[] {
   const piece = atSquare(from, board)
   if (!piece) {
-    throw new Error(`Piece not available at ${from} to move!`)
+    const error = new Error(`Piece not available at ${from} to move!`)
+    Log.logger.debug(error)
+    throw error
   }
   if (!(piece.type === 'queen')) {
-    throw new Error(`Piece is not a knight to move!`)
+    const error = new Error(`Piece is not a queen to move!`)
+    Log.logger.debug(error)
+    throw error
   }
-  if (piece.side !== side) { throw new Error(`Piece moved does not match moving side.`) }
+  if (piece.side !== side) {
+    const error = new Error(`Piece moved does not match moving side.`)
+    Log.logger.debug(error)
+    throw error
+  }
   const allDirs : Direction[] = [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [0, 1], [0, -1], [1, 0]]
   return getTraversalUntilBlockOrEnemy(from, piece.side, allDirs, board)
 }
@@ -157,8 +200,21 @@ function getFeasibleQueenMoves(from: Square, side: Side, board: Board): MoveWith
 // TODO: Does not account for castling
 function getFeasibleKingMoves(from: Square, side: Side, board: Board): MoveWithTake[] {
   const piece = atSquare(from, board)
-  if (!piece || !(piece.type === 'king')) { throw new Error('Not a king being moved!'); }
-  if (piece.side !== side) { throw new Error(`Piece moved does not match moving side.`) }
+  if (!piece) {
+    const error = new Error(`Piece not available at ${from} to move!`)
+    Log.logger.debug(error)
+    throw error
+  }
+  if (!(piece.type === 'king')) {
+    const error = new Error(`Piece is not a king to move!`)
+    Log.logger.debug(error)
+    throw error
+  }
+  if (piece.side !== side) {
+    const error = new Error(`Piece moved does not match moving side.`)
+    Log.logger.debug(error)
+    throw error
+  }
 
   const allDirs : Direction[] = [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [0, 1], [0, -1], [1, 0]]
   const moves: MoveWithTake[] = []
@@ -185,22 +241,39 @@ function getFeasibleKingMoves(from: Square, side: Side, board: Board): MoveWithT
 // NOTE: exported only for testing
 export function getFeasibleMoves(from: Square, previous: Move | undefined, side: Side, board: Board): MoveWithTake[] {
   const piece = atSquare(from, board)
-  if (!piece) { throw new Error(`No piece at square: ${from} to get moves for!`) }
-  if (piece.side !== side) { throw new Error(`Piece moved does not match moving side.`) }
+  if (!piece) {
+    const error = new Error(`No piece at square: ${from} to get moves for!`)
+    Log.logger.debug(error)
+    throw error
+  }
+  if (piece.side !== side) {
+    const error = new Error(`Piece moved does not match moving side.`)
+    Log.logger.debug(error)
+    throw error
+  }
+  let feasibleMoves: MoveWithTake[]
   switch(piece.type) {
     case 'pawn':
-      return getFeasiblePawnMoves(from, previous, side, board)
+      feasibleMoves = getFeasiblePawnMoves(from, previous, side, board)
+      break
     case 'bishop':
-      return getFeasibleBishopMoves(from, side, board)
+      feasibleMoves = getFeasibleBishopMoves(from, side, board)
+      break
     case 'rook':
-      return getFeasibleRookMoves(from, side, board)
+      feasibleMoves = getFeasibleRookMoves(from, side, board)
+      break
     case 'knight':
-      return getFeasibleKnightMoves(from, side, board)
+      feasibleMoves = getFeasibleKnightMoves(from, side, board)
+      break
     case 'queen':
-      return getFeasibleQueenMoves(from, side, board)
+      feasibleMoves = getFeasibleQueenMoves(from, side, board)
+      break
     case 'king':
-      return getFeasibleKingMoves(from, side, board)
+      feasibleMoves = getFeasibleKingMoves(from, side, board)
+      break
   }
+  Log.logger.debug(`Retrieved feasible piece moves for ${piece.type} at ${serializeSquare(from, board)}:\n${JSON.stringify(feasibleMoves)}`)
+  return feasibleMoves
 }
 
 function getTakeForMove(move: Move, previous: Move | undefined, side: Side, board: Board): Take | undefined {
@@ -244,6 +317,7 @@ export function getValidMoves(from: Square, previous: Move | undefined, side: Si
       validMoves.push(move)
     }
   })
+  Log.logger.debug(`Retrieved valid piece moves for ${piece.type} at ${serializeSquare(from, board)}:\n${JSON.stringify(validMoves)}`)
   return validMoves
 }
 
@@ -253,21 +327,37 @@ export function isValidMove(move: Move, previous: Move | undefined, side: Side, 
 }
 
 export function getCheckState(previous: Move | undefined, side: Side, board: Board): CheckState {
+  Log.logger.debug([
+    `Getting check state`,
+    `Board: ${serializeBoard(board)}`
+  ])
   const ownKingSquare = findPieces({ type: 'king', side: side }, board)[0]
-  if (!ownKingSquare) { throw new Error('Could not find own king!') }
+  if (!ownKingSquare) {
+    const error = new Error('Could not find own king!')
+    Log.logger.debug(error)
+    throw error
+  }
 
   const kingMoves = getValidMoves(ownKingSquare, previous, side, board)
   const hasCheck = isCheck(previous, side, board)
   const hasMate = kingMoves.length === 0 && hasCheck
-  if (hasMate) { return 'CHECKMATE' }
-  if (hasCheck) { return 'CHECK' }
-  return 'SAFE'
+  let checkState: CheckState
+  if (hasMate) { checkState = 'CHECKMATE' }
+  else if (hasCheck) { checkState = 'CHECK' }
+  else { checkState = 'SAFE' }
+
+  Log.logger.debug(`Got check state: ${checkState}`)
+  return checkState
 }
 
 export function canPromoteFromAssumedValidMove(move: Move, side: Side, board: Board): boolean {
   const piece = atSquare(move.from, board)
   const lastRow = side === 'black' ? board[board.length - 1] : 0
-  if (piece?.side !== side) { throw new Error(`Piece moved does not match moving side.`) }
+  if (piece?.side !== side) {
+    const error = new Error(`Piece moved does not match moving side.`)
+    Log.logger.debug(error)
+    throw error
+  }
   return piece?.type === 'pawn' && move.to[0] === lastRow
 }
 
@@ -275,15 +365,25 @@ export function executeMove(move: Move, previous: Move | undefined, promotion: P
   fullMove: FullMove;
   newBoard: Board;
 } {
+  Log.logger.debug([
+    `Executing move: ${JSON.stringify(move)}`,
+    `Prev: ${JSON.stringify(previous)}`,
+    `Promo: ${promotion}`,
+    `Board: ${serializeBoard(board)}`
+  ])
   const isValid = isValidMove(move, previous, side, board)
   if (!isValid) {
-    throw new Error(`Move ${move} is not valid.`)
+    const error = new Error(`Move ${move} is not valid.`)
+    Log.logger.debug(error)
+    throw error
   }
   const take = getTakeForMove(move, previous, side, board)
   let piece = atSquare(move.from, board)
   const canPromote = canPromoteFromAssumedValidMove(move, side, board)
   if (canPromote && !promotion) {
-    throw new Error('Cannot make a final rank move without promotion.')
+    const error = new Error('Cannot make a final rank move without promotion.')
+    Log.logger.debug(error)
+    throw error
   }
   if (canPromote && promotion) {
     piece = { type: promotion, side };
@@ -300,7 +400,10 @@ export function executeMove(move: Move, previous: Move | undefined, promotion: P
     ...take && ({ take }),
     ...promotion && ({ promotion }),
   }
-
+  Log.logger.debug([
+    `Executed move: ${JSON.stringify(fullMove)}`,
+    `New board: ${serializeBoard(boardAfterMove)}`,
+  ])
   return {
     fullMove,
     newBoard: boardAfterMove,
@@ -317,8 +420,18 @@ function notateSquare(square: Square): string {
 // NOTE: generally assumes move is valid...
 // if pawn take, need to include column
 export function notate(move: FullMove, previous: FullMove | undefined, side: Side, board: Board): string {
+  Log.logger.debug([
+    `Notating move: ${JSON.stringify(move)}`,
+    `prev: ${JSON.stringify(previous)}`,
+    `side: ${JSON.stringify(side)}`,
+    `board: ${serializeBoard(board)}`,
+  ].join('\n'))
   const piece = atSquare(move.from, board)
-  if (!piece) { throw new Error('No piece being moved...') }
+  if (!piece) {
+    const error = new Error('No piece being moved...')
+    Log.logger.debug(error)
+    throw error
+  }
   const pieceString = piece.type === 'pawn' ? '' : serializePiece(piece)[1]
   const targetSquareString = notateSquare(move.to)
 
@@ -358,13 +471,19 @@ export function notate(move: FullMove, previous: FullMove | undefined, side: Sid
   if (newBoardCheckState === 'CHECKMATE') { checkStateString = '#' }
 
 
-  return `${pieceString}${disambiguationString}${takeString}${targetSquareString}${promotionString}${checkStateString}${enPassantString}`
+  const notation = `${pieceString}${disambiguationString}${takeString}${targetSquareString}${promotionString}${checkStateString}${enPassantString}`
+  Log.logger.debug(`Completed notating move: ${notation}`)
+  return notation
 }
 
 function parseSquare(squareString: string, board: Board): Square {
   const column = squareString[0]
   const row = squareString[1]
-  if (!column || !row) { throw new Error(`String ${squareString} does not represent a square!`) }
+  if (!column || !row) {
+    const error = new Error(`String ${squareString} does not represent a square!`)
+    Log.logger.debug(error)
+    throw error
+  }
 
   const parsedColumn = column.charCodeAt(0) - 97
   const parsedRow = board.length - parseInt(row)
@@ -372,7 +491,9 @@ function parseSquare(squareString: string, board: Board): Square {
     parsedColumn >= board[0].length || parsedColumn < 0 ||
     parsedRow < 0 || parsedRow >= board.length
   ) {
-    throw new Error(`Parsed square ${squareString} is out of board dimensions.`)
+    const error = new Error(`Parsed square ${squareString} is out of board dimensions.`)
+    Log.logger.debug(error)
+    throw error
   }
 
   return [parsedRow, parsedColumn]
@@ -394,10 +515,20 @@ function parseDisambiguationString(disambiguationString: string, board: Board): 
 // NOTE: My god this is awful. Definitely deserves cleanup, but fuck it. May be
 // better with RegExp or something. "Algebraic notation" my ass.
 export function parseMoveNotation(notation: string, side: Side, board: Board): FullMove {
+  Log.logger.debug([
+    `Parsing notation: ${notation}`,
+    `side: ${JSON.stringify(side)}`,
+    `board: ${serializeBoard(board)}`,
+  ].join('\n'))
+
   // extract en passant
   const enPassant = notation.endsWith(' e.p.')
   const notationWithEnPassantRemoved = notation.split(' e.p.')[0]
-  if (notationWithEnPassantRemoved === undefined) { throw new Error('Bad notation string split') }
+  if (notationWithEnPassantRemoved === undefined) {
+    const error = new Error(`Bad notation string ${notation} split`)
+    Log.logger.debug(error)
+    throw error
+  }
 
   // extract check or checkmate
   const hasCheckString = notation.endsWith('#') || notation.endsWith('+')
@@ -408,13 +539,21 @@ export function parseMoveNotation(notation: string, side: Side, board: Board): F
   // extract promotion
   const [notationWithPromotionRemoved, promotionString] = notationWithCheckRemoved.split('=')
   const promotion = promotionString ? readPieceType(promotionString) : undefined
-  if (notationWithPromotionRemoved === undefined) { throw new Error('Bad notation string split') }
+  if (notationWithPromotionRemoved === undefined) {
+    const error = new Error(`Bad notation string ${notation} split`)
+    Log.logger.debug(error)
+    throw error
+  }
 
   // extract target square
   const targetSquareString = notationWithPromotionRemoved.substr(notationWithPromotionRemoved.length - 2)
   const targetSquare = parseSquare(targetSquareString, board)
   const notationWithTargetRemoved = notationWithPromotionRemoved.split(targetSquareString)[0]
-  if (notationWithTargetRemoved === undefined) { throw new Error('Bad notation string split') }
+  if (notationWithTargetRemoved === undefined) {
+    const error = new Error(`Bad notation string ${notation} split`)
+    Log.logger.debug(error)
+    throw error
+  }
 
   // extract take segment
   const hasTake = notationWithTargetRemoved.endsWith('x')
@@ -427,12 +566,18 @@ export function parseMoveNotation(notation: string, side: Side, board: Board): F
   } else if (hasTake) {
     const takePiece = atSquare(targetSquare, board)
     if (!takePiece || takePiece.side != getEnemySide(side)) {
-      throw new Error('Piece does not exist or has wrong side at target square in notation')
+      const error = new Error('Piece does not exist or has wrong side at target square in notation')
+      Log.logger.debug(error)
+      throw error
     }
     take = { piece: takePiece, square: targetSquare }
   }
   const notationWithTakeRemoved = notationWithTargetRemoved.split('x')[0]
-  if (notationWithTakeRemoved === undefined) { throw new Error('Bad notation string split') }
+  if (notationWithTakeRemoved === undefined) {
+    const error = new Error(`Bad notation string ${notation} split`)
+    Log.logger.debug(error)
+    throw error
+  }
 
   // extract piece being moved
   const pieceType = isUpperCase(notationWithTakeRemoved[0] || 'a') ? readPieceType(notationWithTakeRemoved[0] || '') : 'pawn'
@@ -455,7 +600,9 @@ export function parseMoveNotation(notation: string, side: Side, board: Board): F
     return matchesRow && matchesColumn
   })
   if (matchingPieceSquares.length === 0) {
-    throw new Error('Could not find piece matching disambiguation in notation')
+    const error = new Error('Could not find piece matching disambiguation in notation')
+    Log.logger.debug(error)
+    throw error
   }
   const matchingPawnSquare =
     matchingPieceSquares.find(square => Math.abs(square[0] - targetSquare[0]) === 1) ||
@@ -470,15 +617,18 @@ export function parseMoveNotation(notation: string, side: Side, board: Board): F
   ))
 
   const matchingPieceSquare = pieceType === 'pawn' ? matchingPawnSquare : matchingNonPawnSquare
-  // const matchingPieceSquare = pieceType === 'pawn' ? matchingPawnSquare : matchingPieceSquares[0]
   if (!matchingPieceSquare) {
-    throw new Error('Could not find matching piece for notated move')
+    const error = new Error('Could not find matching piece for notated move')
+    Log.logger.debug(error)
+    throw error
   }
 
-  return {
+  const parsedMove = {
     from: matchingPieceSquare,
     to: targetSquare,
     ...take && ({ take }),
     ...promotion && ({ promotion }),
   }
+  Log.logger.debug(`Parsed move from notation: ${JSON.stringify(parsedMove)}`)
+  return parsedMove
 }

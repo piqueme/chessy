@@ -8,6 +8,9 @@ import type { IResolvers } from 'mercurius'
 import { gql } from 'mercurius-codegen'
 import type { FastifyPluginAsync, FastifyInstance } from 'fastify'
 import GameManager, { createGameManager } from './gameManager'
+import context from './async-context'
+import logger from './logger'
+import { Log as CoreLog } from '@chessy/core'
 // import type { Side, Square, Board } from '@chessy/core'
 import type { MongoosePluginOptions } from './fastify-mongoose'
 import type { MercuriusPlugin } from 'mercurius'
@@ -178,7 +181,8 @@ const managers: FastifyPluginAsync = async (server) => {
 export default async ({ overrideConfig = {} }: { overrideConfig?: Partial<Config> }): Promise<FastifyInstance> => {
   const baseConfig = await getConfig()
   const finalConfig = { ...baseConfig, ...overrideConfig }
-  const server = fastify({ logger: finalConfig.logging })
+  const server = fastify({ logger: finalConfig.logging ? logger : false })
+  CoreLog.setLogger(logger)
 
   await server.register(fastifyCors, {
     origin: finalConfig.serverURI,
@@ -205,6 +209,9 @@ export default async ({ overrideConfig = {} }: { overrideConfig?: Partial<Config
 
   server.addHook('onClose', async (instance) => {
     await instance.db.close()
+  })
+  server.addHook('preHandler', (request, _, next) => {
+    context.run({ requestId: request.id }, next)
   })
   server.graphql.addHook('preParsing', async (_schema, source, _context) => {
     server.log.info({ query: source }, 'Received a GraphQL query')

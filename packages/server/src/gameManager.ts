@@ -7,6 +7,7 @@ import type {
 } from '@chessy/core'
 import { v4 as uuidv4 } from 'uuid'
 import { Schema } from 'mongoose'
+import logger from './logger'
 import type { Connection, Model } from 'mongoose'
 
 type Stored<T> = T & { _id: string; }
@@ -57,15 +58,6 @@ function createModels(db: Connection): Models {
 }
 // END DB SETUP
 
-// QUERIES
-// get all puzzles
-//  get puzzles > or < X difficulty
-//  get puzzles by author
-// get games
-//  get in progress games (puzzle)
-//  get completed games (puzzle)
-//  by ID (from URL)
-
 function convertStoredToObjectPuzzle(storedPuzzle: StoredPuzzle): ObjectPuzzle {
   const { _id, ...otherPuzzleFields } = storedPuzzle
   return { id: _id, ...otherPuzzleFields }
@@ -103,7 +95,9 @@ export default class GameManager {
     const storedPuzzle = { _id: resolvedID, ...puzzle }
     const puzzleDocument = new this.models.Puzzle(storedPuzzle)
     try {
+      logger.info(`Storing puzzle\n${JSON.stringify(puzzleDocument)}`)
       await puzzleDocument.save()
+      logger.info(`Successfully stored puzzle ${resolvedID}`)
       return { id: resolvedID, ...puzzle }
     } catch (e) {
       throw new Error('Failed to save to DB during puzzle creation')
@@ -153,6 +147,7 @@ export default class GameManager {
     if (!gameDocument) {
       throw new Error(`No game found in DB for ID: ${gameId}`)
     }
+    logger.info(`Succesfully removed Game ${gameId} from DB`)
     const gameObject = gameDocument.toObject()
     const puzzle = convertStoredToObjectPuzzle(gameObject.puzzle)
     return { id: gameObject._id, ...gameObject, puzzle }
@@ -174,7 +169,9 @@ export default class GameManager {
     const storedPuzzle = { _id: game.puzzle.id, ...moveResultPuzzle }
     const storedGame = { _id: game.id, ...moveResult.game, puzzle: storedPuzzle }
     try {
+      logger.info(`Saving updated game.\n${JSON.stringify(storedGame)}`)
       await this.models.Game.findOneAndReplace({ id: gameId }, storedGame)
+      logger.info(`Successfully updated game ${storedGame._id}.`)
       const objectPuzzle = { id: game.puzzle.id, ...moveResultPuzzle }
       const objectGame = { ...moveResult.game, puzzle: objectPuzzle, id: game.id }
       return {

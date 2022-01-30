@@ -2113,6 +2113,7 @@ __metadata:
     mongodb-memory-server: ^8.2.0
     mongoose: ^6.1.5
     p-map: 4
+    pino: ^7.6.5
     tsc-watch: ^4.5.0
     url-join: ^4.0.1
     uuid: ^8.3.2

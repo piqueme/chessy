@@ -36,6 +36,7 @@
     "mercurius-codegen": "^3.3.0",
     "mongoose": "^6.1.5",
     "p-map": "4",
+    "pino": "^7.6.5",
     "url-join": "^4.0.1",
     "uuid": "^8.3.2"
   }

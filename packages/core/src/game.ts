@@ -116,3 +116,5 @@ export function movePlayerGame(from: Square, to: Square, promotion: PieceType | 
   }
   return newGameState
 }
+
+// TODO: Serialize Game

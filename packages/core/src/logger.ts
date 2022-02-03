@@ -9,13 +9,14 @@ class Log {
   logger: PinoLogger;
 
   constructor(logger?: PinoLogger) {
-    this.logger = logger || pino({ level: 'silent' })
+    this.logger = logger || pino({ level: 'silent', scope: LoggingScope })
   }
 
   setLogger(logger: PinoLogger): void {
-    this.logger = logger
+    this.logger = logger.child({ scope: LoggingScope })
   }
 }
 
 const log = new Log()
 export default log
+export const LoggingScope = 'core'

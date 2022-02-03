@@ -9,3 +9,4 @@ const logger = pino({
 })
 
 export default logger
+export const LoggingScope = 'server'

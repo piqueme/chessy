@@ -116,7 +116,9 @@ export default class GameManager {
     const storedGame = { _id: gameID, ...game, puzzle: storedPuzzle }
     const gameDocument = new this.models.Game(storedGame)
     try {
+      logger.info(`Saving new game: ${JSON.stringify(storedGame, null, 2)}`)
       await gameDocument.save()
+      logger.info(`Successfully saved new game with ID: ${gameID}`)
       return { id: gameID, ...game, puzzle }
     } catch (e) {
       throw new Error('Failed to save game in DB during creation')
@@ -128,9 +130,9 @@ export default class GameManager {
     if (!gameDocument) {
       throw new Error(`No game found in DB with ID: ${gameId}`)
     }
-    const gameObject = gameDocument.toObject()
+    const { _id, ...gameObject } = gameDocument.toObject()
     const puzzle = convertStoredToObjectPuzzle(gameObject.puzzle)
-    return { id: gameObject._id, ...gameObject, puzzle }
+    return { id: _id, ...gameObject, puzzle }
   }
 
   async getGamesByPuzzles(puzzleIds: string[]): Promise<ObjectPuzzleGame[]> {
@@ -164,14 +166,15 @@ export default class GameManager {
     success: boolean;
   }> {
     const game = await this.getGame(gameId)
+    logger.info(`Moving game.\n${JSON.stringify(game, null, 2)}\nMove:${JSON.stringify(from)}:${JSON.stringify(to)}`)
     const moveResult = moveMasterGame(from, to, undefined, game)
     const moveResultPuzzle = moveResult.game.puzzle
     const storedPuzzle = { _id: game.puzzle.id, ...moveResultPuzzle }
-    const storedGame = { _id: game.id, ...moveResult.game, puzzle: storedPuzzle }
+    const storedGame = { ...moveResult.game, puzzle: storedPuzzle }
     try {
       logger.info(`Saving updated game.\n${JSON.stringify(storedGame)}`)
       await this.models.Game.findOneAndReplace({ id: gameId }, storedGame)
-      logger.info(`Successfully updated game ${storedGame._id}.`)
+      logger.info(`Successfully updated game ${gameId}.`)
       const objectPuzzle = { id: game.puzzle.id, ...moveResultPuzzle }
       const objectGame = { ...moveResult.game, puzzle: objectPuzzle, id: game.id }
       return {
@@ -179,6 +182,7 @@ export default class GameManager {
         game: objectGame
       }
     } catch (e) {
+      logger.error(e)
       throw new Error('Failed to save game after move to DB.')
     }
   }

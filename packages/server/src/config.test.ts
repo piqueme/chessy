@@ -11,6 +11,9 @@ export default async(): Promise<Config & { testDBHandle: MongoMemoryServer }> =>
     testDBHandle: mongod,
     databaseUser: process.env['DB_USERNAME'] as string,
     databasePassword: process.env['DB_PASSWORD'] as string,
-    logging: false,
+    logging: {
+      core: "silent",
+      server: "silent"
+    },
   }
 }

@@ -5,6 +5,7 @@ dotenv.config()
 
 type LoggingScope = typeof ServerLoggingScope | typeof CoreLoggingScope
 export type Config = {
+  clientOrigin: string;
   serverURI: string;
   databaseURI: string;
   databaseUser: string;
@@ -14,6 +15,7 @@ export type Config = {
 
 export default async(): Promise<Config> => {
   return {
+    clientOrigin: 'http://localhost:3000',
     serverURI: 'http://127.0.0.1:8080',
     databaseURI: process.env['DB_URI'] as string,
     databaseUser: process.env['DB_USERNAME'] as string,

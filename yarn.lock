@@ -2138,6 +2138,8 @@ __metadata:
     "@types/react-dom": ^17.0.0
     "@vitejs/plugin-react": ^1.0.0
     axios: ^0.24.0
+    graphql: ^16.3.0
+    graphql-request: ^4.0.0
     history: 5
     identity-obj-proxy: ^3.0.0
     react: ^17.0.0
@@ -2145,7 +2147,7 @@ __metadata:
     react-dnd-html5-backend: ^14.0.2
     react-dom: ^17.0.0
     react-router-dom: 6
-    swr: ^1.0.1
+    swr: ^1.1.0
     typescript: ^4.3.2
     vite: ^2.6.4
   languageName: unknown
@@ -5390,13 +5392,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dequal@npm:2.0.2":
-  version: 2.0.2
-  resolution: "dequal@npm:2.0.2"
-  checksum: 86c7a2c59f7b0797ed397c74b5fcdb744e48fc19440b70ad6ac59f57550a96b0faef3f1cfd5760ec5e6d3f7cb101f634f1f80db4e727b1dc8389bf62d977c0a0
-  languageName: node
-  linkType: hard
-
 "destroy@npm:~1.0.4":
   version: 1.0.4
   resolution: "destroy@npm:1.0.4"
@@ -6893,6 +6888,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"graphql-request@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "graphql-request@npm:4.0.0"
+  dependencies:
+    cross-fetch: ^3.0.6
+    extract-files: ^9.0.0
+    form-data: ^3.0.0
+  peerDependencies:
+    graphql: 14 - 16
+  checksum: 0d16c7f06360679c022faaa19554c2693e200263beae0dec920b0668f6c48b0d08de6e1155a50a050283a58a878b29b04db129a2d932a645bfadbe8d55530243
+  languageName: node
+  linkType: hard
+
 "graphql-sse@npm:^1.0.1":
   version: 1.0.6
   resolution: "graphql-sse@npm:1.0.6"
@@ -6926,6 +6934,13 @@ __metadata:
   version: 16.2.0
   resolution: "graphql@npm:16.2.0"
   checksum: 204b5c9991b82561651a28b13dbb2e0e67514171a6a8c045ca4a527b944087344a14519d0426d661b49f2305584b390591abadc82b942f7b65e64e05cb31a584
+  languageName: node
+  linkType: hard
+
+"graphql@npm:^16.3.0":
+  version: 16.3.0
+  resolution: "graphql@npm:16.3.0"
+  checksum: ba540641e9cd2a8de5b989ff1433b015f232fa73aaef478d6709c1339cd43113347917acb965a5799c004667687852fc8ff0cfaa935eb26374c91c1fd7fdaeb1
   languageName: node
   linkType: hard
 
@@ -10891,14 +10906,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swr@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "swr@npm:1.0.1"
-  dependencies:
-    dequal: 2.0.2
+"swr@npm:^1.1.0":
+  version: 1.2.1
+  resolution: "swr@npm:1.2.1"
   peerDependencies:
-    react: ^16.11.0 || ^17.0.0
-  checksum: 8aaa10c4c65cb9b46a143a52ac2728111fc8af96e83781df1f7b7d56aa027ef720b7feb230658616e479f224f684d4cbc5d2ca3265c40f95a3140dbdba801061
+    react: ^16.11.0 || ^17.0.0 || ^18.0.0
+  checksum: 87f6093f468dc76f31d7dc7bdd8f925cd9d8a8e8062eecaf6e17ba4ffeb4d5aebe01e73e0cf30ef0e913121f630c33e393eeff8aab6e5479cb3291cd7f2d7dca
   languageName: node
   linkType: hard
 

@@ -13,8 +13,10 @@ import type { Connection, Model } from 'mongoose'
 type Stored<T> = T & { _id: string; }
 type StoredPuzzle = Stored<Puzzle>
 type StoredPuzzleGame = Stored<PuzzleMasterGame> & { puzzle: StoredPuzzle }
-export type ObjectPuzzle = Omit<StoredPuzzle, '_id'> & { id: string }
-export type ObjectPuzzleGame = Omit<StoredPuzzleGame, '_id' | 'puzzle'> & { id: string } & { puzzle: ObjectPuzzle }
+type PuzzleDifficulty = 'BEGINNER' | 'INTERMEDIATE' | 'HARD'
+type GameProgressState = 'PLAYING' | 'COMPLETED'
+export type ObjectPuzzle = Omit<StoredPuzzle, '_id'> & { id: string; difficulty: PuzzleDifficulty }
+export type ObjectPuzzleGame = Omit<StoredPuzzleGame, '_id' | 'puzzle'> & { id: string; progressState: GameProgressState } & { puzzle: ObjectPuzzle }
 
 // DB SETUP
 // TODO: Remove Mongoose schema duplication with Typescript types, hard to synchronize.
@@ -58,14 +60,50 @@ function createModels(db: Connection): Models {
 }
 // END DB SETUP
 
+function computeGameProgressState(storedGame: StoredPuzzleGame): GameProgressState {
+  if (storedGame.puzzle.correctMoves.length === storedGame.history.length) {
+    return 'COMPLETED'
+  }
+  return 'PLAYING'
+}
+
+function computePuzzleDifficulty(storedPuzzle: StoredPuzzle): PuzzleDifficulty {
+  const numMoves = storedPuzzle.correctMoves.length
+  if (numMoves <= 1) {
+    return 'BEGINNER'
+  }
+  if (numMoves <= 3) {
+    return 'INTERMEDIATE'
+  }
+  return 'HARD'
+}
+
 function convertStoredToObjectPuzzle(storedPuzzle: StoredPuzzle): ObjectPuzzle {
   const { _id, ...otherPuzzleFields } = storedPuzzle
-  return { id: _id, ...otherPuzzleFields }
+  return {
+    id: _id,
+    difficulty: computePuzzleDifficulty(storedPuzzle),
+    ...otherPuzzleFields
+  }
+}
+
+function convertStoredToObjectGame(storedGame: StoredPuzzleGame): ObjectPuzzleGame {
+  const { _id, ...gameObject } = storedGame
+  const puzzle = convertStoredToObjectPuzzle(gameObject.puzzle)
+  return {
+    id: _id,
+    ...gameObject,
+    progressState: computeGameProgressState(storedGame),
+    puzzle
+  }
 }
 
 function convertObjectToStoredPuzzle(objectPuzzle: ObjectPuzzle): StoredPuzzle {
-  const { id, ...otherPuzzleFields } = objectPuzzle
-  return { _id: id, ...otherPuzzleFields }
+  const { id, difficulty, ...otherPuzzleFields } = objectPuzzle
+  return {
+    _id: id,
+    ...otherPuzzleFields
+  }
 }
 
 export default class GameManager {
@@ -98,7 +136,7 @@ export default class GameManager {
       logger.info(`Storing puzzle\n${JSON.stringify(puzzleDocument)}`)
       await puzzleDocument.save()
       logger.info(`Successfully stored puzzle ${resolvedID}`)
-      return { id: resolvedID, ...puzzle }
+      return convertStoredToObjectPuzzle(storedPuzzle)
     } catch (e) {
       throw new Error('Failed to save to DB during puzzle creation')
     }
@@ -119,7 +157,7 @@ export default class GameManager {
       logger.info(`Saving new game: ${JSON.stringify(storedGame, null, 2)}`)
       await gameDocument.save()
       logger.info(`Successfully saved new game with ID: ${gameID}`)
-      return { id: gameID, ...game, puzzle }
+      return convertStoredToObjectGame(storedGame)
     } catch (e) {
       throw new Error('Failed to save game in DB during creation')
     }
@@ -130,17 +168,14 @@ export default class GameManager {
     if (!gameDocument) {
       throw new Error(`No game found in DB with ID: ${gameId}`)
     }
-    const { _id, ...gameObject } = gameDocument.toObject()
-    const puzzle = convertStoredToObjectPuzzle(gameObject.puzzle)
-    return { id: _id, ...gameObject, puzzle }
+    return convertStoredToObjectGame(gameDocument.toObject())
   }
 
   async getGamesByPuzzles(puzzleIds: string[]): Promise<ObjectPuzzleGame[]> {
     const gameDocuments = await this.models.Game.find({ 'puzzle._id': { $in: puzzleIds } }).exec()
     const gameObjects = gameDocuments.map(g => g.toObject())
     return gameObjects.map(g => {
-      const puzzle = convertStoredToObjectPuzzle(g.puzzle)
-      return { id: g._id, ...g, puzzle }
+      return convertStoredToObjectGame(g)
     })
   }
 
@@ -151,8 +186,7 @@ export default class GameManager {
     }
     logger.info(`Succesfully removed Game ${gameId} from DB`)
     const gameObject = gameDocument.toObject()
-    const puzzle = convertStoredToObjectPuzzle(gameObject.puzzle)
-    return { id: gameObject._id, ...gameObject, puzzle }
+    return convertStoredToObjectGame(gameObject)
   }
 
   // NOTE: Dangerous, for internal use only!
@@ -175,8 +209,7 @@ export default class GameManager {
       logger.info(`Saving updated game.\n${JSON.stringify(storedGame)}`)
       await this.models.Game.findOneAndReplace({ id: gameId }, storedGame)
       logger.info(`Successfully updated game ${gameId}.`)
-      const objectPuzzle = { id: game.puzzle.id, ...moveResultPuzzle }
-      const objectGame = { ...moveResult.game, puzzle: objectPuzzle, id: game.id }
+      const objectGame = convertStoredToObjectGame({ _id: game.id, ...storedGame })
       return {
         ...moveResult,
         game: objectGame

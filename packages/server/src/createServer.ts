@@ -11,13 +11,11 @@ import GameManager, { createGameManager } from './gameManager'
 import context from './async-context'
 import logger from './logger'
 import { Log as CoreLog } from '@chessy/core'
-// import type { Side, Square, Board } from '@chessy/core'
 import type { MongoosePluginOptions } from './fastify-mongoose'
 import type { MercuriusPlugin } from 'mercurius'
 import type { Config } from './config'
 
 // GRAPHQL
-// TODO: Logging on every request.
 // TODO: Documentation of fields.
 // TODO: De-duplicate input and query types with fragments.
 // TODO: Figure out how to restrict fields for different users.
@@ -25,6 +23,7 @@ import type { Config } from './config'
 // TODO: Editor GraphQL Linting
 // TODO: "Reset Game" Operation
 // TODO: "Inspect Move" Operation
+// TODO: UUID Request IDs (not seq)
 const schema = gql`
   """ Representation of a chess piece. """
   type Piece {
@@ -47,6 +46,7 @@ const schema = gql`
   }
   type Puzzle {
     id: ID!
+    difficulty: String!
     sideToMove: String!
     startBoard: [[Piece]]
     correctMoves: [HistoryMove!]
@@ -58,6 +58,7 @@ const schema = gql`
     board: [[Piece]]
     sideToMove: String!
     checkState: String!
+    progressState: String!
     puzzle: Puzzle!
     history: [HistoryMove!]!
   }
@@ -187,7 +188,7 @@ export default async ({ overrideConfig = {} }: { overrideConfig?: Partial<Config
   CoreLog.setLogger(coreLogger)
 
   await server.register(fastifyCors, {
-    origin: finalConfig.serverURI,
+    origin: finalConfig.clientOrigin,
     methods: ['GET', 'POST', 'DELETE'],
   })
   // unfortunately needs to be manually typed

@@ -38,4 +38,5 @@ export const mockPuzzle: ObjectPuzzle = {
           notation: 'Rc8',
       },
   ],
+  difficulty: 'BEGINNER'
 }

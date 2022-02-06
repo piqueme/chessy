@@ -6,6 +6,7 @@ export default async(): Promise<Config & { testDBHandle: MongoMemoryServer }> =>
   const databaseURI = mongod.getUri()
 
   return {
+    clientOrigin: 'https://127.0.0.1:3000',
     serverURI: 'http://127.0.0.1:8080',
     databaseURI,
     testDBHandle: mongod,

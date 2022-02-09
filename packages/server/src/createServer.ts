@@ -27,6 +27,7 @@ import type { Config } from './config'
 const schema = gql`
   """ Representation of a chess piece. """
   type Piece {
+    _id: String!
     type: String!
     side: String!
   }
@@ -74,6 +75,7 @@ const schema = gql`
   }
 
   input PieceInput {
+    _id: String!
     type: String!
     side: String!
   }

@@ -58,6 +58,7 @@ export function parseBlunder(blunder: Blunder): Puzzle {
     [startBoard, [] as History, sideToMove]
   )
   return {
+    _id: blunder.id,
     startBoard,
     sideToMove,
     correctMoves: finalHistory,

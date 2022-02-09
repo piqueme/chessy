@@ -50,13 +50,13 @@ describe('API integration tests', () => {
     const query = gql`
       mutation CreatePuzzle($puzzle: CreatePuzzleInput!) {
         createPuzzle(puzzle: $puzzle) {
-          id
+          _id
         }
       }
     `
     const variables = { puzzle: mockPuzzle }
     const response = await gqlRequest(`${config.serverURI}/graphql`, query, variables)
-    expect(response.createPuzzle.id).toEqual(mockPuzzle.id)
+    expect(response.createPuzzle._id).toEqual(mockPuzzle._id)
     pause(200)
   })
 
@@ -65,13 +65,13 @@ describe('API integration tests', () => {
     const query = gql`
       query PuzzlesQuery {
         puzzles {
-          id
+          _id
         }
       }
     `
     const response = await gqlRequest(`${config.serverURI}/graphql`, query)
     expect(response.puzzles).toHaveLength(1)
-    expect(response.puzzles[0].id).toEqual(mockPuzzle.id)
+    expect(response.puzzles[0]._id).toEqual(mockPuzzle._id)
     pause(200)
   })
 
@@ -80,18 +80,18 @@ describe('API integration tests', () => {
     const query = gql`
       mutation GameCreateMutation($puzzleId: ID!) {
         createGameFromPuzzle(puzzleId: $puzzleId) {
-          id
+          _id
           puzzle {
-            id
+            _id
           }
         }
       }
     `
-    const variables = { puzzleId: mockPuzzle.id }
+    const variables = { puzzleId: mockPuzzle._id }
     const response = await gqlRequest(`${config.serverURI}/graphql`, query, variables)
-    gameId = response.createGameFromPuzzle.id
-    expect(response.createGameFromPuzzle.puzzle.id).toEqual(mockPuzzle.id)
-    expect(response.createGameFromPuzzle.id).toBeDefined()
+    gameId = response.createGameFromPuzzle._id
+    expect(response.createGameFromPuzzle.puzzle._id).toEqual(mockPuzzle._id)
+    expect(response.createGameFromPuzzle._id).toBeDefined()
     pause(200)
   })
 
@@ -99,18 +99,18 @@ describe('API integration tests', () => {
     const config = await testConfig()
     const query = gql`
       query GameQuery($id: ID) {
-        game(id: $id) {
-          id
+        game(_id: $id) {
+          _id
           puzzle {
-            id
+            _id
           }
         }
       }
     `
     const variables = { id: gameId }
     const response = await gqlRequest(`${config.serverURI}/graphql`, query, variables)
-    expect(response.game.id).toEqual(gameId)
-    expect(response.game.puzzle.id).toEqual(mockPuzzle.id)
+    expect(response.game._id).toEqual(gameId)
+    expect(response.game.puzzle._id).toEqual(mockPuzzle._id)
     pause(200)
   })
 
@@ -176,8 +176,8 @@ describe('API integration tests', () => {
     const config = await testConfig()
     const query = gql`
       query GameQuery($id: ID!) {
-        game(id: $id) {
-          id
+        game(_id: $id) {
+          _id
         }
       }
     `

@@ -1,8 +1,8 @@
-import type { ObjectPuzzle } from '../gameManager'
+import type { Puzzle } from '@chessy/core'
 import { readBoard } from '@chessy/core'
 
-export const mockPuzzle: ObjectPuzzle = {
-  id: 'test-puzzle-id',
+export const mockPuzzle: Puzzle = {
+  _id: 'test-puzzle-id',
   sideToMove: 'black',
   startBoard: readBoard([
       '-------------------------',
@@ -38,5 +38,4 @@ export const mockPuzzle: ObjectPuzzle = {
           notation: 'Rc8',
       },
   ],
-  difficulty: 'BEGINNER'
 }

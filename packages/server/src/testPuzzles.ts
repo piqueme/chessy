@@ -3,6 +3,7 @@ import { readBoard } from '@chessy/core'
 
 const testPuzzles: Puzzle[] = [
   {
+    _id: 'mock-puzzle-1',
     startBoard: readBoard([
       '-------------------------',
       '|  |  |  |  |  |  |  |  |',
@@ -39,6 +40,7 @@ const testPuzzles: Puzzle[] = [
     ]
   },
   {
+    _id: 'mock-puzzle-2',
     startBoard: readBoard([
       '-------------------------',
       '|  |  |  |  |  |  |bQ|bK|',
@@ -69,7 +71,7 @@ const testPuzzles: Puzzle[] = [
           from: [0, 6],
           to: [0, 4],
           take: {
-            piece: { type: 'rook', side: 'white' },
+            piece: { _id: 'mock-id', type: 'rook', side: 'white' },
             square: [0, 4]
           },
         },
@@ -82,6 +84,7 @@ const testPuzzles: Puzzle[] = [
     ]
   },
   {
+    _id: 'mock-puzzle-3',
     startBoard: readBoard([
       '-------------------------',
       '|  |  |  |  |  |bN|  |bR|',
@@ -116,7 +119,7 @@ const testPuzzles: Puzzle[] = [
           from: [3, 5],
           to: [3, 6],
           take: {
-            piece: { type: 'rook', side: 'black' },
+            piece: { _id: 'mock-id', type: 'rook', side: 'black' },
             square: [3, 6],
           }
         },
@@ -125,6 +128,7 @@ const testPuzzles: Puzzle[] = [
     ]
   },
   {
+    _id: 'mock-puzzle-4',
     startBoard: readBoard([
       '-------------------------',
       '|  |  |  |  |  |  |  |  |',
@@ -161,6 +165,7 @@ const testPuzzles: Puzzle[] = [
     ]
   },
   {
+    _id: 'mock-puzzle-5',
     startBoard: readBoard([
       '-------------------------',
       '|  |  |wB|  |  |  |  |  |',
@@ -195,7 +200,7 @@ const testPuzzles: Puzzle[] = [
           from: [2, 0],
           to: [3, 1],
           take: {
-            piece: { type: 'pawn', side: 'black' },
+            piece: { _id: 'mock-id', type: 'pawn', side: 'black' },
             square: [3, 1],
           }
         },

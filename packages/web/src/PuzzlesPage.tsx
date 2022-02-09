@@ -13,11 +13,11 @@ import type { Board, Side } from '@chessy/core'
 type Difficulty = 'BEGINNER' | 'INTERMEDIATE' | 'HARD'
 type ProgressState = 'PLAYING' | 'COMPLETED'
 type Game = {
-  id: string;
+  _id: string;
   progressState: ProgressState;
 }
 type Puzzle = {
-  id: string;
+  _id: string;
   difficulty: Difficulty;
   sideToMove: Side;
   startBoard: Board;
@@ -34,7 +34,7 @@ type FetchPuzzlesQueryResponse = {
 const fetchPuzzlesQuery = gql`
   query FetchPuzzlesQuery {
     puzzles {
-      id
+      _id
       difficulty
       sideToMove
       startBoard {
@@ -42,7 +42,7 @@ const fetchPuzzlesQuery = gql`
         side
       }
       game {
-        id
+        _id
         progressState
       }
     }
@@ -51,7 +51,7 @@ const fetchPuzzlesQuery = gql`
 
 type CreateGameMutationResponse = {
   createGameFromPuzzle: {
-    id: string
+    _id: string
   }
 }
 type CreateGameMutationVariables = {
@@ -60,7 +60,7 @@ type CreateGameMutationVariables = {
 const createGameMutation = gql`
   mutation CreateGameMutation($puzzleId: ID!) {
     createGameFromPuzzle(puzzleId: $puzzleId) {
-      id
+      _id
     }
   }
 `
@@ -85,7 +85,7 @@ export default function PuzzlesPage(): JSX.Element {
     )
     setNavigating(true)
     setTimeout(
-      () => { navigate(`/game/${data.createGameFromPuzzle.id}`) },
+      () => { navigate(`/game/${data.createGameFromPuzzle._id}`) },
       transitionDuration
     )
   }
@@ -112,15 +112,15 @@ export default function PuzzlesPage(): JSX.Element {
     <Fade in={!navigating} timeout={transitionDuration}>
       <Grid container spacing={2}>
         {puzzleData && puzzleData.puzzles.map((puzzle, i) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={puzzle.id}>
+          <Grid item xs={12} sm={6} md={4} lg={3} key={puzzle._id}>
             <PuzzleCard
               index={i + 1}
               puzzle={puzzle}
               onClick={() => {
                 if (puzzle.game) {
-                  handleGotoGame(puzzle.game.id)
+                  handleGotoGame(puzzle.game._id)
                 } else {
-                  handleCreateGame(puzzle.id)
+                  handleCreateGame(puzzle._id)
                 }
               }}
             />

@@ -45,7 +45,7 @@ const schema = gql`
     notation: String!
   }
   type Puzzle {
-    id: ID!
+    _id: ID!
     difficulty: String!
     sideToMove: String!
     startBoard: [[Piece]]
@@ -63,8 +63,8 @@ const schema = gql`
     history: [HistoryMove!]!
   }
   type Query {
-    game(id: ID): Game
-    puzzle(id: ID): Puzzle
+    game(_id: ID): Game
+    puzzle(_id: ID): Puzzle
     puzzles: [Puzzle]
   }
   type MoveResult {
@@ -92,7 +92,7 @@ const schema = gql`
     notation: String!
   }
   input CreatePuzzleInput {
-    id: ID!
+    _id: ID!
     sideToMove: String!
     startBoard: [[PieceInput]]
     correctMoves: [HistoryMoveInput!]
@@ -118,16 +118,15 @@ declare module 'mercurius' {
 // TODO: Figure out how to get deeper validation beyond type?
 const resolvers: IResolvers = {
   Query: {
-    game: async (_: unknown, { id }: { id: string }, context) => {
-      console.log("Query Resolver: game", id)
-      const { id: _throwId, ...game } = await context.gameManager.getGame(id)
-      const testGame = { ...game, _id: _throwId }
-      return testGame
+    game: async (_: unknown, { _id }: { _id: string }, context) => {
+      console.log("Query Resolver: game", _id)
+      const game = await context.gameManager.getGame(_id)
+      return game
     },
-    puzzle: async (_: unknown, { id }: { id: string }, context) => {
-      console.log("Query Resolver: puzzle", id)
-      const puzzle = await context.gameManager.getPuzzle(id)
-      const games = await context.gameManager.getGamesByPuzzles([id])
+    puzzle: async (_: unknown, { _id }: { _id: string }, context) => {
+      console.log("Query Resolver: puzzle", _id)
+      const puzzle = await context.gameManager.getPuzzle(_id)
+      const games = await context.gameManager.getGamesByPuzzles([_id])
       return {
         ...puzzle,
         game: games[0]
@@ -136,18 +135,17 @@ const resolvers: IResolvers = {
     puzzles: async (_a: unknown, _b: unknown, context) => {
       console.log("Query Resolver: puzzles")
       const puzzles = await context.gameManager.getAllPuzzles()
-      const games = await context.gameManager.getGamesByPuzzles(puzzles.map(p => p.id))
+      const games = await context.gameManager.getGamesByPuzzles(puzzles.map(p => p._id))
       return puzzles.map(p => ({
         ...p,
-        game: games.find(g => g.puzzle.id === p.id)
+        game: games.find(g => g.puzzle._id === p._id)
       }))
     }
   },
   Mutation: {
     createPuzzle: async (_: unknown, { puzzle }: any, context) => {
-      const { id, ...otherPuzzleFields } = puzzle
       console.log("Mutation Resolver: createPuzzle")
-      const storedPuzzle = await context.gameManager.createPuzzle(otherPuzzleFields, { id })
+      const storedPuzzle = await context.gameManager.createPuzzle(puzzle)
       return storedPuzzle
     },
     createGameFromPuzzle: async (_: unknown, { puzzleId }: { puzzleId: string }, context) => {
@@ -158,7 +156,7 @@ const resolvers: IResolvers = {
     deleteGame: async (_: unknown, { gameId }: { gameId: string }, context) => {
       console.log("Mutation Resolver: deleteGame")
       const game = await context.gameManager.removeGame(gameId)
-      return game.id
+      return game._id
     },
     move: async (_: unknown, { gameId, move }: { gameId: string, move: any }, context) => {
       console.log("Mutation Resolver: move")

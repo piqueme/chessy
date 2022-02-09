@@ -15,10 +15,13 @@ import {
   mutateBoard
 } from '../board'
 import type { Side, Square, PieceType, Piece, Board, Mutation } from '../board'
+jest.mock('uuid', () => ({
+  v4: () => 'mock-id',
+}))
 
 
-const blackBishop: Piece = { type: 'bishop', side: 'black' }
-const whitePawn: Piece = { type: 'pawn', side: 'white' }
+const blackBishop: Piece = { _id: 'mock-id', type: 'bishop', side: 'black' }
+const whitePawn: Piece = { _id: 'mock-id', type: 'pawn', side: 'white' }
 const cp = (p: Piece): Piece => ({ ...p })
 const testBoard: Board = [
   [cp(blackBishop), cp(whitePawn), null, null],
@@ -42,6 +45,7 @@ const compressedTestBoard = 'bP2/4/4/2Pb'
 describe('serializePiece', () => {
   test('correctly serializes black bishop', () => {
     expect(serializePiece({
+      _id: 'mock-id',
       type: 'bishop',
       side: 'black'
     })).toEqual('bB')
@@ -49,6 +53,7 @@ describe('serializePiece', () => {
 
   test('correctly serializes white pawn', () => {
     expect(serializePiece({
+      _id: 'mock-id',
       type: 'pawn',
       side: 'white'
     })).toEqual('wP')
@@ -57,11 +62,11 @@ describe('serializePiece', () => {
 
 describe('readPiece', () => {
   test('correctly parses black bishop from string', () => {
-    expect(readPiece('bB')).toEqual({ 'type': 'bishop', 'side': 'black' })
+    expect(readPiece('bB')).toEqual({ _id: 'mock-id', 'type': 'bishop', 'side': 'black' })
   });
 
   test('correctly parses white pawn from string', () => {
-    expect(readPiece('wP')).toEqual({ 'type': 'pawn', 'side': 'white' })
+    expect(readPiece('wP')).toEqual({ _id: 'mock-id', 'type': 'pawn', 'side': 'white' })
   });
 
   test('throws an error when side in short-form is invalid', () => {
@@ -170,8 +175,8 @@ describe('readCompressedBoard', () => {
 
 test('createStandardBoard creates a board with black knights at correct locations', () => {
   const board = createStandardBoard()
-  expect(board[0]?.[1]).toEqual({ type: 'knight', side: 'black' })
-  expect(board[0]?.[6]).toEqual({ type: 'knight', side: 'black' })
+  expect(board[0]?.[1]).toEqual({ _id: 'mock-id', type: 'knight', side: 'black' })
+  expect(board[0]?.[6]).toEqual({ _id: 'mock-id', type: 'knight', side: 'black' })
 });
 
 describe('atSquare', () => {

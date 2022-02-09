@@ -4,10 +4,12 @@ import { testPuzzle } from './puzzle'
 import type { Side, Square, Board, PieceType } from './board'
 import type { HistoryMove, CheckState } from './moves'
 import type { Puzzle } from './puzzle'
+import { v4 as uuidv4 } from 'uuid'
 
 export type History = HistoryMove[];
 
 export type PuzzleMasterGame = {
+  _id: string;
   sideToMove: Side;
   board: Board;
   checkState: CheckState;
@@ -16,6 +18,7 @@ export type PuzzleMasterGame = {
 }
 
 export type PlayerGame = {
+  _id: string;
   sideToMove: Side;
   board: Board;
   checkState: CheckState;
@@ -24,6 +27,7 @@ export type PlayerGame = {
 
 export function createPlayerGame(puzzle: Puzzle = testPuzzle): PlayerGame {
   return {
+    _id: uuidv4(),
     sideToMove: 'white',
     board: puzzle.startBoard,
     checkState: 'SAFE',
@@ -33,6 +37,7 @@ export function createPlayerGame(puzzle: Puzzle = testPuzzle): PlayerGame {
 
 export function createMasterGame(puzzle: Puzzle = testPuzzle): PuzzleMasterGame {
   return {
+    _id: uuidv4(),
     sideToMove: puzzle.sideToMove,
     board: puzzle.startBoard,
     checkState: 'SAFE',
@@ -109,6 +114,7 @@ export function movePlayerGame(from: Square, to: Square, promotion: PieceType | 
     { move: fullMove, notation: notatedMove }
   ]
   const newGameState = {
+    _id: game._id,
     board: newBoard,
     sideToMove: getEnemySide(game.sideToMove),
     checkState: newCheckState,

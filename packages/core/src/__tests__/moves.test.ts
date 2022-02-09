@@ -11,6 +11,7 @@ import {
   notate,
   parseMoveNotation,
 } from '../moves'
+jest.mock('uuid', () => ({ v4: () => 'mock-id' }))
 
 // helps compare sets of moves
 const moveSorter = (move1: Move, move2: Move) => {
@@ -167,9 +168,9 @@ describe('getAllFeasibleMoves', () => {
       'black',
       testBoard
     )
-    const whiteRook: Piece = { type: 'rook', side: 'white' }
-    const whitePawn: Piece = { type: 'pawn', side: 'white' }
-    const whiteKnight: Piece = { type: 'knight', side: 'white' }
+    const whiteRook: Piece = { _id: 'mock-id', type: 'rook', side: 'white' }
+    const whitePawn: Piece = { _id: 'mock-id', type: 'pawn', side: 'white' }
+    const whiteKnight: Piece = { _id: 'mock-id', type: 'knight', side: 'white' }
     const expectedMoves: MoveWithTake[] = [
       { from: [0, 2], to: [0, 1] },
       { from: [0, 2], to: [1, 1] },
@@ -667,7 +668,7 @@ describe('executeMove', () => {
         ...move,
         take: {
           square: [1, 3],
-          piece: { type: 'rook', side: 'black' }
+          piece: { _id: 'mock-id', type: 'rook', side: 'black' }
         }
       },
       newBoard: postMoveBoard,
@@ -785,7 +786,7 @@ describe('executeMove', () => {
       fullMove: {
         ...move,
         take: {
-          piece: { side: 'black', type: 'pawn' },
+          piece: { _id: 'mock-id', side: 'black', type: 'pawn' },
           square: [3, 2]
         }
       },
@@ -841,7 +842,7 @@ describe('executeMove', () => {
         ...move,
         promotion,
         take: {
-          piece: { side: 'black', type: 'rook' },
+          piece: { _id: 'mock-id', side: 'black', type: 'rook' },
           square: [0, 2]
         },
       },
@@ -1005,7 +1006,7 @@ describe('parseMoveNotation', () => {
       from: [4, 3],
       to: [3, 4],
       take: {
-        piece: { type: 'bishop', side: 'black' },
+        piece: { _id: 'mock-id', type: 'bishop', side: 'black' },
         square: [3, 4]
       }
     })
@@ -1065,7 +1066,7 @@ describe('parseMoveNotation', () => {
       from: [4, 1],
       to: [4, 3],
       take: {
-        piece: { type: 'pawn', side: 'white' },
+        piece: { _id: 'mock-id', type: 'pawn', side: 'white' },
         square: [4, 3]
       }
     })
@@ -1097,7 +1098,7 @@ describe('parseMoveNotation', () => {
       from: [6, 5],
       to: [4, 4],
       take: {
-        piece: { type: 'pawn', side: 'black' },
+        piece: { _id: 'mock-id', type: 'pawn', side: 'black' },
         square: [4, 4]
       }
     })
@@ -1129,7 +1130,7 @@ describe('parseMoveNotation', () => {
       from: [4, 5],
       to: [6, 4],
       take: {
-        piece: { type: 'bishop', side: 'white' },
+        piece: { _id: 'mock-id', type: 'bishop', side: 'white' },
         square: [6, 4]
       }
     })
@@ -1161,7 +1162,7 @@ describe('parseMoveNotation', () => {
       from: [3, 0],
       to: [2, 1],
       take: {
-        piece: { type: 'pawn', side: 'black' },
+        piece: { _id: 'mock-id', type: 'pawn', side: 'black' },
         square: [3, 1]
       }
     })

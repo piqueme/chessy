@@ -5,6 +5,9 @@ import {
   moveMasterGame,
 } from '../game'
 import { readBoard } from '../board'
+jest.mock('uuid', () => ({
+  v4: () => 'mock-id'
+}))
 
 // TODO: These tests are somewhat hacky, they could definitely be beefed up.
 

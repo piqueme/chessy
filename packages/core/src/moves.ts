@@ -15,6 +15,7 @@ import {
 } from './board'
 import { isUpperCase } from './utils'
 import Log from './logger'
+import { v4 as uuidv4 } from 'uuid'
 
 export type Move = { from: Square, to: Square }
 type Take = { piece: Piece; square: Square }
@@ -385,8 +386,8 @@ export function executeMove(move: Move, previous: Move | undefined, promotion: P
     Log.logger.debug(error)
     throw error
   }
-  if (canPromote && promotion) {
-    piece = { type: promotion, side };
+  if (piece && canPromote && promotion) {
+    piece = { _id: piece._id, type: promotion, side };
   }
 
   const boardAfterMove = mutateBoard([
@@ -453,7 +454,7 @@ export function notate(move: FullMove, previous: FullMove | undefined, side: Sid
   // promotion string, slightly hacky since we don't care about side
   let promotionString = ''
   if (move.promotion) {
-    const promotionPieceString = move.promotion ? serializePiece({ type: move.promotion, side: 'white' })[1] : ''
+    const promotionPieceString = move.promotion ? serializePiece({ _id: '', type: move.promotion, side: 'white' })[1] : ''
     promotionString = '=' + promotionPieceString
   }
 
@@ -559,7 +560,7 @@ export function parseMoveNotation(notation: string, side: Side, board: Board): F
   const hasTake = notationWithTargetRemoved.endsWith('x')
   let take: Take | undefined = undefined;
   if (hasTake && enPassant) {
-    const takePiece = { type: 'pawn' as PieceType, side: getEnemySide(side) }
+    const takePiece = { _id: uuidv4(), type: 'pawn' as PieceType, side: getEnemySide(side) }
     const backOneSquareDir: [number, number] = side === 'black' ? [-1, 0] : [1, 0]
     const takeSquare = shift(targetSquare, backOneSquareDir)
     take = { piece: takePiece, square: takeSquare }

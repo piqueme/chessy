@@ -54,7 +54,7 @@ const schema = gql`
     game: Game
   }
   type Game {
-    id: ID!
+    _id: ID!
     board: [[Piece]]
     sideToMove: String!
     checkState: String!
@@ -120,8 +120,9 @@ const resolvers: IResolvers = {
   Query: {
     game: async (_: unknown, { id }: { id: string }, context) => {
       console.log("Query Resolver: game", id)
-      const game = await context.gameManager.getGame(id)
-      return game
+      const { id: _throwId, ...game } = await context.gameManager.getGame(id)
+      const testGame = { ...game, _id: _throwId }
+      return testGame
     },
     puzzle: async (_: unknown, { id }: { id: string }, context) => {
       console.log("Query Resolver: puzzle", id)

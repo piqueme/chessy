@@ -1,12 +1,28 @@
 import React from 'react'
-import { getAllSquares } from '@chessy/core'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { DndProvider, useDrop } from 'react-dnd'
+import { getAllSquares, atSquare } from '@chessy/core'
 import type { Board as BoardData, Square as SquareData, Side } from '@chessy/core'
+import ChessPiece from './ChessPiece'
+
+// TODO: Potentially separate render and drag / drop functionality
+// Behavior
+//  drag -> drop locks to position
+//  if api call fails, move back smoothly
+//  if api call succeeds, move enemy smoothly
 
 type Props = {
   board: BoardData;
-  side: Side;
+  viewSide: Side;
+  moveSide: Side;
+  onMoveStart: ({ square }: { square: SquareData }) => void;
+  onMoveEnd: ({ square }: { square: SquareData }) => void;
+  interactingSquare: SquareData | null;
 }
 
+/**
+ * Responsive container which provides a height equal to the responsive width.
+ */
 function SquareFrame({ children }: { children: React.ReactNode }): JSX.Element {
   return (
     <div css={{
@@ -44,20 +60,33 @@ type SquareProps = {
   showRowText?: boolean,
   showColText?: boolean,
   size?: string | number,
+  onMoveEnd?: () => void
 }
 function Square({
   square,
   showRowText = false,
   showColText = false,
-  size = 'calc(100% / 8)'
+  size = 'calc(100% / 8)',
+  onMoveEnd,
 }: SquareProps): JSX.Element {
+  const [, drop] = useDrop(() => ({
+    accept: 'piece',
+    drop: () => {
+      console.log("DROPPING")
+      onMoveEnd && onMoveEnd()
+    }
+  }))
+
   return (
-    <div css={{
-      position: 'relative',
-      backgroundColor: getSquareColor(square),
-      width: size,
-      height: size,
-    }}>
+    <div
+      css={{
+        position: 'relative',
+        backgroundColor: getSquareColor(square),
+        width: size,
+        height: size,
+      }}
+      ref={drop}
+    >
       {showRowText && (
         <span css={{
           position: 'absolute',
@@ -82,29 +111,63 @@ function Square({
   )
 }
 
-function Board({ board, side }: Props): JSX.Element {
+function getSquareView(square: SquareData, side: Side): SquareData {
+  return side === 'black' ? [7 - square[0], 7 - square[1]] : square
+}
+
+function Board({ board, viewSide, moveSide, onMoveStart, onMoveEnd, interactingSquare }: Props): JSX.Element {
   const squares = getAllSquares(board)
-  const squaresView = (side === 'black' ? squares.slice().reverse() : squares)
+  const squaresView = (viewSide === 'black' ? squares.slice().reverse() : squares)
 
   return (
-    <SquareFrame>
-      <div css={{
-        width: 'calc(100%)',
-        height: 'calc(100%)',
-        display: 'flex',
-        flexWrap: 'wrap',
-      }}>
-        {squaresView.map((square, viewIdx) => (
-          <Square
-            square={square}
-            showRowText={(viewIdx + 1) % 8 === 0}
-            showColText={(viewIdx + 1) / 8 > 7}
-          />
-        ))}
-      </div>
-    </SquareFrame>
+    <DndProvider backend={HTML5Backend}>
+      <SquareFrame>
+        <div css={{
+          width: 'calc(100%)',
+          height: 'calc(100%)',
+          display: 'flex',
+          flexWrap: 'wrap',
+        }}>
+          {squaresView.map((square, viewIdx) => (
+            <Square
+              key={`${square[0]}~${square[1]}`}
+              square={square}
+              showRowText={(viewIdx + 1) % 8 === 0}
+              showColText={(viewIdx + 1) / 8 > 7}
+              onMoveEnd={() => { onMoveEnd({ square }) }}
+            />
+          ))}
+          {squaresView.map((square) => {
+            const piece = atSquare(square, board)
+            const squareView = getSquareView(square, viewSide)
+            if (piece) {
+              const squareKey = `${square[0]}~${square[1]}`
+              const interactingSquareKey = interactingSquare ?
+                `${interactingSquare[0]}~${interactingSquare[1]}` : ''
+              return (
+                <ChessPiece
+                  key={`${square[0]}~${square[1]}`}
+                  piece={piece}
+                  size="12.5%"
+                  cssOverrides={{
+                    pointerEvents: (!interactingSquareKey || squareKey === interactingSquareKey) ? 'auto' : 'none',
+                    position: 'absolute',
+                    top: `${12.5 * squareView[0]}%`,
+                    left: `${12.5 * squareView[1]}%`,
+                  }}
+                  isMovable={moveSide === piece.side}
+                  onMoveStart={() => { onMoveStart({ square }) }}
+                />
+              )
+            }
+            return null
+          })}
+        </div>
+      </SquareFrame>
+    </DndProvider>
   )
 }
+
 
 /* type SquareProps = { */
 /*   gameId: string; */

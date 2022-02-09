@@ -207,7 +207,7 @@ export default class GameManager {
     const storedGame = { ...moveResult.game, puzzle: storedPuzzle }
     try {
       logger.info(`Saving updated game.\n${JSON.stringify(storedGame)}`)
-      await this.models.Game.findOneAndReplace({ id: gameId }, storedGame)
+      await this.models.Game.findOneAndReplace({ _id: gameId }, storedGame)
       logger.info(`Successfully updated game ${gameId}.`)
       const objectGame = convertStoredToObjectGame({ _id: game.id, ...storedGame })
       return {

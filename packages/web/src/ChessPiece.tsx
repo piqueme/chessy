@@ -1,47 +1,47 @@
-import { Piece, Square } from '@chessy/core'
+import { Piece as PieceData } from '@chessy/core'
 import { useDrag } from 'react-dnd'
 import type { CSSObject } from '@emotion/react'
 
 type Props = {
-  piece: Piece;
-  square: Square;
-  size?: number;
-  unit?: 'px' | '%';
+  piece: PieceData;
+  size?: number | string;
+  isMovable?: boolean;
+  onMoveStart?: () => void;
   cssOverrides?: CSSObject;
 }
 
-const piecePositions: Record<Piece['type'], number> = {
+const piecePositions: Record<PieceData['type'], number> = {
   king: 0,
-  queen: 5,
-  rook: 2,
-  bishop: 4,
+  queen: 1,
+  rook: 4,
+  bishop: 2,
   knight: 3,
-  pawn: 1
+  pawn: 5
 }
 
-const sidePositions: Record<Piece['side'], number> = {
+const sidePositions: Record<PieceData['side'], number> = {
   black: 1,
   white: 0,
 }
 
-// TODO cannot drag if not side to move
-
-export default function ChessPiece({ 
-  piece, 
-  square,
-  size = 48, 
-  unit = 'px', 
-  cssOverrides = {} 
+// TODO: Potentially separate Chess Piece into "Draggable" and "Non-Draggable"
+export default function ChessPiece({
+  piece,
+  size = 48,
+  isMovable = false,
+  onMoveStart,
+  cssOverrides = {},
 }: Props): JSX.Element {
-  const pieceTopOffset = sidePositions[piece.side] * size
-  const pieceLeftOffset = piecePositions[piece.type] * size
-
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'piece',
-    item: square,
+    item: () => {
+      onMoveStart && onMoveStart()
+      return piece
+    },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
-    })
+    }),
+    canDrag: isMovable,
   }))
 
   return (
@@ -50,11 +50,11 @@ export default function ChessPiece({
       css={{
         opacity: isDragging ? 0.5 : 1,
         backgroundImage: 'url("/pieces.svg")',
-        backgroundSize: `${6 * size}${unit} ${2 * size}${unit}`,
-        width: `${size}${unit}`,
-        height: `${size}${unit}`,
-        backgroundPosition: `top ${pieceTopOffset}${unit} left ${pieceLeftOffset}${unit}`,
-        ...cssOverrides
+        backgroundSize: `600% 200%`,
+        width: size,
+        height: size,
+        backgroundPosition: `top calc(${sidePositions[piece.side]} * 300%) left calc(${piecePositions[piece.type]} * 20%)`,
+        ...cssOverrides,
       }}
     />
   )

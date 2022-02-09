@@ -4,22 +4,13 @@ import {
   reverseMap
 } from './utils'
 import Log from './logger'
-
-/**
- * What should the Board module contains?
- *  - key types for board, squares, pieces
- *  - utility methods for updating the board, finding pieces and squares
- *
- * How should we structure the methods?
- *  - read and mutation methods should clearly distinguish
- *  - allow importing individual methods for lower size
- *  - when importing help with namespacing
- */
+import { v4 as uuidv4 } from 'uuid'
 
 export type Mutation = { square: Square; piece: Piece | null }
 export type PieceType = 'bishop' | 'rook' | 'knight' | 'king' | 'queen' | 'pawn'
 export type Side = 'white' | 'black'
 export type Piece = Readonly<{
+  _id: string;
   type: PieceType;
   side: Side;
 }>
@@ -86,7 +77,7 @@ export function readPiece(pieceString: string): Piece {
     Log.logger.debug(error)
     throw error
   }
-  return { type: typeData, side: sideData }
+  return { _id: uuidv4(), type: typeData, side: sideData }
 }
 
 export function isBoardValid(board: Readonly<Readonly<(Piece | null)[]>[]>): board is Board {
@@ -175,7 +166,7 @@ function readCompressedRow(row: string): (Piece | null)[] {
         throw error
       }
       const side = (char.toUpperCase() === char) ? 'white' : 'black'
-      parsedRow.push({ type: pieceType, side })
+      parsedRow.push({ _id: uuidv4(), type: pieceType, side })
     }
   }
   return parsedRow

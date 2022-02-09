@@ -3,12 +3,14 @@ import type { Board, Side } from './board'
 import type { HistoryMove } from './moves'
 
 export type Puzzle = {
+  _id: string;
   startBoard: Board;
   sideToMove: Side;
   correctMoves: HistoryMove[];
 }
 
 export const testPuzzle: Puzzle = {
+  _id: 'test-puzzle',
   startBoard: readBoard([
     '-------------------------',
     '|  |  |  |  |  |  |  |  |',

@@ -11,11 +11,11 @@ import type { Side } from '@chessy/core'
 type Difficulty = 'BEGINNER' | 'INTERMEDIATE' | 'HARD'
 type ProgressState = 'PLAYING' | 'COMPLETED'
 type Game = {
-  id: string;
+  _id: string;
   progressState: ProgressState;
 }
 type Puzzle = {
-  id: string;
+  _id: string;
   difficulty: Difficulty;
   sideToMove: Side;
   game?: Game;
@@ -60,7 +60,7 @@ function PuzzleCard({ puzzle, index, onClick }: Props): JSX.Element {
         >
           <CardContent>
             <Typography variant="h6" css={{ marginBottom: 12 }}>
-              {index ? `Puzzle ${index}` : puzzle.id}
+              {index ? `Puzzle ${index}` : puzzle._id}
             </Typography>
             <div css={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
               <ExtensionIcon />

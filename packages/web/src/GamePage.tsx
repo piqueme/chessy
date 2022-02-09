@@ -11,13 +11,13 @@ import CircularProgress from '@mui/material/CircularProgress'
 import NotFoundPage from './NotFoundPage'
 import Board from './Board'
 import { apiClient } from './api'
-import type { Move, Puzzle, PlayerGame, Square as SquareData } from '@chessy/core'
+import type { Puzzle, PlayerGame, Square as SquareData } from '@chessy/core'
 import { isValidMove, movePlayerGame } from '@chessy/core'
 /* import type { Piece, Puzzle, Board, Square, PlayerGame } from '@chessy/core' */
 
 type Difficulty = 'BEGINNER' | 'INTERMEDIATE' | 'HARD'
 type Game = {
-  id: string;
+  _id: string;
   board: PlayerGame['board'];
   sideToMove: PlayerGame['sideToMove'];
   checkState: PlayerGame['checkState'];
@@ -42,7 +42,7 @@ const GAME_PAGE_GAME_DETAILS = gql`
     checkState
     progressState
     puzzle {
-      id
+      _id
       sideToMove
       difficulty
     }
@@ -66,7 +66,7 @@ const GAME_PAGE_GAME_DETAILS = gql`
 const fetchGameQuery = gql`
   ${GAME_PAGE_GAME_DETAILS}
   query FetchGameQuery($id: ID!) {
-    game(id: $id) {
+    game(_id: $id) {
       ...GamePageGameDetails
     }
   }
@@ -175,7 +175,7 @@ function GamePage(): JSX.Element {
       mutate({ game: newGame }, false)
       console.log("API REQUEST")
       apiClient<MoveMutationResponse, MoveMutationVariables>(
-        MoveMutation, { gameId: game.id, move }
+        MoveMutation, { gameId: game._id, move }
       ).then(data => {
         mutate({ game: data.move.game }, false)
         dispatch({ type: 'CLEAR' })
@@ -226,7 +226,7 @@ function GamePage(): JSX.Element {
             onClick={async () => {
               await apiClient<RemoveGameMutationResponse, RemoveGameMutationVariables>(
                 RemoveGameMutation,
-                { gameId: game.id }
+                { gameId: game._id }
               )
               setNavigating(true)
               setTimeout(() => {

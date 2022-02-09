@@ -29,7 +29,7 @@ const HistoryMoveSchema = new Schema<HistoryMove>({
     from: [Number],
     to: [Number],
     take: {
-      piece: { type: { type: String }, side: String },
+      piece: { _id: String, type: { type: String }, side: String },
       square: { type: [Number], default: undefined }
     },
     promotion: String,
@@ -39,12 +39,12 @@ const HistoryMoveSchema = new Schema<HistoryMove>({
 const PuzzleSchema = new Schema<Puzzle>({
   _id: String,
   sideToMove: String,
-  startBoard: [[{ type: { type: String }, side: String } ]],
+  startBoard: [[{ _id: String, type: { type: String }, side: String } ]],
   correctMoves: [HistoryMoveSchema]
 })
 const GameSchema = new Schema<PuzzleMasterGame>({
   _id: String,
-  board: [[{ type: { type: String }, side: String } ]],
+  board: [[{ _id: String, type: { type: String }, side: String } ]],
   sideToMove: String,
   checkState: String,
   puzzle: PuzzleSchema,
@@ -123,6 +123,7 @@ export default class GameManager {
       logger.info(`Successfully stored puzzle ${puzzle._id}`)
       return convertStoredToObjectPuzzle(puzzle)
     } catch (e) {
+      console.error(e)
       throw new Error('Failed to save to DB during puzzle creation')
     }
   }

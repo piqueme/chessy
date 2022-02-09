@@ -12,6 +12,7 @@ import type {
 } from '../fetching'
 import type { Board, Piece, HistoryMove } from '@chessy/core'
 
+jest.mock('uuid', () => ({ v4: () => 'mock-id' }))
 jest.mock('axios')
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
@@ -59,7 +60,7 @@ describe('parsing blunder', () => {
   const moveTwo: HistoryMove['move'] = { from: [1, 3], to: [0, 3] }
   const moveTwoNotation = mockBlunder.forcedLine[0]
 
-  const whiteKing: Piece = { type: 'king', side: 'white' }
+  const whiteKing: Piece = { _id: 'mock-id', type: 'king', side: 'white' }
   const boardBeforeBlunderMove: Board = [
     [null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null],
@@ -128,6 +129,7 @@ describe('parsing blunder', () => {
   test('outputs puzzle with start board after blunder move and moves excluding blunder move in history', () => {
     const parsedPuzzle = parseBlunder(mockBlunder)
     expect(parsedPuzzle).toEqual({
+      _id: mockBlunder.id,
       startBoard: boardAfterBlunderMove,
       sideToMove: mockSideToMove,
       correctMoves: [{ move: moveTwo, notation: moveTwoNotation }]

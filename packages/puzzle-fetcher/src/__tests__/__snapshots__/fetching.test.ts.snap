@@ -3,6 +3,7 @@
 exports[`[INTEGRATION] blunder fetching and parsing pipeline fetches and parses puzzles, throwing out fetch/parse failures 1`] = `
 Array [
   Object {
+    "_id": "5579ebe8e13823b81c3dfa46",
     "correctMoves": Array [
       Object {
         "move": Object {
@@ -12,6 +13,7 @@ Array [
           ],
           "take": Object {
             "piece": Object {
+              "_id": "mock-id",
               "side": "white",
               "type": "queen",
             },
@@ -64,6 +66,7 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "rook",
         },
@@ -75,11 +78,13 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "bishop",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "king",
         },
@@ -87,6 +92,7 @@ Array [
       ],
       Array [
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "pawn",
         },
@@ -95,6 +101,7 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "pawn",
         },
@@ -104,19 +111,23 @@ Array [
       Array [
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "pawn",
         },
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "queen",
         },
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "bishop",
         },
@@ -145,24 +156,29 @@ Array [
       ],
       Array [
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "queen",
         },
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
@@ -172,10 +188,12 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "king",
         },
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "rook",
         },
@@ -183,6 +201,7 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "rook",
         },
@@ -190,6 +209,7 @@ Array [
     ],
   },
   Object {
+    "_id": "557ec911e13823b832e33b35",
     "correctMoves": Array [
       Object {
         "move": Object {
@@ -199,6 +219,7 @@ Array [
           ],
           "take": Object {
             "piece": Object {
+              "_id": "mock-id",
               "side": "black",
               "type": "knight",
             },
@@ -222,6 +243,7 @@ Array [
           ],
           "take": Object {
             "piece": Object {
+              "_id": "mock-id",
               "side": "white",
               "type": "rook",
             },
@@ -257,16 +279,19 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "king",
         },
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "rook",
         },
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "rook",
         },
@@ -275,14 +300,17 @@ Array [
       Array [
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "bishop",
         },
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "queen",
         },
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "knight",
         },
@@ -293,6 +321,7 @@ Array [
       ],
       Array [
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "pawn",
         },
@@ -303,6 +332,7 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "pawn",
         },
@@ -314,35 +344,42 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "bishop",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
       ],
       Array [
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "pawn",
         },
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "queen",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "rook",
         },
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
@@ -351,23 +388,28 @@ Array [
       Array [
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "pawn",
         },
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "bishop",
         },
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "knight",
         },
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "knight",
         },
@@ -376,6 +418,7 @@ Array [
       Array [
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
@@ -388,6 +431,7 @@ Array [
       ],
       Array [
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "rook",
         },
@@ -397,6 +441,7 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "king",
         },
@@ -405,6 +450,7 @@ Array [
     ],
   },
   Object {
+    "_id": "557a8640e13823b81d8200d7",
     "correctMoves": Array [
       Object {
         "move": Object {
@@ -440,6 +486,7 @@ Array [
           ],
           "take": Object {
             "piece": Object {
+              "_id": "mock-id",
               "side": "black",
               "type": "rook",
             },
@@ -464,6 +511,7 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "rook",
         },
@@ -474,6 +522,7 @@ Array [
       Array [
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "rook",
         },
@@ -481,17 +530,20 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "king",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "pawn",
         },
       ],
       Array [
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "rook",
         },
@@ -506,16 +558,19 @@ Array [
       Array [
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "pawn",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "bishop",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
@@ -524,22 +579,26 @@ Array [
       ],
       Array [
         Object {
+          "_id": "mock-id",
           "side": "black",
           "type": "pawn",
         },
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "bishop",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "king",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
@@ -548,6 +607,7 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
@@ -561,11 +621,13 @@ Array [
         null,
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "pawn",
         },
         null,
         Object {
+          "_id": "mock-id",
           "side": "white",
           "type": "rook",
         },

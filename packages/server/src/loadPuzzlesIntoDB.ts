@@ -3,7 +3,6 @@ import { gql } from 'mercurius-codegen'
 import urljoin from 'url-join'
 import axios from 'axios'
 import pmap from 'p-map'
-import { v4 as uuidv4 } from 'uuid'
 import type { Puzzle } from '@chessy/core'
 
 type Options = {
@@ -21,7 +20,7 @@ export async function loadPuzzlesIntoDB({
   const query = gql`
     mutation CreatePuzzle($puzzle: CreatePuzzleInput!) {
       createPuzzle(puzzle: $puzzle) {
-        id
+        _id
       }
     }
   `
@@ -31,7 +30,7 @@ export async function loadPuzzlesIntoDB({
       await axios.post(endpoint, {
         operationName,
         query,
-        variables: { puzzle: { ...puzzle, id: uuidv4() } }
+        variables: { puzzle }
       })
     } catch (e) {
       console.error(e)

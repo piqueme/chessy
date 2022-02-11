@@ -1,14 +1,31 @@
 import React from 'react'
-import type { PlayerGame } from '@chessy/core'
+import type { PlayerGame, Side } from '@chessy/core'
 
 type Props = {
   history: PlayerGame['history'];
+  startSide: Side;
 }
-type NotationPair = [string, string] | [string, null] | [null, string]
+type NotationPair = [string | null, string | null]
 
-function segmentHistoryIntoPairs(history: PlayerGame['history']): NotationPair[] {
+function padPairsHistory(pairedHistory: NotationPair[], length: number): NotationPair[] {
+  if (pairedHistory.length >= length) {
+    return pairedHistory
+  }
+  const lengthToPad = length - pairedHistory.length
+  const paddedEntries: NotationPair[] = Array(lengthToPad).fill([null, null])
+  return [...pairedHistory, ...paddedEntries]
+}
+
+function segmentHistoryIntoPairs(
+  history: PlayerGame['history'],
+  startSide: Side,
+): NotationPair[] {
+  const initialPairs: NotationPair[] = startSide === 'black' ? [[null, null]] : []
+  const initialChunkOffset = startSide === 'black' ? 1 : 0
   return history.reduce((pairedHistory, historyMove, index) => {
-    const chunkIndex = Math.floor(index / 2)
+    const chunkIndex = Math.floor((index + initialChunkOffset) / 2)
+    console.log("MOVE", historyMove, chunkIndex)
+    console.log("PAIRS", { ...pairedHistory })
     const nextChunk = pairedHistory[chunkIndex]
     if (!nextChunk) {
       pairedHistory[chunkIndex] = [historyMove.notation, null]
@@ -17,12 +34,12 @@ function segmentHistoryIntoPairs(history: PlayerGame['history']): NotationPair[]
       pairedHistory[chunkIndex] = [nextChunk[0], historyMove.notation]
       return pairedHistory
     }
-  }, [] as NotationPair[])
+  }, initialPairs)
 }
 
-function NotatedHistory({ history }: Props): JSX.Element {
-  const segmentedHistory = segmentHistoryIntoPairs(history)
-  console.log("SEGMENTED", segmentedHistory)
+function NotatedHistory({ history, startSide }: Props): JSX.Element {
+  const segmentedHistory = segmentHistoryIntoPairs(history, startSide)
+  const presentedHistory = padPairsHistory(segmentedHistory, 5)
   return (
     <div css={{
       width: '100%',
@@ -31,7 +48,7 @@ function NotatedHistory({ history }: Props): JSX.Element {
       maxHeight: '75vh',
       overflowY: 'scroll'
     }}>
-      {segmentedHistory.map(([whiteMove, blackMove], moveIndex) => {
+      {presentedHistory.map(([whiteMove, blackMove], moveIndex) => {
         return (
           <div
             key={`${whiteMove}~${blackMove}`}

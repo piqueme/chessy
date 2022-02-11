@@ -35,6 +35,7 @@ export default function ChessPiece({
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'piece',
     item: () => {
+      console.log("is movable", isMovable)
       onMoveStart && onMoveStart()
       return piece
     },

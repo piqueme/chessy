@@ -86,22 +86,30 @@ function GamePage(): JSX.Element {
       <Grid container spacing={2}>
         <Grid item xs={1} />
         <Grid item xs={10} md={5}>
-          <Board
-            board={game.board}
-            viewSide={game.puzzle.sideToMove}
-            moveSide={game.sideToMove}
-            onMoveStart={handleMoveStart}
-            onMoveEnd={handleMoveEnd}
-            {...(movingPiece ?
-             { movingPiece: movingPiece._id } :
-             {}
-            )}
-          />
+          <div css={{
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%'
+          }}>
+            <div css={{ width: '100%', maxWidth: '75vh' }}>
+              <Board
+                board={game.board}
+                viewSide={game.puzzle.sideToMove}
+                moveSide={game.sideToMove}
+                onMoveStart={handleMoveStart}
+                onMoveEnd={handleMoveEnd}
+                {...(movingPiece ?
+                 { movingPiece: movingPiece._id } :
+                 {}
+                )}
+              />
+            </div>
+          </div>
         </Grid>
         <Grid item xs={1} />
         <Grid item xs={1} md="auto" />
         <Grid item xs={10} md={4}>
-          <NotatedHistory history={game.history} />
+          <NotatedHistory history={game.history} startSide={game.puzzle.sideToMove}/>
         </Grid>
         <Grid item xs={1} />
         <Grid item xs={1} md={5} />

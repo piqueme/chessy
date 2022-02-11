@@ -10,6 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import NotFoundPage from './NotFoundPage'
 import useGame from './useGame'
 import Board from './Board'
+import NotatedHistory from './NotatedHistory'
 import type { Square as SquareData } from '@chessy/core'
 import { atSquare } from '@chessy/core'
 
@@ -97,9 +98,11 @@ function GamePage(): JSX.Element {
             )}
           />
         </Grid>
-        <Grid item xs={1} md={2} />
-        <Grid item xs={1} md={0} />
-        <Grid item xs={10} md={3} />
+        <Grid item xs={1} />
+        <Grid item xs={1} md="auto" />
+        <Grid item xs={10} md={4}>
+          <NotatedHistory history={game.history} />
+        </Grid>
         <Grid item xs={1} />
         <Grid item xs={1} md={5} />
         <Grid item xs={10} md={2}>

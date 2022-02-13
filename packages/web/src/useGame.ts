@@ -114,7 +114,7 @@ type SyncState = 'LOADING' | 'SYNCED' | 'SYNCING' | 'UNSYNCED'
  * Performs an optimistic update of the game given a move, requesting
  * the game to be updated from the server in the background.
  */
-function move(
+async function move(
   mutate: KeyedMutator<FetchGameQueryResponse>,
   move: Move,
   game: Game,
@@ -134,7 +134,7 @@ function move(
   console.log("NEW GAME", newGame)
   mutate({ game: newGame }, false)
   console.log("API REQUEST")
-  return apiClient<MoveMutationResponse, MoveMutationVariables>(
+  await apiClient<MoveMutationResponse, MoveMutationVariables>(
     MoveMutation, { gameId: game._id, move }
   ).then(data => {
     mutate({ game: data.move.game }, false)
@@ -148,16 +148,14 @@ function remove(gameId: string): Promise<RemoveGameMutationResponse> {
   )
 }
 
-type LoadingGameResult = {
+type MoveCallback = (nextMove: Move) => Promise<void>
+type RemoveCallback = () => Promise<void>
+type GameContext = {
+  game: Game | undefined;
   syncState: SyncState;
+  move: MoveCallback | undefined;
+  remove: RemoveCallback | undefined;
 }
-type CompleteGameResult = {
-  game: Game;
-  syncState: SyncState;
-  move: (nextMove: Move) => Promise<void>;
-  remove: (gameId: string) => Promise<RemoveGameMutationResponse>
-}
-type GameContext = LoadingGameResult | CompleteGameResult;
 
 function useGame(_id: string): GameContext {
   const variables = { id: _id }
@@ -179,13 +177,18 @@ function useGame(_id: string): GameContext {
 
   const game = data?.game
   if (!game) {
-    return { syncState }
+    return {
+      game: undefined,
+      syncState,
+      move: undefined,
+      remove: undefined
+    }
   } else {
     return {
       game: data?.game,
       syncState,
       move: (nextMove: Move) => move(mutate, nextMove, game),
-      remove: () => remove(game._id)
+      remove: async () => { remove(game._id) }
     }
   }
 }

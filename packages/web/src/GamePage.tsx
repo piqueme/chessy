@@ -9,7 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 
 import NotFoundPage from './NotFoundPage'
 import useGame from './useGame'
-import Board from './Board'
+import Board from './board/Board'
 import NotatedHistory from './NotatedHistory'
 import type { Square as SquareData } from '@chessy/core'
 import { atSquare } from '@chessy/core'
@@ -55,31 +55,29 @@ function GamePage(): JSX.Element {
   const { game, syncState, move, remove } = useGame(params['gameId'])
 
   useEffect(() => {
-    console.log("")
     const { from, to } = builtMove
-    if (from && to) {
-      move(builtMove).then(() => {
+    if (from && to && move) {
+      move({ from, to }).then(() => {
         dispatch({ type: 'CLEAR' })
       })
     }
   }, [builtMove])
 
-
   if (syncState === 'LOADING') {
     return <CircularProgress />
-  } else if (syncState === 'UNSYNCED') {
+  } else if (!game || !move || !remove) {
     return <div> ERROR! </div>
   }
 
-  const handleMoveStart = ({ square }: { square: SquareData }) => {
+  const handleMoveStart = (square: SquareData) => {
     dispatch({ type: 'START', payload: square })
   }
 
-  const handleMoveEnd = ({ square }: { square: SquareData }) => {
+  const handleMoveEnd = (square: SquareData) => {
     dispatch({ type: 'END', payload: square })
   }
 
-  const movingPiece = builtMove.from ? atSquare(builtMove.from, game.board) : null
+  const movingPieceId = builtMove.from ? atSquare(builtMove.from, game.board)?._id : undefined
 
   return (
     <Fade in={!isNavigating} timeout={transitionDuration}>
@@ -94,14 +92,13 @@ function GamePage(): JSX.Element {
             <div css={{ width: '100%', maxWidth: '75vh' }}>
               <Board
                 board={game.board}
-                viewSide={game.puzzle.sideToMove}
-                moveSide={game.sideToMove}
-                onMoveStart={handleMoveStart}
-                onMoveEnd={handleMoveEnd}
-                {...(movingPiece ?
-                 { movingPiece: movingPiece._id } :
-                 {}
-                )}
+                isAnimated
+                showLabels
+                sideToView={game.puzzle.sideToMove}
+                sideToMove={game.sideToMove}
+                onPieceDragStart={handleMoveStart}
+                onPieceDrop={handleMoveEnd}
+                {...(movingPieceId ? { movingPieceId } : {})}
               />
             </div>
           </div>

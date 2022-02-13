@@ -5,12 +5,11 @@ import type { CSSObject } from '@emotion/react'
 type Props = {
   piece: PieceData;
   size?: number | string;
-  isMovable?: boolean;
-  onMoveStart?: () => void;
+  onDragStart?: (piece: PieceData) => void;
   cssOverrides?: CSSObject;
 }
 
-const piecePositions: Record<PieceData['type'], number> = {
+const colForPieceInBackgroundImage: Record<PieceData['type'], number> = {
   king: 0,
   queen: 1,
   rook: 4,
@@ -19,31 +18,38 @@ const piecePositions: Record<PieceData['type'], number> = {
   pawn: 5
 }
 
-const sidePositions: Record<PieceData['side'], number> = {
+const rowForSideInBackgroundImage: Record<PieceData['side'], number> = {
   black: 1,
   white: 0,
 }
 
-// TODO: Potentially separate Chess Piece into "Draggable" and "Non-Draggable"
-export default function ChessPiece({
+/**
+ * Renders a chess piece. Gets piece image from pieces.svg asset.
+ */
+function Piece({
   piece,
   size = 48,
-  isMovable = false,
-  onMoveStart,
+  onDragStart,
   cssOverrides = {},
 }: Props): JSX.Element {
+
+  const isDraggable = !!onDragStart
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'piece',
     item: () => {
-      console.log("is movable", isMovable)
-      onMoveStart && onMoveStart()
+      console.log(`Received drag for piece: ${piece}`)
+      onDragStart && onDragStart(piece)
       return piece
     },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
-    canDrag: isMovable,
+    canDrag: isDraggable,
   }))
+
+  const backgroundSize = `600% 200%`
+  const topPositionInBG = `calc(${rowForSideInBackgroundImage[piece.side]} * 300%)`
+  const leftPositionInBG = `calc(${colForPieceInBackgroundImage[piece.type]} * 20%)`
 
   return (
     <div
@@ -51,13 +57,14 @@ export default function ChessPiece({
       css={{
         opacity: isDragging ? 0.5 : 1,
         backgroundImage: 'url("/pieces.svg")',
-        backgroundSize: `600% 200%`,
+        backgroundSize,
         width: size,
         height: size,
-        backgroundPosition: `top calc(${sidePositions[piece.side]} * 300%) left calc(${piecePositions[piece.type]} * 20%)`,
+        backgroundPosition: `top ${topPositionInBG} left ${leftPositionInBG}`,
         ...cssOverrides,
       }}
     />
   )
 }
 
+export default Piece

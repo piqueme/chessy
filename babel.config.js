@@ -3,10 +3,12 @@
 module.exports = {
   presets: [
     ['@babel/preset-env', { targets: { node: 'current' } }],
-    '@babel/preset-react',
-    '@babel/preset-typescript'
+    ['@babel/preset-react'],
+    '@babel/preset-typescript',
+    '@emotion/babel-preset-css-prop',
   ],
   plugins: [
-    "babel-plugin-transform-import-meta"
+    "@emotion",
+    "babel-plugin-transform-import-meta",
   ]
 };

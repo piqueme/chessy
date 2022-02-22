@@ -5,6 +5,7 @@
     "dev": "vite",
     "check": "tsc",
     "test": "yarn g:test --selectProjects @chessy/web",
+    "clean": "rm -rf ./build",
     "build": "vite build",
     "serve": "vite preview"
   },

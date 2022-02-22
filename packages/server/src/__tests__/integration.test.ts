@@ -34,6 +34,7 @@ describe('API integration tests', () => {
 
   beforeAll(async () => {
     testingConfig = await testConfig()
+    console.log("TESTING CONFIG", JSON.stringify(testingConfig, null, 2))
     server = await createServer({ overrideConfig: testingConfig })
   })
 

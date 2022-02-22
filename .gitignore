@@ -8,15 +8,16 @@ reports/
 mongod-x64-pop-5.0.3 
 
 .yarn/*
+# Cache included for Zero-installs
+!.yarn/cache
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
 
-# Swap the comments on the following lines if you don't wish to use zero-installs
 # Documentation here: https://yarnpkg.com/features/zero-installs
-.pnp.*
+# .pnp.* (Commented out for Zero-Installs)
 
 # generated / collected puzzle files
 blunders

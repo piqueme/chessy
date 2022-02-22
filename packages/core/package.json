@@ -20,8 +20,9 @@
     "build"
   ],
   "scripts": {
+    "prepack": "yarn build",
     "build": "yarn g:tsc -p tsconfig.json && yarn g:tsc -p tsconfig-cjs.json",
-    "clean": "rm -rf ./build && rm tsconfig.tsbuildinfo",
+    "clean": "rm -rf ./build",
     "dev": "yarn g:tsc -b -w --preserveWatchOutput",
     "test": "yarn g:test --selectProjects @chessy/core"
   },

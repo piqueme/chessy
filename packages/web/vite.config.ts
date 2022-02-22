@@ -8,5 +8,8 @@ export default defineConfig({
     babel: {
       plugins: ["@emotion/babel-plugin"],
     }
-  })]
+  })],
+  build: {
+    outDir: 'build'
+  }
 })

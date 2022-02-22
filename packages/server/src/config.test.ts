@@ -6,12 +6,16 @@ export default async(): Promise<Config & { testDBHandle: MongoMemoryServer }> =>
   const databaseURI = mongod.getUri()
 
   return {
-    clientOrigin: 'https://127.0.0.1:3000',
+    clientOrigin: 'http://127.0.0.1:3000',
+    clientIP: '127.0.0.1',
+    clientPort: 3000,
     serverURI: 'http://127.0.0.1:8080',
+    serverIP: '127.0.0.1',
+    serverPort: 8080,
     databaseURI,
     testDBHandle: mongod,
-    databaseUser: process.env['DB_USERNAME'] as string,
-    databasePassword: process.env['DB_PASSWORD'] as string,
+    databaseUser: undefined,
+    databasePassword: undefined,
     logging: {
       core: "silent",
       server: "silent"

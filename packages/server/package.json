@@ -17,7 +17,7 @@
     "build"
   ],
   "scripts": {
-    "build": "yarn g:tsc -p tsconfig.json",
+    "build": "yarn g:tsc -b tsconfig.json",
     "clean": "rm -rf ./build && rm tsconfig.tsbuildinfo",
     "dev": "yarn tsc-watch --onSuccess \"node ./build/server.js\"",
     "test": "yarn g:test --selectProjects @chessy/server",

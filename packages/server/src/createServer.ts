@@ -196,8 +196,8 @@ export default async ({ overrideConfig = {} }: { overrideConfig?: Partial<Config
   const mongooseOptions: MongoosePluginOptions = {
     uri: finalConfig.databaseURI,
     connectOptions: {
-      user: finalConfig.databaseUser,
-      pass: finalConfig.databasePassword,
+      ...(finalConfig.databaseUser ? { user: finalConfig.databaseUser } : {}),
+      ...(finalConfig.databasePassword ? { pass: finalConfig.databasePassword } : {}),
       autoIndex: false
     }
   }
@@ -221,7 +221,7 @@ export default async ({ overrideConfig = {} }: { overrideConfig?: Partial<Config
     server.log.info({ query: source }, 'Received a GraphQL query')
   })
 
-  server.listen(8080, (err, address) => {
+  server.listen(finalConfig.serverPort, finalConfig.serverIP, (err, address) => {
     if (err) {
       console.error(err)
       process.exit(1)

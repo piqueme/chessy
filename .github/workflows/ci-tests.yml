@@ -13,4 +13,4 @@ jobs:
       - run: yarn install --immutable --immutable-cache
       - run: yarn workspaces foreach run build
       - run: yarn g:lint
-      - run: yarn g:test
+      - run: yarn g:test --forceExit

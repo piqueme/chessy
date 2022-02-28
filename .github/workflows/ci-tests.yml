@@ -98,7 +98,7 @@ jobs:
           port: 22
           script: |
             docker login https://${{ env.REGISTRY }} -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }}
-            docker pull ${{ env.REGISTRY }}/${{ WEB_IMAGE_NAME }}:latest
-            docker pull ${{ env.REGISTRY }}/${{ API_IMAGE_NAME }}:latest
+            docker pull ${{ env.REGISTRY }}/${{ env.WEB_IMAGE_NAME }}:latest
+            docker pull ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}:latest
             docker-compose down
             docker-compose up

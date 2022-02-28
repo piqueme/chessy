@@ -97,7 +97,7 @@ jobs:
           key: ${{ secrets.DO_DROPLET_SSH_KEY }}
           port: 22
           source: "docker-compose.yml"
-          target: "/root/docker-compose.yml"
+          target: "/root"
 
       - name: Deploy web server to DigitalOcean Droplet
         uses: appleboy/ssh-action@v0.1.4

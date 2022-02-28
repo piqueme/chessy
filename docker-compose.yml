@@ -4,8 +4,9 @@ services:
     image: mongo
     container_name: mongodb
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=pass12345
+      MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/mongodb_root_username
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongodb_root_password
+      MONGO_INITDB_DATABASE: admin
     volumes:
       - mongodb-data:/data/db
     networks:
@@ -22,12 +23,12 @@ services:
     image: mongo-express
     container_name: mongo-express
     environment:
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=pass12345
-      - ME_CONFIG_BASICAUTH_USERNAME=admin
-      - ME_CONFIG_BASICAUTH_PASSWORD=admin123
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: true
+      ME_CONFIG_MONGODB_ADMINUSERNAME_FILE: /run/secrets/mongodb_root_username
+      ME_CONFIG_MONGODB_ADMINPASSWORD_FILE: /run/secrets/mongodb_root_password
+      ME_CONFIG_BASICAUTH_USERNAME_FILE: /run/secrets/mongodb_inspector_username
+      ME_CONFIG_BASICAUTH_PASSWORD_FILE: /run/secrets/mongodb_inspector_password
     depends_on:
       - mongodb
     networks:
@@ -41,18 +42,20 @@ services:
       retries: 3
     restart: unless-stopped
   backend:
-    image: piqueme/chessy-be
+    image: ghcr.io/piqueme/chessy-api
     container_name: backend
     environment:
       - DB_USERNAME=root
       - DB_PASSWORD=pass12345
       - DB_URI=mongodb://mongodb:27017
+    volumes:
+      - /root/.env:/app/.env
     networks:
       - mongodb_network
     ports:
       - 8080:8080
   frontend:
-    image: piqueme/chessy-fe
+    image: ghcr.io/piqueme/chessy-web
     container_name: frontend
     ports:
       - 80:80
@@ -62,3 +65,14 @@ volumes:
 networks:
   mongodb_network:
     name: mongodb_network
+secrets:
+  droplet_host:
+    file: ./secrets/droplet-host
+  mongodb_root_password:
+    file: ./secrets/mongodb_root_password
+  mongodb_root_username:
+    file: ./secrets/mongodb_root_username
+  mongodb_inspector_password:
+    file: ./secrets/mongodb_inspector_password
+  mongodb_inspector_username:
+    file: ./secrets/mongodb_inspector_username

@@ -1,5 +1,6 @@
 import dotenv from 'dotenv'
 import path from 'path'
+import fs from 'fs'
 import { LoggingScope as ServerLoggingScope } from './logger'
 import { LoggingScope as CoreLoggingScope } from '@chessy/core'
 
@@ -23,6 +24,12 @@ export type Config = {
   logging: Record<LoggingScope, string>;
 }
 
+async function getSecret(secretName: string): Promise<string> {
+  const secretFileName = path.join('/run', 'secrets', secretName)
+  const secret = await fs.promises.readFile(secretFileName, 'utf-8')
+  return secret.trim()
+}
+
 function getAddress(ip: string, port?: string): string {
   return port && port.length > 0 ?
     `${ip}:${port}` : ip
@@ -34,7 +41,7 @@ export default async(): Promise<Config> => {
       process.env['CLIENT_IP'] as string,
       process.env['CLIENT_PORT']
     ),
-    clientIP: process.env['CLIENT_IP'] as string,
+    clientIP: (process.env['CLIENT_IP'] || getSecret('droplet_host')) as string,
     clientPort: process.env['CLIENT_PORT'] ? parseInt(process.env['CLIENT_PORT']) : undefined,
     serverURI: getAddress(
       process.env['SERVER_IP'] as string,
@@ -43,8 +50,8 @@ export default async(): Promise<Config> => {
     serverIP: process.env['SERVER_IP'] as string,
     serverPort: parseInt(process.env['SERVER_PORT'] as string),
     databaseURI: process.env['DB_URI'] as string,
-    databaseUser: process.env['DB_USERNAME'] as string,
-    databasePassword: process.env['DB_PASSWORD'] as string,
+    databaseUser: (process.env['DB_USERNAME'] || getSecret('mongodb_root_username')) as string,
+    databasePassword: (process.env['DB_PASSWORD'] || getSecret('mongodb_root_password')) as string,
     logging: {
       core: "info",
       server: "info"

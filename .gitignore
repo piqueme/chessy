@@ -1,9 +1,10 @@
 notes/
 reports/
+secrets/
 
 **/build
 **/*.tsbuildinfo
-**/.env
+# **/.env
 
 mongod-x64-pop-5.0.3 
 

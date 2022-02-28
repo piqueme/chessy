@@ -19,8 +19,6 @@ COPY --from=builder /app/yarn.lock ./yarn.lock
 COPY --from=builder /app/.yarnrc.yml ./.yarnrc.yml
 COPY --from=builder /app/.pnp.cjs ./.pnp.cjs
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/.env ./.env
-COPY --from=builder /app/packages/server/.env ./packages/server/.env
 COPY --from=builder /app/packages/server/build ./packages/server/build
 COPY --from=builder /app/packages/server/package.json ./packages/server/package.json
 # TODO: Ideally this gets packaged through plugin or NPM packaging

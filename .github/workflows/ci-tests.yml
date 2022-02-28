@@ -1,16 +1,104 @@
 name: Unit Tests and Lint
 on: [push]
+env:
+  REGISTRY: ghcr.io
+  WEB_IMAGE_NAME: ${{ github.repository }}-web
+  API_IMAGE_NAME: ${{ github.repository }}-api
+  WEB_DOCKERFILE: ./packages/web/Dockerfile
+  API_DOCKERFILE: ./packages/server/Dockerfile
+  DO_HOME_DIR: /root
 jobs:
   Unit-Tests-And-Lint:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
+
       - name: Install Node
         uses: actions/setup-node@v2
         with:
           node-version: '16'
+
       - run: yarn install --immutable --immutable-cache
+
       - run: yarn workspaces foreach run build
+
       - run: yarn g:lint
+
       - run: yarn g:test --forceExit
+  Package:
+    needs: Unit-Tests-And-Lint
+    runs-on: ubuntu-latest
+    if: success() && github.ref == 'refs/heads/main'
+    steps:
+        - name: Check out repository code
+          uses: actions/checkout@v2
+
+        - name: Log in to Docker
+          uses: docker/login-action@v1
+          with:
+            registry: ${{ env.REGISTRY }}
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: Extract metadata for web image
+          id: meta_web
+          uses: docker/metadata-actions@v3
+          with:
+            images: ${{ env.REGISTRY }}/${{ env.WEB_IMAGE_NAME }}
+            tags: |
+              type=ref,event=branch
+
+        - name: Build and push Docker web image
+          uses: docker/build-push-action@v2
+          with:
+            context: .
+            file: ${{ env.WEB_DOCKERFILE }}
+            push: true
+            tags: ${{ steps.meta_web.outputs.tags }}
+            labels: ${{ steps.meta_web.outputs.labels }}
+
+        - name: Extract metadata for API image
+          id: meta_api
+          uses: docker/metadata-actions@v3
+          with:
+            images: ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}
+            tags: |
+              type=ref,event=branch
+
+        - name: Build and push Docker images
+          uses: docker/build-push-action@v2
+          with:
+            context: .
+            file: ${{ env.API_DOCKERFILE }}
+            push: true
+            tags: ${{ steps.meta_api.outputs.tags }}
+            labels: ${{ steps.meta_api.outputs.labels }}
+  Deploy:
+    needs: Package
+    runs-on: ubuntu-latest
+    if: success() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Copy Docker Compose file to DigitalOcean Droplet
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DO_DROPLET_HOST }}
+          username: root
+          key: ${{ secrets.DO_DROPLET_SSH_KEY }}
+          port: 22
+          source: "docker-compose.yml"
+          target: "${{ env.DO_HOME_DIR }}/docker-compose.yml"
+
+      - name: Deploy web server to DigitalOcean Droplet
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.DO_DROPLET_HOST }}
+          username: root
+          key: ${{ secrets.DO_DROPLET_SSH_KEY }}
+          port: 22
+          script: |
+            docker login https://${{ env.REGISTRY }} -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }}
+            docker pull ${{ env.REGISTRY }}/${{ WEB_IMAGE_NAME }}:latest
+            docker pull ${{ env.REGISTRY }}/${{ API_IMAGE_NAME }}:latest
+            docker-compose down
+            docker-compose up

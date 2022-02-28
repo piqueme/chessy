@@ -42,7 +42,7 @@ services:
       retries: 3
     restart: unless-stopped
   backend:
-    image: ghcr.io/piqueme/chessy-api
+    image: ghcr.io/piqueme/chessy-api:main
     container_name: backend
     environment:
       - DB_USERNAME=root
@@ -55,7 +55,7 @@ services:
     ports:
       - 8080:8080
   frontend:
-    image: ghcr.io/piqueme/chessy-web
+    image: ghcr.io/piqueme/chessy-web:main
     container_name: frontend
     ports:
       - 80:80

@@ -34,6 +34,13 @@ jobs:
         - name: Check out repository code
           uses: actions/checkout@v2
 
+        - name: Install Node
+          uses: actions/setup-node@v2
+          with:
+            node-version: '16'
+
+        - run: yarn workspace @chessy/core run build
+
         - name: Log in to Docker
           uses: docker/login-action@v1
           with:

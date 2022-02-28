@@ -111,4 +111,4 @@ jobs:
             docker pull ${{ env.REGISTRY }}/${{ env.WEB_IMAGE_NAME }}:main
             docker pull ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}:main
             docker-compose down
-            docker-compose up
+            docker-compose up -d

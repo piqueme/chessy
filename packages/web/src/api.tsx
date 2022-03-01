@@ -2,7 +2,8 @@
 import { request } from 'graphql-request'
 import type { RequestDocument } from 'graphql-request'
 
-const apiEndpoint = 'http://127.0.0.1:8080/graphql'
+const apiHost = import.meta.env['VITE_API_HOST'] as string
+const apiEndpoint = `${apiHost}/graphql`
 const apiClient = <RequestData, RequestVariables = void>(query: RequestDocument, variables?: RequestVariables): Promise<RequestData> => {
   const results = request<RequestData, RequestVariables>(apiEndpoint, query, variables)
   console.log("RESULTS", results)

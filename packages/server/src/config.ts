@@ -36,7 +36,7 @@ async function getSecret(secretName: string, fallback = ''): Promise<string> {
 
 function getAddress(ip: string, port?: string): string {
   return port && port.length > 0 ?
-    `${ip}:${port}` : ip
+    `http://${ip}:${port}` : `http://${ip}`
 }
 
 export default async(): Promise<Config> => {
@@ -46,7 +46,7 @@ export default async(): Promise<Config> => {
 
   return {
     clientOrigin: getAddress(
-      process.env['CLIENT_IP'] as string,
+      (process.env['CLIENT_IP'] || secretDropletHost) as string,
       process.env['CLIENT_PORT']
     ),
     clientIP: (process.env['CLIENT_IP'] || secretDropletHost) as string,

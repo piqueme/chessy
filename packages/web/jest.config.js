@@ -8,6 +8,9 @@ module.exports = {
     "\\.css$": 'identity-obj-proxy',
     "\\.svg$": '<rootDir>/src/__mocks__/fileMock.ts'
   },
+  coveragePathIgnorePatterns: [
+    "<rootDir>/src/config.ts"
+  ],
   snapshotSerializers: [
     '@emotion/jest/serializer'
   ],

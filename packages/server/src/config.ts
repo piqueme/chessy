@@ -24,10 +24,14 @@ export type Config = {
   logging: Record<LoggingScope, string>;
 }
 
-async function getSecret(secretName: string): Promise<string> {
+async function getSecret(secretName: string, fallback = ''): Promise<string> {
   const secretFileName = path.join('/run', 'secrets', secretName)
-  const secret = await fs.promises.readFile(secretFileName, 'utf-8')
-  return secret.trim()
+  try {
+    const secret = await fs.promises.readFile(secretFileName, 'utf-8')
+    return secret.trim()
+  } catch (e) {
+    return fallback
+  }
 }
 
 function getAddress(ip: string, port?: string): string {
@@ -36,12 +40,16 @@ function getAddress(ip: string, port?: string): string {
 }
 
 export default async(): Promise<Config> => {
+  const secretDropletHost = await getSecret('droplet_host', '127.0.0.1')
+  const secretDbUsername = await getSecret('mongodb_root_username', 'root')
+  const secretDbPassword = await getSecret('mongodb_root_password', 'pass123')
+
   return {
     clientOrigin: getAddress(
       process.env['CLIENT_IP'] as string,
       process.env['CLIENT_PORT']
     ),
-    clientIP: (process.env['CLIENT_IP'] || getSecret('droplet_host')) as string,
+    clientIP: (process.env['CLIENT_IP'] || secretDropletHost) as string,
     clientPort: process.env['CLIENT_PORT'] ? parseInt(process.env['CLIENT_PORT']) : undefined,
     serverURI: getAddress(
       process.env['SERVER_IP'] as string,
@@ -50,8 +58,8 @@ export default async(): Promise<Config> => {
     serverIP: process.env['SERVER_IP'] as string,
     serverPort: parseInt(process.env['SERVER_PORT'] as string),
     databaseURI: process.env['DB_URI'] as string,
-    databaseUser: (process.env['DB_USERNAME'] || getSecret('mongodb_root_username')) as string,
-    databasePassword: (process.env['DB_PASSWORD'] || getSecret('mongodb_root_password')) as string,
+    databaseUser: (process.env['DB_USERNAME'] || secretDbUsername) as string,
+    databasePassword: (process.env['DB_PASSWORD'] || secretDbPassword) as string,
     logging: {
       core: "info",
       server: "info"

@@ -45,14 +45,15 @@ services:
       - mongodb_inspector_username
       - mongodb_inspector_password
   backend:
-    image: ghcr.io/piqueme/chessy-api:main
+    image: piqueme/chessy-be
     container_name: backend
     environment:
       - DB_URI=mongodb://mongodb:27017
     volumes:
-      - /root/.env:/app/.env
+      - ./.env:/app/.env
     networks:
       - mongodb_network
+      - server_network
     ports:
       - 8080:8080
     secrets:
@@ -60,8 +61,10 @@ services:
       - mongodb_root_username
       - mongodb_root_password
   frontend:
-    image: ghcr.io/piqueme/chessy-web:main
+    image: piqueme/chessy-fe
     container_name: frontend
+    networks:
+      - server_network
     ports:
       - 80:80
 volumes:
@@ -70,6 +73,8 @@ volumes:
 networks:
   mongodb_network:
     name: mongodb_network
+  server_network:
+    name: server_network
 secrets:
   droplet_host:
     file: ./secrets/droplet-host

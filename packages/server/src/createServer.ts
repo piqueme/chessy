@@ -183,6 +183,7 @@ const managers: FastifyPluginAsync = async (server) => {
 export default async ({ overrideConfig = {} }: { overrideConfig?: Partial<Config> }): Promise<FastifyInstance> => {
   const baseConfig = await getConfig()
   const finalConfig = { ...baseConfig, ...overrideConfig }
+  console.log("GOT FINAL CONFIG", JSON.stringify(finalConfig, null, 2))
   logger.level = finalConfig.logging['server']
   const server = fastify({ logger })
   const coreLogger = logger.child({}, { level: finalConfig.logging['core'] })

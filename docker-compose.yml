@@ -53,6 +53,7 @@ services:
       - /root/.env:/app/.env
     networks:
       - mongodb_network
+      - server_network
     ports:
       - 8080:8080
     secrets:
@@ -62,6 +63,8 @@ services:
   frontend:
     image: ghcr.io/piqueme/chessy-web:main
     container_name: frontend
+    networks:
+      - server_network
     ports:
       - 80:80
 volumes:
@@ -70,6 +73,8 @@ volumes:
 networks:
   mongodb_network:
     name: mongodb_network
+  server_network:
+    name: server_network
 secrets:
   droplet_host:
     file: ./secrets/droplet-host

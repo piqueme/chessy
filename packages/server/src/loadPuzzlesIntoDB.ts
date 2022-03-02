@@ -7,15 +7,17 @@ import type { Puzzle } from '@chessy/core'
 
 type Options = {
   numPuzzles: number;
-  apiHost?: string;
+  apiEndpoint?: string;
 };
+
+const DEFAULT_API_ENDPOINT = 'http://127.0.0.1:8080'
 
 export async function loadPuzzlesIntoDB({
   numPuzzles,
-  apiHost = 'http://127.0.0.1:8080'
+  apiEndpoint = DEFAULT_API_ENDPOINT,
 }: Options): Promise<void> {
   const puzzles = await fetch({ numPuzzles, pause: 3000, concurrency: 1 })
-  const endpoint = urljoin(apiHost, 'graphql')
+  const endpoint = urljoin(apiEndpoint, 'graphql')
   const operationName = 'CreatePuzzle'
   const query = gql`
     mutation CreatePuzzle($puzzle: CreatePuzzleInput!) {
@@ -43,8 +45,9 @@ export async function loadPuzzlesIntoDB({
 
 (async() => {
   const numPuzzles = process.argv[2]
+  const apiEndpoint = process.argv[3] || DEFAULT_API_ENDPOINT
   if (!numPuzzles) {
     throw new Error('Missing number of puzzles argument!')
   }
-  await loadPuzzlesIntoDB({ numPuzzles: parseInt(numPuzzles) })
+  await loadPuzzlesIntoDB({ numPuzzles: parseInt(numPuzzles), apiEndpoint })
 })()

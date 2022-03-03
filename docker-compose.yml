@@ -64,32 +64,16 @@ services:
     image: ghcr.io/piqueme/chessy-web:main
     container_name: frontend
     volumes:
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
-      - certbot-webroot:/var/www/certbot
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - /var/www/certbot:/var/www/certbot
     networks:
       - server_network
     ports:
       - 80:80
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
-      - certbot-webroot:/var/www/certbot
-    depends_on:
-      - frontend
-    command: certonly --webroot --webroot-path=/var/www/certbot --email sumit.y.gogia@gmail.com --agree-tos --no-eff-email --staging -d piqued.blog -d www.piqued.blog
 volumes:
   mongodb-data:
     name: mongodb-data
-  certbot-webroot:
-    name: certbot-webroot
-  certbot-etc:
-    name: certbot-etc
-  certbot-var:
-    name: certbot-var
 networks:
   mongodb_network:
     name: mongodb_network

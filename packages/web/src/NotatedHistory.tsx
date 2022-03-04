@@ -20,12 +20,12 @@ function segmentHistoryIntoPairs(
   history: PlayerGame['history'],
   startSide: Side,
 ): NotationPair[] {
+  if (history.length === 0) { return [] }
+
   const initialPairs: NotationPair[] = startSide === 'black' ? [[null, null]] : []
   const initialChunkOffset = startSide === 'black' ? 1 : 0
   return history.reduce((pairedHistory, historyMove, index) => {
     const chunkIndex = Math.floor((index + initialChunkOffset) / 2)
-    console.log("MOVE", historyMove, chunkIndex)
-    console.log("PAIRS", { ...pairedHistory })
     const nextChunk = pairedHistory[chunkIndex]
     if (!nextChunk) {
       pairedHistory[chunkIndex] = [historyMove.notation, null]
@@ -51,7 +51,7 @@ function NotatedHistory({ history, startSide }: Props): JSX.Element {
       {presentedHistory.map(([whiteMove, blackMove], moveIndex) => {
         return (
           <div
-            key={`${whiteMove}~${blackMove}`}
+            key={`${whiteMove}~${blackMove}~${moveIndex}`}
             css={{
               width: '100%',
               display: 'flex',
@@ -64,7 +64,7 @@ function NotatedHistory({ history, startSide }: Props): JSX.Element {
               justifyContent: 'center',
               flexGrow: 0,
               backgroundColor: '#ddd',
-              fontSize: '0.9em',
+              fontSize: '1.5em',
               width: 36
             }}>
               {moveIndex}
@@ -73,9 +73,9 @@ function NotatedHistory({ history, startSide }: Props): JSX.Element {
               flexGrow: 1,
               backgroundColor: '#fefefe',
               width: 12,
-              padding: '2px 6px',
+              padding: '6px 6px',
               borderLeft: '1px solid #ccc',
-              fontSize: '0.9em'
+              fontSize: '1.5em'
             }}>
               {whiteMove}
             </div>
@@ -83,9 +83,9 @@ function NotatedHistory({ history, startSide }: Props): JSX.Element {
               flexGrow: 1,
               backgroundColor: '#fefefe',
               width: 12,
-              padding: '2px 6px',
+              padding: '6px 6px',
               borderLeft: '1px solid #ccc',
-              fontSize: '0.9em'
+              fontSize: '1.5em'
             }}>
               {blackMove}
             </div>

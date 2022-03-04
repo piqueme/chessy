@@ -9,7 +9,6 @@ const PROJECT_ROOT = path.resolve(
 )
 
 dotenv.config({ path: path.resolve(PROJECT_ROOT, '.env') })
-console.log("DOT ENV", PROJECT_ROOT, JSON.stringify(process.env, null, 2))
 
 type LoggingScope = typeof ServerLoggingScope | typeof CoreLoggingScope
 export type Config = {

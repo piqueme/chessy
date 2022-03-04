@@ -1,10 +1,10 @@
-import { createMasterGame, moveMasterGame } from '@chessy/core'
+import { createMasterGame, moveMasterGame } from '@puzlr/core'
 import type {
   HistoryMove,
   PuzzleMasterGame,
   Square,
   Puzzle
-} from '@chessy/core'
+} from '@puzlr/core'
 import { Schema } from 'mongoose'
 import logger from './logger'
 import type { Connection, Model } from 'mongoose'

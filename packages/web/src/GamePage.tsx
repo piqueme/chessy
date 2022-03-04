@@ -11,8 +11,8 @@ import NotFoundPage from './NotFoundPage'
 import useGame from './useGame'
 import Board from './board/Board'
 import NotatedHistory from './NotatedHistory'
-import type { Square as SquareData } from '@chessy/core'
-import { atSquare } from '@chessy/core'
+import type { Square as SquareData } from '@puzlr/core'
+import { atSquare } from '@puzlr/core'
 
 type BuildMoveState = { from: SquareData | null; to: SquareData | null }
 type BuildMoveAction = {

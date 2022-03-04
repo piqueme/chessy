@@ -1,9 +1,9 @@
-import { fetch } from '@chessy/puzzle-fetcher'
+import { fetch } from '@puzlr/puzzle-fetcher'
 import { gql } from 'mercurius-codegen'
 import urljoin from 'url-join'
 import axios from 'axios'
 import pmap from 'p-map'
-import type { Puzzle } from '@chessy/core'
+import type { Puzzle } from '@puzlr/core'
 
 type Options = {
   numPuzzles: number;

@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
 import { LoggingScope as ServerLoggingScope } from './logger'
-import { LoggingScope as CoreLoggingScope } from '@chessy/core'
+import { LoggingScope as CoreLoggingScope } from '@puzlr/core'
 
 const PROJECT_ROOT = path.resolve(
   path.join(__dirname, '..', '..', '..')

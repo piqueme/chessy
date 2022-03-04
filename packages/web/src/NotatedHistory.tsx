@@ -1,5 +1,5 @@
 import React from 'react'
-import type { PlayerGame, Side } from '@chessy/core'
+import type { PlayerGame, Side } from '@puzlr/core'
 
 type Props = {
   history: PlayerGame['history'];

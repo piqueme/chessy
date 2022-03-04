@@ -1,5 +1,5 @@
 {
-  "name": "@chessy/server",
+  "name": "@puzlr/server",
   "private": true,
   "packageManager": "yarn@3.0.2",
   "devDependencies": {
@@ -20,12 +20,12 @@
     "build": "yarn g:tsc -b tsconfig.json",
     "clean": "rm -rf ./build && rm -f tsconfig.tsbuildinfo",
     "dev": "yarn tsc-watch --onSuccess \"node ./build/server.js\"",
-    "test": "yarn g:test --selectProjects @chessy/server",
+    "test": "yarn g:test --selectProjects @puzlr/server",
     "serve": "yarn node build/server.js"
   },
   "dependencies": {
-    "@chessy/core": "workspace:packages/core",
-    "@chessy/puzzle-fetcher": "workspace:packages/puzzle-fetcher",
+    "@puzlr/core": "workspace:packages/core",
+    "@puzlr/puzzle-fetcher": "workspace:packages/puzzle-fetcher",
     "axios": "^0.25.0",
     "dotenv": "^10.0.0",
     "fastify": "^3.22.0",

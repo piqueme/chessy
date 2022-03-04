@@ -1,5 +1,5 @@
-import type { Puzzle } from '@chessy/core'
-import { readBoard } from '@chessy/core'
+import type { Puzzle } from '@puzlr/core'
+import { readBoard } from '@puzlr/core'
 
 export const mockPuzzle: Puzzle = {
   _id: 'test-puzzle-id',

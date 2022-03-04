@@ -1,5 +1,5 @@
 {
-  "name": "chessy",
+  "name": "puzlr",
   "private": true,
   "packageManager": "yarn@3.0.2",
   "workspaces": [
@@ -31,8 +31,8 @@
     "g:test": "jest",
     "g:lint": "eslint ./packages --ext .ts,.tsx",
     "g:viewCoverage": "xdg-open reports/lcov-report/index.html",
-    "package:local:be": "sudo docker build . -t piqueme/chessy-be -f ./packages/server/Dockerfile",
-    "package:local:fe": "sudo docker build . -t piqueme/chessy-fe -f ./packages/web/Dockerfile",
+    "package:local:be": "sudo docker build . -t piqueme/puzlr-be -f ./packages/server/Dockerfile",
+    "package:local:fe": "sudo docker build . -t piqueme/puzlr-fe -f ./packages/web/Dockerfile",
     "package:local": "yarn package:be && yarn package:fe",
     "deploy:local": "sudo docker-compose -f docker-compose-local.yml up",
     "deploy:clean": "sudo docker-compose down"

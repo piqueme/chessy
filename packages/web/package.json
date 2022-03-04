@@ -1,20 +1,20 @@
 {
-  "name": "@chessy/web",
+  "name": "@puzlr/web",
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
     "check": "tsc",
-    "test": "yarn g:test --selectProjects @chessy/web",
+    "test": "yarn g:test --selectProjects @puzlr/web",
     "clean": "rm -rf ./build",
     "build": "vite build",
     "serve": "vite preview"
   },
   "dependencies": {
-    "@chessy/core": "workspace:packages/core",
     "@emotion/react": "^11.6.0",
     "@emotion/styled": "^11.6.0",
     "@mui/icons-material": "^5.2.4",
     "@mui/material": "^5.2.3",
+    "@puzlr/core": "workspace:packages/core",
     "axios": "^0.24.0",
     "graphql": "^16.3.0",
     "graphql-request": "^4.0.0",

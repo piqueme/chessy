@@ -1,4 +1,4 @@
-import { Piece as PieceData } from '@chessy/core'
+import { Piece as PieceData } from '@puzlr/core'
 import { useDrag } from 'react-dnd'
 import type { CSSObject } from '@emotion/react'
 

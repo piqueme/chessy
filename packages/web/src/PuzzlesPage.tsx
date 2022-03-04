@@ -8,7 +8,7 @@ import PuzzleCard from './PuzzleCard'
 import { apiClient } from './api'
 import { gql } from 'graphql-request'
 
-import type { Board, Side } from '@chessy/core'
+import type { Board, Side } from '@puzlr/core'
 
 type Difficulty = 'BEGINNER' | 'INTERMEDIATE' | 'HARD'
 type ProgressState = 'PLAYING' | 'COMPLETED'

@@ -1,5 +1,5 @@
 {
-  "name": "@chessy/puzzle-fetcher",
+  "name": "@puzlr/puzzle-fetcher",
   "description": "fetch chess puzzles in bulk from major sources",
   "private": true,
   "packageManager": "yarn@3.0.2",
@@ -9,10 +9,10 @@
     "clean": "rm -rf ./build && rm -f tsconfig.tsbuildinfo",
     "build": "yarn clean && yarn g:tsc -p tsconfig.json",
     "dev": "yarn g:tsc -b -w --preserveWatchOutput",
-    "test": "yarn g:test --selectProjects @chessy/puzzle-fetcher"
+    "test": "yarn g:test --selectProjects @puzlr/puzzle-fetcher"
   },
   "dependencies": {
-    "@chessy/core": "workspace:packages/core",
+    "@puzlr/core": "workspace:packages/core",
     "@types/js-yaml": "^4.0.5",
     "axios": "^0.24.0",
     "chalk": "4",

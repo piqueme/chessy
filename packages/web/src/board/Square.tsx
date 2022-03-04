@@ -1,5 +1,5 @@
 import { useDrop } from 'react-dnd'
-import type { Square as SquareData, Piece as PieceData } from '@chessy/core'
+import type { Square as SquareData, Piece as PieceData } from '@puzlr/core'
 
 type Props = {
   square: SquareData;

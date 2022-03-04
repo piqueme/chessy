@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
-import * as core from '@chessy/core'
+import * as core from '@puzlr/core'
 import {
   fetchBlunder,
   parseBlunder,
@@ -10,7 +10,7 @@ import {
 import type {
   Blunder,
 } from '../fetching'
-import type { Board, Piece, HistoryMove } from '@chessy/core'
+import type { Board, Piece, HistoryMove } from '@puzlr/core'
 
 jest.mock('uuid', () => ({ v4: () => 'mock-id' }))
 jest.mock('axios')

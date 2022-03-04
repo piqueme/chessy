@@ -6,7 +6,7 @@ import CardMedia from '@mui/material/CardMedia'
 import CardActionArea from '@mui/material/CardActionArea'
 import ExtensionIcon from '@mui/icons-material/Extension'
 import DownloadingIcon from '@mui/icons-material/Downloading'
-import type { Side } from '@chessy/core'
+import type { Side } from '@puzlr/core'
 
 type Difficulty = 'BEGINNER' | 'INTERMEDIATE' | 'HARD'
 type ProgressState = 'PLAYING' | 'COMPLETED'

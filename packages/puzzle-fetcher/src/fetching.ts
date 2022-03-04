@@ -5,8 +5,8 @@ import {
   parseMoveNotation,
   getEnemySide,
   executeMove,
-} from '@chessy/core'
-import type { Board, Puzzle, Side, History } from '@chessy/core'
+} from '@puzlr/core'
+import type { Board, Puzzle, Side, History } from '@puzlr/core'
 
 export type Blunder = {
   id: string;

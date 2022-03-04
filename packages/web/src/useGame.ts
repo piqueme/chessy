@@ -1,9 +1,9 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
 import { apiClient } from './api'
-import { isValidMove, movePlayerGame } from '@chessy/core'
+import { isValidMove, movePlayerGame } from '@puzlr/core'
 import type { KeyedMutator } from 'swr'
-import type { Move, Puzzle, PlayerGame, Square as SquareData } from '@chessy/core'
+import type { Move, Puzzle, PlayerGame, Square as SquareData } from '@puzlr/core'
 
 type Difficulty = 'BEGINNER' | 'INTERMEDIATE' | 'HARD'
 type Game = {

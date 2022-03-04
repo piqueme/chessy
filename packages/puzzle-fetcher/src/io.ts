@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from 'uuid'
 import yaml from 'js-yaml'
 import { writeFile } from 'fs/promises'
 import mkdirp from 'mkdirp'
-import { serializeBoard } from '@chessy/core'
-import type { Puzzle } from '@chessy/core'
+import { serializeBoard } from '@puzlr/core'
+import type { Puzzle } from '@puzlr/core'
 
 export async function writePuzzles(puzzles: Puzzle[], targetDir = './'): Promise<void> {
   await mkdirp(targetDir)

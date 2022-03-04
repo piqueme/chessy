@@ -1,8 +1,8 @@
 import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import Board from '../Board'
-import { readBoard } from '@chessy/core'
-import type { Square as SquareData, Piece as PieceData } from '@chessy/core'
+import { readBoard } from '@puzlr/core'
+import type { Square as SquareData, Piece as PieceData } from '@puzlr/core'
 
 // WARNING: These tests are modestly brittle (implementation-dependent).
 

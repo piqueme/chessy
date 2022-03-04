@@ -2,7 +2,7 @@ import yargs from 'yargs/yargs'
 import chalk from 'chalk'
 import { fetch } from './fetching'
 import { writePuzzles } from './io'
-import type { Puzzle } from '@chessy/core'
+import type { Puzzle } from '@puzlr/core'
 
 type Options = {
   numPuzzles: number;

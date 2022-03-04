@@ -1,5 +1,5 @@
 {
-  "name": "@chessy/core",
+  "name": "@puzlr/core",
   "private": true,
   "packageManager": "yarn@3.0.2",
   "devDependencies": {
@@ -24,7 +24,7 @@
     "build": "yarn g:tsc -p tsconfig.json && yarn g:tsc -p tsconfig-cjs.json",
     "clean": "rm -rf ./build",
     "dev": "yarn g:tsc -b -w --preserveWatchOutput",
-    "test": "yarn g:test --selectProjects @chessy/core"
+    "test": "yarn g:test --selectProjects @puzlr/core"
   },
   "dependencies": {
     "pino": "^7.6.5",

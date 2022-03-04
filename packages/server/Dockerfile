@@ -7,8 +7,8 @@ WORKDIR /app
 # We attempt to install for the whole repo since we have Yarn cache.
 COPY . .
 RUN yarn install --immutable --immutable-cache
-RUN yarn workspaces foreach -tR --from @chessy/server run clean
-RUN yarn workspaces foreach -tR --from @chessy/server run build
+RUN yarn workspaces foreach -tR --from @puzlr/server run clean
+RUN yarn workspaces foreach -tR --from @puzlr/server run build
 
 # Our actual built image
 FROM node:16-alpine

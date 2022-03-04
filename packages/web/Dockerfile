@@ -11,7 +11,7 @@ WORKDIR /app
 
 COPY . .
 RUN yarn install --immutable --immutable-cache
-RUN yarn workspace @chessy/web build
+RUN yarn workspace @puzlr/web build
 
 FROM nginx:stable-alpine
 COPY --from=builder /app/packages/web/build /var/www

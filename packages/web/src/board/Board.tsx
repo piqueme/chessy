@@ -1,7 +1,7 @@
 import React from 'react'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { DndProvider } from 'react-dnd'
-import { getAllSquares, atSquare } from '@chessy/core'
+import { getAllSquares, atSquare } from '@puzlr/core'
 import SquareFrame from './SquareFrame'
 import Square from './Square'
 import Piece from './Piece'
@@ -10,7 +10,7 @@ import type {
   Square as SquareData,
   Piece as PieceData,
   Side
-} from '@chessy/core'
+} from '@puzlr/core'
 
 type PieceDragHandler = (square: SquareData, piece: PieceData) => void
 type PieceDropHandler = (square: SquareData, piece: PieceData) => void

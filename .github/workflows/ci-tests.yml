@@ -39,7 +39,7 @@ jobs:
           with:
             node-version: '16'
 
-        - run: yarn workspace @chessy/core run build
+        - run: yarn workspace @puzlr/core run build
 
         - name: Log in to Docker
           uses: docker/login-action@v1
